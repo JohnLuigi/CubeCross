@@ -22,8 +22,8 @@ public class CubeManager : MonoBehaviour {
 	void createCubes()
 	{
 		// set a starting point based on the number of cubes to be created
-		// this starting point should be half of the number of cubes
-		Vector3 startingPoint = new Vector3((float) (puzzleSize / 2.0f) * -1.0f, 0, 0);
+		// this starting point should be half of the number of cubes, centered at 0,0,0
+		Vector3 startingPoint = new Vector3((float) ((puzzleSize / 2.0f) * -1.0f) + 0.5f, 0, 0);
 
 		cubeArray = new GameObject[puzzleSize];
 
