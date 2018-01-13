@@ -1,4 +1,14 @@
-﻿using System.Collections;
+﻿/*  Eric Rackear's take on a number puzzle game, but in three dimensions.
+ *  Will attempt to have it work with minimal buttons, since it is intended
+ *  to be available on android/iOS
+ *
+ *  Started January 10, 2018 
+ *  
+ * */
+
+
+
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -9,23 +19,16 @@ public class CubeManager : MonoBehaviour {
 	public GameObject exampleCube;
     public GameObject exampleCubeDark;
 
-    private float pressTime;
+    private float pressTime;                    // cube deletion variables
     public float cubeKillDelay = 0.1f;
-    private float rotateTime;
+
+    private float rotateTime;                   // rotation variables
     public float rotateDelay = 0.2f;
 
-    // values for rotating the whole puzzle
-    private float minX = -360.0f;
-    private float maxX = 360.0f;
-
-    private float minY = -360.0f;
-    private float maxY = 360.0f;
-
-    public float sensX = 300.0f;
-    public float sensY = 300.0f;
-
-    float rotationX = 0.0f;
-    float rotationY = 0.0f;
+    public float rotationXSens = 200.0f;        
+    public float rotationYSens = 200.0f;
+    private float horizontalSpeed = 0.0f;
+    private float verticalSpeed = 0.0f;
 
 	// create the array of cubes that will make up the puzzle
 	void Start () {
@@ -121,23 +124,15 @@ public class CubeManager : MonoBehaviour {
     void RotatePuzzle()
     {
         if (rotateTime < rotateDelay)
-            return;
+            return;        
 
-        rotationX += Input.GetAxis("Mouse X") * sensX * Time.deltaTime;
-        rotationY += Input.GetAxis("Mouse Y") * sensY * Time.deltaTime;
-        rotationY = Mathf.Clamp(rotationY, minY, maxY);
+        horizontalSpeed = rotationXSens * Input.GetAxis("Mouse X");
+        verticalSpeed = rotationYSens * Input.GetAxis("Mouse Y");
 
-        // reverse the vertical movement when the puzzle is facing "away" from the player so movement is consitent
-        // regardless of how much the gameobject has been turned
-        if(transform.rotation.y < -90.0f || transform.rotation.y > 90.0f)
-        {
-            transform.localEulerAngles = new Vector3(-rotationY, -rotationX, 0);
-        }
-        else
-        {
-            // Originally only had this line, delete the rest of the attached if, elses to regain original funcitonality
-            transform.localEulerAngles = new Vector3(rotationY, -rotationX, 0);
-        }
+        // using the RotateAround method for X and Y axis rotation avoids a Gimbal lock (such as when
+        // Euler angles were modified previously
+        transform.RotateAround(Vector3.zero, Vector3.down, horizontalSpeed * Time.deltaTime);       // horizontal rotation
+        transform.RotateAround(Vector3.zero, Vector3.right, verticalSpeed * Time.deltaTime);        // vertical rotation
     }
 
     // initialize the cube array
