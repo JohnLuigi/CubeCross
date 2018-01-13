@@ -7,6 +7,7 @@ public class CubeManager : MonoBehaviour {
     public int puzzleSize = 10;
     public GameObject[,] cubeArray;
 	public GameObject exampleCube;
+    public GameObject exampleCubeDark;
 
     private float pressTime;
     public float cubeKillDelay = 0.1f;
@@ -125,7 +126,18 @@ public class CubeManager : MonoBehaviour {
         rotationX += Input.GetAxis("Mouse X") * sensX * Time.deltaTime;
         rotationY += Input.GetAxis("Mouse Y") * sensY * Time.deltaTime;
         rotationY = Mathf.Clamp(rotationY, minY, maxY);
-        transform.localEulerAngles = new Vector3(rotationY, -rotationX, 0);
+
+        // reverse the vertical movement when the puzzle is facing "away" from the player so movement is consitent
+        // regardless of how much the gameobject has been turned
+        if(transform.rotation.y < -90.0f || transform.rotation.y > 90.0f)
+        {
+            transform.localEulerAngles = new Vector3(-rotationY, -rotationX, 0);
+        }
+        else
+        {
+            // Originally only had this line, delete the rest of the attached if, elses to regain original funcitonality
+            transform.localEulerAngles = new Vector3(rotationY, -rotationX, 0);
+        }
     }
 
     // initialize the cube array
@@ -141,7 +153,18 @@ public class CubeManager : MonoBehaviour {
         {			
             for(int j = 0; j < puzzleSize; j++)
             {
-                GameObject newCube = Instantiate(exampleCube, startingPoint, Quaternion.identity) as GameObject;
+                GameObject newCube;
+                // we are going to alternate between dark and light cubes based on whether the current
+                // index is even or odd
+                if((i%2 == 0 && j % 2 == 0) || (i % 2 == 1 && j % 2 == 1))
+                {
+                    newCube = Instantiate(exampleCubeDark, startingPoint, Quaternion.identity) as GameObject;
+                }
+                else
+                {
+                    newCube = Instantiate(exampleCube, startingPoint, Quaternion.identity) as GameObject;
+                }
+
                 newCube.transform.localScale = Vector3.one;
                 newCube.transform.parent = gameObject.transform;        // set each cube as a child of this game manager
                                                                         // so that you can manipulate the manager's transform
