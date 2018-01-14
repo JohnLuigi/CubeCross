@@ -14,7 +14,7 @@ using UnityEngine;
 
 public class CubeManager : MonoBehaviour {
 
-    public int puzzleSize = 10;
+    public int puzzleSize;
     public GameObject[,] cubeArray;
 	public GameObject exampleCube;
     public GameObject exampleCubeDark;
@@ -30,9 +30,20 @@ public class CubeManager : MonoBehaviour {
     private float horizontalSpeed = 0.0f;
     private float verticalSpeed = 0.0f;
 
+    public float minZoom = 24.0f;               // camera control variables
+    public float maxZoom = 90.0f;
+    public float maxDistance;
+    private float newZoom;
+
+    private Bounds puzzleBounds;
+
 	// create the array of cubes that will make up the puzzle
 	void Start () {
-		
+
+        puzzleSize = 3;
+        maxDistance = (float)puzzleSize;
+
+        Camera.main.transform.position = new Vector3(0f, 0f, (puzzleSize * -1.0f) - 1.0f);
 		CreateCubes ();
 	}
 
@@ -69,6 +80,14 @@ public class CubeManager : MonoBehaviour {
 
 	}
 
+    void LateUpdate()
+    {
+        if (puzzleSize == 0)
+            return;
+        float fart = GetGreatestDistance();
+        //CameraZoom();
+    }
+
     // cast a ray at the location of the mouse click
     void CheckCube(float timePassed)
     {
@@ -97,8 +116,6 @@ public class CubeManager : MonoBehaviour {
                 rotateTime = 0.0f;  // start timer to make the puzzle not able to rotate until enough time has passed
             }
         }
-
-
     }
 
     // do this at the end up each update to keep track of how long LMB has been pressed
@@ -176,12 +193,41 @@ public class CubeManager : MonoBehaviour {
 
     void CameraZoom()
     {
+        newZoom = Mathf.Lerp(maxZoom, minZoom, GetGreatestDistance() / maxDistance);
+
+        Camera.main.fieldOfView = Mathf.Lerp(Camera.main.fieldOfView, newZoom, Time.deltaTime);
+
         /*
         float newZoom = Mathf.Lerp(maxZoom, minZoom, GetGreatestDistance() / zoomLimiter);
 
         cam.fieldOfView = Mathf.Lerp(cam.fieldOfView, newZoom, Time.deltaTime);
 
         */
+    }
+
+    float GetGreatestDistance()
+    {
+        //TODO 
+        // redo this find max two cubes method
+        // it is very inefficient and performance expensive
+        puzzleBounds = new Bounds(cubeArray[0, 0].transform.position, Vector3.zero);
+
+        // you can get the length of a specific array dimension with "nameofArray".GetLength("dimension")
+        for (int i = 0; i < cubeArray.GetLength(0); i++)
+        {
+            for(int j = 0; j < cubeArray.GetLength(1); j++)
+            {
+                // only factor in cubes that are active when finding the max distance
+                if (cubeArray[i, j].activeSelf)
+                    puzzleBounds.Encapsulate(cubeArray[i, j].transform.position);
+            }
+        }
+
+        // returnt he greatest ditance of the box that includes all cubes, either vertical or horizontal distance
+        Debug.Log("bounds x " + (puzzleBounds.size.x + 1.0f) + " bounds y: " + (puzzleBounds.size.y + 1.0f));
+        return Mathf.Max(puzzleBounds.size.x, puzzleBounds.size.y) + 1.0f;
+
+
     }
 
     void CameraMove()

@@ -205,15 +205,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f95fb31e13d675e45a0add47a187424a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  puzzleSize: 10
   exampleCube: {fileID: 1044050213757572, guid: c9b3acc735a797b4ca2563e63ec9f71c,
     type: 2}
   exampleCubeDark: {fileID: 1692143240157808, guid: c8464366a54ade64cbfb89b7e82589ab,
     type: 2}
   cubeKillDelay: 0.1
   rotateDelay: 0.2
-  sensX: 300
-  sensY: 300
+  rotationXSens: 200
+  rotationYSens: 200
+  minZoom: 24
+  maxZoom: 90
+  maxDistance: 10
 --- !u!4 &290909259
 Transform:
   m_ObjectHideFlags: 0
@@ -607,7 +609,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1795553978}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -6}
+  m_LocalPosition: {x: 0, y: 0, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
