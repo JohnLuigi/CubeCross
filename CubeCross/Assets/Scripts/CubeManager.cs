@@ -14,7 +14,7 @@ using UnityEngine;
 
 public class CubeManager : MonoBehaviour {
 
-    public int puzzleSize;
+    public int puzzleSize = 4;
     public GameObject[,] cubeArray;
 	public GameObject exampleCube;
     public GameObject exampleCubeDark;
@@ -30,25 +30,35 @@ public class CubeManager : MonoBehaviour {
     private float horizontalSpeed = 0.0f;
     private float verticalSpeed = 0.0f;
 
-    public float minZoom = 24.0f;               // camera control variables
-    public float maxZoom = 90.0f;
+    public float minZoom;               // camera control variables
+    public float maxZoom;
     public float maxDistance;
-    private float newZoom;
+    //private float newZoom;
 
+    private float smoothTime = 1.0f;    // time it will take to do the entire zoom
+    private Vector3 velocity = Vector3.zero;    // velocity reference to be used by the smoothDamp function
+
+    //private int maxCubeLayer;                   // this value will track the furthest layer of cubes from the center
+                                                // to determine how far away the camera should be
     private Bounds puzzleBounds;
 
 	// create the array of cubes that will make up the puzzle
-	void Start () {
-
-        puzzleSize = 3;
+	public void Start () {
         maxDistance = (float)puzzleSize;
 
-        Camera.main.transform.position = new Vector3(0f, 0f, (puzzleSize * -1.0f) - 1.0f);
+        minZoom = (float)puzzleSize;
+        maxZoom = (float)puzzleSize + 3.0f;
+
+        //maxCubeLayer = puzzleSize - 1;      // the furthest cube will start at the highest index
+
+        Camera.main.transform.position = new Vector3(0f, 0f, ((float)puzzleSize * -1.0f) - 1.0f);
 		CreateCubes ();
+
+        puzzleBounds = new Bounds(cubeArray[0, 0].transform.position, Vector3.zero);
 	}
 
-	void Update () {
-		
+	public void Update () {		
+
         // cube check/deletion block
         // if the player left clicks once, see if a cube is hit
 
@@ -80,16 +90,17 @@ public class CubeManager : MonoBehaviour {
 
 	}
 
-    void LateUpdate()
+    private void LateUpdate()
     {
         if (puzzleSize == 0)
             return;
-        float fart = GetGreatestDistance();
-        //CameraZoom();
+
+        UpdateBounds();
+        CameraMove();
     }
 
     // cast a ray at the location of the mouse click
-    void CheckCube(float timePassed)
+    private void CheckCube(float timePassed)
     {
         // if the player has not been holding down the left mouse button, continue with checking the cube
         // otherwise, they are lifting up after dragging for a while, so don't try to delete a cube
@@ -102,24 +113,24 @@ public class CubeManager : MonoBehaviour {
         if(Physics.Raycast(ray, out hitPoint, Mathf.Infinity))
         {
             // if we hit a cube that is part of the solution, punish the player
-            if(hitPoint.collider.tag == "KeyCube")
+            if (hitPoint.collider.tag == "KeyCube")
             {
                 Debug.Log("This cube is cube needs to stay.");
             }
 
             // if we hit a cube that is not part of the solution, "delete" the cube
-            else if(hitPoint.collider.tag == "BlankCube")
+            else if (hitPoint.collider.tag == "BlankCube")
             {
                 // TODO
                 // make an animation for deleting a blank cube
-                hitPoint.transform.gameObject.SetActive(false);
+                hitPoint.transform.gameObject.SetActive(false); // hide the selected cube
                 rotateTime = 0.0f;  // start timer to make the puzzle not able to rotate until enough time has passed
             }
         }
     }
 
     // do this at the end up each update to keep track of how long LMB has been pressed
-    void UpdatePressTime()
+    private void UpdatePressTime()
     {
         // add the amount of time for the frame to how long the player has been pressing down
         // in order to see if they have been dragging long enough to not try to delete a cube 
@@ -137,8 +148,30 @@ public class CubeManager : MonoBehaviour {
         }
     }
 
+    // search the cube array for the object that is about to be deleted
+    // TODO add a third index for 3d arrays
+    private ArrayIndex FindObjectIndex(GameObject inputObject)
+    {
+        int index1 = 0;
+        int index2 = 0;
+
+        for (int i = 0; i < cubeArray.GetLength(0); i++)
+        {
+            for(int j = 0; j < cubeArray.GetLength(1); j++)
+            {
+                if (cubeArray[i,j] == inputObject)
+                {
+                    index1 = i;
+                    index2 = j;
+                }
+            }
+        }
+
+        return new ArrayIndex(index1, index2);
+    }
+
     // rotate this gameObject to also affect all the cubes that are a child of it
-    void RotatePuzzle()
+    private void RotatePuzzle()
     {
         if (rotateTime < rotateDelay)
             return;        
@@ -147,13 +180,13 @@ public class CubeManager : MonoBehaviour {
         verticalSpeed = rotationYSens * Input.GetAxis("Mouse Y");
 
         // using the RotateAround method for X and Y axis rotation avoids a Gimbal lock (such as when
-        // Euler angles were modified previously
-        transform.RotateAround(Vector3.zero, Vector3.down, horizontalSpeed * Time.deltaTime);       // horizontal rotation
-        transform.RotateAround(Vector3.zero, Vector3.right, verticalSpeed * Time.deltaTime);        // vertical rotation
+        // Euler angles were modified previously        
+        transform.RotateAround(puzzleBounds.center, Vector3.down, horizontalSpeed * Time.deltaTime);       // horizontal rotation
+        transform.RotateAround(puzzleBounds.center, Vector3.right, verticalSpeed * Time.deltaTime);        // vertical rotation
     }
 
     // initialize the cube array
-    void CreateCubes()
+    private void CreateCubes()
 	{
 		// set a starting point based on the number of cubes to be created
 		// this starting point should be half of the number of cubes, centered at 0,0,0
@@ -191,26 +224,13 @@ public class CubeManager : MonoBehaviour {
 		}
 	}
 
-    void CameraZoom()
-    {
-        newZoom = Mathf.Lerp(maxZoom, minZoom, GetGreatestDistance() / maxDistance);
-
-        Camera.main.fieldOfView = Mathf.Lerp(Camera.main.fieldOfView, newZoom, Time.deltaTime);
-
-        /*
-        float newZoom = Mathf.Lerp(maxZoom, minZoom, GetGreatestDistance() / zoomLimiter);
-
-        cam.fieldOfView = Mathf.Lerp(cam.fieldOfView, newZoom, Time.deltaTime);
-
-        */
-    }
-
-    float GetGreatestDistance()
+    private void UpdateBounds()
     {
         //TODO 
         // redo this find max two cubes method
         // it is very inefficient and performance expensive
-        puzzleBounds = new Bounds(cubeArray[0, 0].transform.position, Vector3.zero);
+        puzzleBounds.center = Vector3.zero;
+        puzzleBounds.size = Vector3.zero;
 
         // you can get the length of a specific array dimension with "nameofArray".GetLength("dimension")
         for (int i = 0; i < cubeArray.GetLength(0); i++)
@@ -219,25 +239,59 @@ public class CubeManager : MonoBehaviour {
             {
                 // only factor in cubes that are active when finding the max distance
                 if (cubeArray[i, j].activeSelf)
+                {
                     puzzleBounds.Encapsulate(cubeArray[i, j].transform.position);
+                }
             }
         }
-
-        // returnt he greatest ditance of the box that includes all cubes, either vertical or horizontal distance
-        Debug.Log("bounds x " + (puzzleBounds.size.x + 1.0f) + " bounds y: " + (puzzleBounds.size.y + 1.0f));
-        return Mathf.Max(puzzleBounds.size.x, puzzleBounds.size.y) + 1.0f;
-
-
     }
 
-    void CameraMove()
+    // this moves the camera to keep it centered on the puzzle and in view, evne whiel spinning it around
+    private void CameraMove()
     {
-        /*
-        Vector3 centerPoint = GetCenterPoint();
+        // get the largest dimension of the puzzle
+        float[] boundsDimensions = { puzzleBounds.size.x, puzzleBounds.size.y, puzzleBounds.size.z };
+        float zValue = Mathf.Max(boundsDimensions);
 
-        Vector3 newPosition = centerPoint + offset;
+        //TODO
+        //tweak this offset so that it isn't always at the maximum
+        // maybe check the rotation of the parent (gamemanager object) and see if it is facing in such a way that
+        // won't require the camera to be extremely far away
+        float newZ = ((3.0f / 2.0f) * zValue) - 1.5f;
+        Vector3 offset = new Vector3(0,0, newZ * -1.0f);
+        //Vector3 offset = new Vector3(0, 0, (-1.0f * zValue) - 1.0f);
 
-        transform.position = Vector3.SmoothDamp(transform.position, newPosition, ref velocity, smoothTime);
-        */
+        // set the target for the camera to be at the longest distance away from the puzzle
+        // TODO
+        // update this to be less than the maximum distance when the object is long but not necessarily unable to fit onscreen
+        // at the moment if the object is rectangular, it will stay on screen when it is on its side, but
+        // if the short dimension is facing the camera, it is too far zoomed out to be able to comfortably click on cubes
+        Vector3 newPosition = puzzleBounds.center + offset;
+
+        Camera.main.transform.position = Vector3.SmoothDamp(Camera.main.transform.position, newPosition, ref velocity, smoothTime);
+        
     }
+}
+
+// TODO
+// update this to add a third dimension for 3 dimensional arrays
+// This class stores array indices to be used when checking for new and old arrays
+// can create an instance by using:
+//      ArrayIndex index = new ArrayIndex(first, second);
+// and then access the indices via:
+// index.firstIndex
+// index.secondIndex
+// if need be create set/get methods
+public class ArrayIndex
+{
+    public int firstIndex;
+    public int secondIndex;
+
+    // instantiate an instance of this item with public variables that can be directly accessed
+    public ArrayIndex(int first, int second)
+    {
+        firstIndex = first;
+        secondIndex = second;
+    }
+
 }
