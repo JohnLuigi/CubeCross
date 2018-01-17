@@ -15,7 +15,7 @@ using UnityEngine;
 public class CubeManager : MonoBehaviour {
 
     public int puzzleSize = 4;
-    public GameObject[,] cubeArray;
+    public GameObject[,,] cubeArray;            // this three dimensional array will contain all the cubes for the puzzle
 	public GameObject exampleCube;
     public GameObject exampleCubeDark;
 
@@ -35,7 +35,7 @@ public class CubeManager : MonoBehaviour {
     public float maxDistance;
     //private float newZoom;
 
-    private float smoothTime = 1.0f;    // time it will take to do the entire zoom
+    private float smoothTime = 2.0f;    // time it will take to do the entire zoom
     private Vector3 velocity = Vector3.zero;    // velocity reference to be used by the smoothDamp function
 
     //private int maxCubeLayer;                   // this value will track the furthest layer of cubes from the center
@@ -54,8 +54,9 @@ public class CubeManager : MonoBehaviour {
         Camera.main.transform.position = new Vector3(0f, 0f, ((float)puzzleSize * -1.0f) - 1.0f);
 		CreateCubes ();
 
-        puzzleBounds = new Bounds(cubeArray[0, 0].transform.position, Vector3.zero);
-	}
+        puzzleBounds = new Bounds(cubeArray[0, 0, 0].transform.position, Vector3.zero);
+        UpdateBounds();
+    }
 
 	public void Update () {		
 
@@ -95,7 +96,7 @@ public class CubeManager : MonoBehaviour {
         if (puzzleSize == 0)
             return;
 
-        UpdateBounds();
+        //UpdateBounds();
         CameraMove();
     }
 
@@ -125,6 +126,7 @@ public class CubeManager : MonoBehaviour {
                 // make an animation for deleting a blank cube
                 hitPoint.transform.gameObject.SetActive(false); // hide the selected cube
                 rotateTime = 0.0f;  // start timer to make the puzzle not able to rotate until enough time has passed
+                UpdateBounds();
             }
         }
     }
@@ -154,20 +156,25 @@ public class CubeManager : MonoBehaviour {
     {
         int index1 = 0;
         int index2 = 0;
+        int index3 = 0;
 
         for (int i = 0; i < cubeArray.GetLength(0); i++)
         {
             for(int j = 0; j < cubeArray.GetLength(1); j++)
             {
-                if (cubeArray[i,j] == inputObject)
+                for(int k = 0; k < cubeArray.GetLength(2); k++)
                 {
-                    index1 = i;
-                    index2 = j;
-                }
+                    if (cubeArray[i, j, k] == inputObject)
+                    {
+                        index1 = i;
+                        index2 = j;
+                        index3 = k;
+                    }
+                }                
             }
         }
 
-        return new ArrayIndex(index1, index2);
+        return new ArrayIndex(index1, index2, index3);
     }
 
     // rotate this gameObject to also affect all the cubes that are a child of it
@@ -189,40 +196,63 @@ public class CubeManager : MonoBehaviour {
     private void CreateCubes()
 	{
 		// set a starting point based on the number of cubes to be created
-		// this starting point should be half of the number of cubes, centered at 0,0,0
-		Vector3 startingPoint = new Vector3((float) ((puzzleSize / 2.0f) * -1.0f) + 0.5f, (float)((puzzleSize / 2.0f) * -1.0f) + 0.5f, 0);
+		// this starting point should be half of the number of cubes, centered at 0.5 units from there due to the cubes being 1 unit
+		Vector3 startingPoint = new Vector3((float) ((puzzleSize / 2.0f) * -1.0f) + 0.5f, (float)((puzzleSize / 2.0f) * -1.0f) + 0.5f,
+            (float)((puzzleSize / 2.0f) * -1.0f) + 0.5f);
 
-		cubeArray = new GameObject[puzzleSize,puzzleSize];
+        // TODO
+        // Update this so that the dimensions of the puzzle aren't always a cube, sometimes it might be rectangular
+		cubeArray = new GameObject[puzzleSize, puzzleSize, puzzleSize];
 
-		for (int i = 0; i < puzzleSize; i++)
+		for (int i = 0; i < cubeArray.GetLength(0); i++)
         {			
-            for(int j = 0; j < puzzleSize; j++)
+            for(int j = 0; j < cubeArray.GetLength(1); j++)
             {
-                GameObject newCube;
-                // we are going to alternate between dark and light cubes based on whether the current
-                // index is even or odd
-                if((i%2 == 0 && j % 2 == 0) || (i % 2 == 1 && j % 2 == 1))
+                for(int k = 0; k < cubeArray.GetLength(2); k++)
                 {
-                    newCube = Instantiate(exampleCubeDark, startingPoint, Quaternion.identity) as GameObject;
-                }
-                else
-                {
-                    newCube = Instantiate(exampleCube, startingPoint, Quaternion.identity) as GameObject;
-                }
+                    GameObject newCube;
+                    // we are going to alternate between dark and light cubes based on whether the current
+                    // index is even or odd
+                    if(k % 2 == 0)
+                    {
+                        if ((i % 2 == 0 && j % 2 == 0) || (i % 2 == 1 && j % 2 == 1))
+                        {
+                            newCube = Instantiate(exampleCubeDark, startingPoint, Quaternion.identity) as GameObject;
+                        }
+                        else
+                        {
+                            newCube = Instantiate(exampleCube, startingPoint, Quaternion.identity) as GameObject;
+                        }
+                    }
+                    else
+                    {
+                        if ((i % 2 == 0 && j % 2 == 0) || (i % 2 == 1 && j % 2 == 1))
+                        {
+                            newCube = Instantiate(exampleCube, startingPoint, Quaternion.identity) as GameObject;
+                        }
+                        else
+                        {
+                            newCube = Instantiate(exampleCubeDark, startingPoint, Quaternion.identity) as GameObject;
+                        }
+                    }
+                    
 
-                newCube.transform.localScale = Vector3.one;
-                newCube.transform.parent = gameObject.transform;        // set each cube as a child of this game manager
-                                                                        // so that you can manipulate the manager's transform
-                                                                        // to manipualte all the cubes
-                cubeArray[i,j] = newCube;
+                    newCube.transform.localScale = Vector3.one;
+                    newCube.transform.parent = gameObject.transform;        // set each cube as a child of this game manager
+                                                                            // so that you can manipulate the manager's transform
+                                                                            // to manipualte all the cubes
+                    cubeArray[i, j, k] = newCube;
 
-                startingPoint += new Vector3(1.0f, 0, 0);
+                    startingPoint += new Vector3(1.0f, 0, 0);
+                }
+                // reset and update the starting position for the next row
+                startingPoint += new Vector3((float)puzzleSize * -1.0f, 1.0f, 0);
             }
-            // reset and update the starting position for the next row
-            startingPoint += new Vector3((float)puzzleSize * -1.0f, 1.0f, 0);
-			
-		}
-	}
+            // reset and update the starting position for the next grid
+            startingPoint += new Vector3(0, (float)puzzleSize * -1.0f, 1.0f);
+        }
+        
+    }
 
     private void UpdateBounds()
     {
@@ -237,16 +267,19 @@ public class CubeManager : MonoBehaviour {
         {
             for(int j = 0; j < cubeArray.GetLength(1); j++)
             {
-                // only factor in cubes that are active when finding the max distance
-                if (cubeArray[i, j].activeSelf)
+                for (int k = 0; k < cubeArray.GetLength(2); k++)
                 {
-                    puzzleBounds.Encapsulate(cubeArray[i, j].transform.position);
-                }
+                    // only factor in cubes that are active when finding the max distance
+                    if (cubeArray[i, j, k].activeSelf)
+                    {
+                        puzzleBounds.Encapsulate(cubeArray[i, j, k].transform.position);
+                    }
+                }                    
             }
         }
     }
 
-    // this moves the camera to keep it centered on the puzzle and in view, evne whiel spinning it around
+    // this moves the camera to keep it centered on the puzzle and in view, even while spinning it around
     private void CameraMove()
     {
         // get the largest dimension of the puzzle
@@ -256,9 +289,9 @@ public class CubeManager : MonoBehaviour {
         //TODO
         //tweak this offset so that it isn't always at the maximum
         // maybe check the rotation of the parent (gamemanager object) and see if it is facing in such a way that
-        // won't require the camera to be extremely far away
-        float newZ = ((3.0f / 2.0f) * zValue) - 1.5f;
-        Vector3 offset = new Vector3(0,0, newZ * -1.0f);
+        // won't require the camera to be extremely far away        
+        float newZ = ((-3.0f / 2.0f) * zValue) - 1.5f;
+        Vector3 offset = new Vector3(0,0, newZ);
         //Vector3 offset = new Vector3(0, 0, (-1.0f * zValue) - 1.0f);
 
         // set the target for the camera to be at the longest distance away from the puzzle
@@ -286,12 +319,13 @@ public class ArrayIndex
 {
     public int firstIndex;
     public int secondIndex;
+    public int thirdIndex;
 
     // instantiate an instance of this item with public variables that can be directly accessed
-    public ArrayIndex(int first, int second)
+    public ArrayIndex(int first, int second, int third)
     {
         firstIndex = first;
         secondIndex = second;
+        thirdIndex = third;
     }
-
 }
