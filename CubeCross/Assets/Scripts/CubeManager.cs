@@ -12,6 +12,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+
 public class CubeManager : MonoBehaviour {
 
     public int puzzleSize = 4;
@@ -41,6 +42,8 @@ public class CubeManager : MonoBehaviour {
     //private int maxCubeLayer;                   // this value will track the furthest layer of cubes from the center
                                                 // to determine how far away the camera should be
     private Bounds puzzleBounds;
+
+    private List<GameObject> deletedCubes = new List<GameObject>();    // list of the deleted cubes, can be used to "undo" deletions
 
 	// create the array of cubes that will make up the puzzle
 	public void Start () {
@@ -83,8 +86,29 @@ public class CubeManager : MonoBehaviour {
         // (this will also check that enough time has passed)
         if(Input.GetMouseButtonUp(0))
         {
-            CheckCube(pressTime);
+            CheckCube(pressTime, 0);
             pressTime = 0.0f;
+        }
+
+        // temporary way to check inactive cubes with a right click
+        if(Input.GetMouseButtonUp(1))
+        {
+            CheckCube(pressTime, 1);
+            pressTime = 0.0f;
+        }
+
+        // if the player presses Z, return the last cube that was deleted to the puzzle
+        // this will mostly be used for debugging or puzzle creation
+        if(Input.GetKeyUp("z"))
+        {
+            // make the last deleted cube visible again
+            // then remove it from the list of deleted cubes
+            if(deletedCubes.Count != 0)
+            {
+                deletedCubes[deletedCubes.Count - 1].SetActive(true);
+                deletedCubes.RemoveAt(deletedCubes.Count - 1);
+            }
+            
         }
 
         UpdatePressTime();
@@ -101,34 +125,60 @@ public class CubeManager : MonoBehaviour {
     }
 
     // cast a ray at the location of the mouse click
-    private void CheckCube(float timePassed)
+    private void CheckCube(float timePassed, int mouseClickType)
     {
         // if the player has not been holding down the left mouse button, continue with checking the cube
         // otherwise, they are lifting up after dragging for a while, so don't try to delete a cube
         if (timePassed > cubeKillDelay)
             return;
 
-        RaycastHit hitPoint;
+        // if a raycast is made, create an array of all the objects hit
+        RaycastHit[] hits;
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        hits = Physics.RaycastAll(ray);
 
-        if(Physics.Raycast(ray, out hitPoint, Mathf.Infinity))
-        {
-            // if we hit a cube that is part of the solution, punish the player
-            if (hitPoint.collider.tag == "KeyCube")
+        // only check for a closest hit cube if any cubes were hit
+        if(hits.Length > 0)
+        {            
+            int minIndex = 0;
+            float minDistance = hits[0].distance;
+
+            // iterate through
+            for (int i = 1; i < hits.Length; i++)
             {
-                Debug.Log("This cube is cube needs to stay.");
+                // if we find an object closer to the camera than the stored object
+                if(hits[i].distance < minDistance)
+                {
+                    // update the minimum object and distance
+                    minIndex = i;
+                    minDistance = hits[i].distance;
+                }
             }
 
-            // if we hit a cube that is not part of the solution, "delete" the cube
-            else if (hitPoint.collider.tag == "BlankCube")
+            // now the index "minIndex" has the cube closest to the camera
+            GameObject closestCube = hits[minIndex].transform.gameObject;
+
+            // if the cube hit is part of the puzzle, punish the player for trying to delete it
+            if(closestCube.tag == "KeyCube")
+            {
+                Debug.Log("This cube is part of the solution and needs to stay. PUNISH");
+            }
+            // if the cube is not part of hte puzzle hide it
+            else if(closestCube.tag == "BlankCube")
             {
                 // TODO
-                // make an animation for deleting a blank cube
-                hitPoint.transform.gameObject.SetActive(false); // hide the selected cube
+                //make an animation for deleting a blank cube, play it here
+                deletedCubes.Add(closestCube);
+                closestCube.SetActive(false);
                 rotateTime = 0.0f;  // start timer to make the puzzle not able to rotate until enough time has passed
                 UpdateBounds();
             }
         }
+        
+        // TODO BIG ONE ******************************************************************
+        // Include the row deletion here
+        // go through the array of cubes that were hit
+        // If the hit cubes are in the same row/column as the first one, delete it while the button is held down        
     }
 
     // do this at the end up each update to keep track of how long LMB has been pressed
@@ -306,14 +356,13 @@ public class CubeManager : MonoBehaviour {
     }
 }
 
-// TODO
-// update this to add a third dimension for 3 dimensional arrays
 // This class stores array indices to be used when checking for new and old arrays
 // can create an instance by using:
-//      ArrayIndex index = new ArrayIndex(first, second);
+//      ArrayIndex index = new ArrayIndex(first, second, third);
 // and then access the indices via:
 // index.firstIndex
 // index.secondIndex
+// index.thirdIndex
 // if need be create set/get methods
 public class ArrayIndex
 {
@@ -329,3 +378,36 @@ public class ArrayIndex
         thirdIndex = third;
     }
 }
+
+//TODO
+// Use this as an example for changing the material of the cubes to something that can be transparent
+/*
+ * 
+ * public class ExampleClass : MonoBehaviour
+{
+    void Update()
+    {
+        RaycastHit[] hits;
+        hits = Physics.RaycastAll(transform.position, transform.forward, 100.0F);
+
+        for (int i = 0; i < hits.Length; i++)
+        {
+            RaycastHit hit = hits[i];
+            Renderer rend = hit.transform.GetComponent<Renderer>();
+
+            if (rend)
+            {
+                // Change the material of all hit colliders
+                // to use a transparent shader.
+                rend.material.shader = Shader.Find("Transparent/Diffuse");
+                Color tempColor = rend.material.color;
+                tempColor.a = 0.3F;
+                rend.material.color = tempColor;
+            }
+        }
+    }
+}
+ * 
+ * 
+ * 
+ */
