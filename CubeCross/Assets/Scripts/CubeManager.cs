@@ -45,8 +45,8 @@ public class CubeManager : MonoBehaviour {
 
     private List<GameObject> deletedCubes = new List<GameObject>();    // list of the deleted cubes, can be used to "undo" deletions
 
-	// create the array of cubes that will make up the puzzle
-	public void Start () {
+    // create the array of cubes that will make up the puzzle
+    public void Start () {
         maxDistance = (float)puzzleSize;
 
         minZoom = (float)puzzleSize;
@@ -70,8 +70,8 @@ public class CubeManager : MonoBehaviour {
         // if the player drags around the object for over a second, don't make it try to delete a cube
         // only have it delete a cube if the player immediately clicks on a cube
 
-        // if the mouse is being continuously held down, rotate the entire puzzle about the origin
-        if(Input.GetMouseButton(0))
+        // if the RMB is being continuously held down, rotate the entire puzzle about the average center of itself
+        if(Input.GetMouseButton(1))
         {
             RotatePuzzle();
         }
@@ -90,13 +90,6 @@ public class CubeManager : MonoBehaviour {
             pressTime = 0.0f;
         }
 
-        // temporary way to check inactive cubes with a right click
-        if(Input.GetMouseButtonUp(1))
-        {
-            CheckCube(pressTime, 1);
-            pressTime = 0.0f;
-        }
-
         // if the player presses Z, return the last cube that was deleted to the puzzle
         // this will mostly be used for debugging or puzzle creation
         if(Input.GetKeyUp("z"))
@@ -107,12 +100,10 @@ public class CubeManager : MonoBehaviour {
             {
                 deletedCubes[deletedCubes.Count - 1].SetActive(true);
                 deletedCubes.RemoveAt(deletedCubes.Count - 1);
-            }
-            
+            }            
         }
 
         UpdatePressTime();
-
 	}
 
     private void LateUpdate()
@@ -133,33 +124,19 @@ public class CubeManager : MonoBehaviour {
             return;
 
         // if a raycast is made, create an array of all the objects hit
-        RaycastHit[] hits;
+        RaycastHit[] hits;                          // an array that holds the cubes hit when holding LMB
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         hits = Physics.RaycastAll(ray);
 
         // only check for a closest hit cube if any cubes were hit
         if(hits.Length > 0)
-        {            
-            int minIndex = 0;
-            float minDistance = hits[0].distance;
-
-            // iterate through
-            for (int i = 1; i < hits.Length; i++)
-            {
-                // if we find an object closer to the camera than the stored object
-                if(hits[i].distance < minDistance)
-                {
-                    // update the minimum object and distance
-                    minIndex = i;
-                    minDistance = hits[i].distance;
-                }
-            }
-
-            // now the index "minIndex" has the cube closest to the camera
-            GameObject closestCube = hits[minIndex].transform.gameObject;
+        {
+            // sort the array of hits to be from closest to furthest so the hits[0] index is the closest cube to the camera
+            SortCubes(hits);
+            GameObject closestCube = hits[0].transform.gameObject;
 
             // if the cube hit is part of the puzzle, punish the player for trying to delete it
-            if(closestCube.tag == "KeyCube")
+            if (closestCube.tag == "KeyCube")
             {
                 Debug.Log("This cube is part of the solution and needs to stay. PUNISH");
             }
@@ -351,8 +328,27 @@ public class CubeManager : MonoBehaviour {
         // if the short dimension is facing the camera, it is too far zoomed out to be able to comfortably click on cubes
         Vector3 newPosition = puzzleBounds.center + offset;
 
-        Camera.main.transform.position = Vector3.SmoothDamp(Camera.main.transform.position, newPosition, ref velocity, smoothTime);
-        
+        Camera.main.transform.position = Vector3.SmoothDamp(Camera.main.transform.position, newPosition, ref velocity, smoothTime);        
+    }
+
+    // selection sort to make sure the list of objects hit are ordered from closest to furthest
+    private void SortCubes(RaycastHit[] hits)
+    {
+        RaycastHit tempHit;
+
+        for(int i = 0; i < hits.Length - 1; i++)
+        {
+            for(int j = i + 1; j < hits.Length; j++)
+            {
+                if (hits[j].distance < hits[i].distance)
+                {
+                    tempHit = hits[j];
+                    hits[j] = hits[i];
+                    hits[i] = tempHit;
+                    j++;
+                }
+            }
+        }
     }
 }
 
