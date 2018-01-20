@@ -22,6 +22,7 @@ GameObject:
   - component: {fileID: 33634243730190874}
   - component: {fileID: 65509086104727124}
   - component: {fileID: 23864083342517564}
+  - component: {fileID: 114427838069884398}
   m_Layer: 0
   m_Name: 1_Cube_D
   m_TagString: BlankCube
@@ -95,3 +96,17 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &114427838069884398
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1692143240157808}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0220435b62bd56b4a8cab3d329d4a799, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  index1: 0
+  index2: 0
+  index3: 0
