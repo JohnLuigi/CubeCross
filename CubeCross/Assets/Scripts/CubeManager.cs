@@ -12,7 +12,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-
 public class CubeManager : MonoBehaviour {
 
     public int puzzleSize = 4;
@@ -22,8 +21,8 @@ public class CubeManager : MonoBehaviour {
 
     private float pressTime;                    // cube deletion variables
     public float cubeKillDelay = 0.1f;
-    public float rowDeletionDelay = 1.0f;       // delay until you can start deleting an entire row by holding down LMB
-    private float sequentialDeletionDelay = 0.5f;    // delay until each cube in a row is deleted while holding down LMB
+    public float rowDeletionDelay = 0.5f;       // delay until you can start deleting an entire row by holding down LMB
+    public float sequentialDeletionDelay = 0.2f;    // delay until each cube in a row is deleted while holding down LMB
     private float sequentialDeletionTracker = 0.0f;
     private bool mouseDown = false;
 
@@ -46,9 +45,8 @@ public class CubeManager : MonoBehaviour {
     //private int maxCubeLayer;                   // this value will track the furthest layer of cubes from the center
                                                 // to determine how far away the camera should be
     private Bounds puzzleBounds;
-
-
-    private RaycastHit[] hits;                          // an array that holds the cubes hit when holding LMB
+    
+    private RaycastHit[] hits;                       // an array that holds the cubes hit when holding LMB
     private List<GameObject> deletedCubes = new List<GameObject>();    // list of the deleted cubes, can be used to "undo" deletions
 
     // create the array of cubes that will make up the puzzle
@@ -172,6 +170,8 @@ public class CubeManager : MonoBehaviour {
             hits = Physics.RaycastAll(ray);
             // sort the array of hits to be from closest to furthest so the hits[0] index is the closest cube to the camera
             SortCubes(hits);
+            PruneCubes(ref hits);
+
             mouseDown = false;
         }
         else if(timePassed >= rowDeletionDelay)
@@ -179,8 +179,10 @@ public class CubeManager : MonoBehaviour {
             // only check for a closest hit cube if any cubes were hit
             if (hits.Length > 0)
             {
+                /*
                 // prune the array of cubes that are not to be deleted
                 PruneCubes(hits);
+                */
 
                 // this is the cube being deleted, it is the closest to the camera and still in the same row/column
                 GameObject closestCube = hits[0].transform.gameObject;
@@ -192,36 +194,46 @@ public class CubeManager : MonoBehaviour {
                 {
                     // TODO
                     // somewhere in here delete the cubes at a delayed pace
-
-
                     // if we have confirmed that the mouse is still over the cube to be deleted, delete te cube
-                    //if (hit.transform.gameObject == closestCube && sequentialDeletionTracker <= sequentialDeletionDelay)
                     if (hit.transform.gameObject == closestCube)
                     {
-                        // if the cube hit is part of the puzzle, punish the player for trying to delete it
-                        if (closestCube.tag == "KeyCube")
+                        if (sequentialDeletionTracker >= sequentialDeletionDelay)
                         {
-                            Debug.Log("This cube is part of the solution and needs to stay. PUNISH");
+                            // if the cube hit is part of the puzzle, punish the player for trying to delete it
+                            if (closestCube.tag == "KeyCube")
+                            {
+                                Debug.Log("This cube is part of the solution and needs to stay. PUNISH");
+                            }
+                            // if the cube is not part of hte puzzle hide it
+                            else if (closestCube.tag == "BlankCube")
+                            {                               
+                                // TODO
+                                //make an animation for deleting a blank cube, play it here
+                                deletedCubes.Add(closestCube);
+
+                                // remove the cube from the hit cubes array
+                                List<RaycastHit> tempList = new List<RaycastHit>(hits);
+                                tempList.Remove(hits[0]);
+                                hits = tempList.ToArray();
+                                
+                                closestCube.SetActive(false);
+
+                                sequentialDeletionTracker = 0.0f;
+                                rotateTime = 0.0f;  // start timer to make the puzzle not able to rotate until enough time has passed
+                                // TODO
+                                // might need to reenable this line
+                                //UpdateBounds();
+                            }
                         }
-                        // if the cube is not part of hte puzzle hide it
-                        else if (closestCube.tag == "BlankCube")
+                        // break out of the loop if the cube isn't the closest or if enough time hasn't passed until the next
+                        // chance to delete cubes
+                        else
                         {
-                            // TODO
-                            //make an animation for deleting a blank cube, play it here
-                            deletedCubes.Add(closestCube);
-
-                            // remove the cube from the hit cubes array
-                            List<RaycastHit> tempList = new List<RaycastHit>(hits);
-                            tempList.Remove(hits[0]);
-                            hits = tempList.ToArray();
-
-                            closestCube.SetActive(false);            
-
-                            sequentialDeletionTracker = 0.0f;
-                            rotateTime = 0.0f;  // start timer to make the puzzle not able to rotate until enough time has passed
-                            UpdateBounds();
+                            sequentialDeletionTracker += Time.deltaTime;
                         }
+
                     }
+                    
                 }                
             }
         }
@@ -427,42 +439,100 @@ public class CubeManager : MonoBehaviour {
     }
 
     // this will remove the cubes that are not in the same row and column as the first cube
-    private void PruneCubes(RaycastHit[] hits)
+    private void PruneCubes(ref RaycastHit[] hitArray)
     {
-        if(hits.Length >= 2)
+        if(hitArray.Length >= 2)
         {
-            GameObject firstCube = hits[0].transform.gameObject;
-            GameObject testCube;
+            GameObject firstCube = hitArray[0].transform.gameObject;
+            GameObject testCube = hitArray[1].transform.gameObject;
 
-            for(int i = 1; i < hits.Length; i++)
+            // depending on whether the second closest cube has the same i, j, or k, corrdinates, 
+            // see if the rest of the coordinates of the other ray-hit cubes have the same pair of similar coordinates
+            int checkType = 0;  // this will be the type of comparison being made, as in comparing i and j,
+                                // j and k, or i and k
+            if(firstCube.GetComponent<CubeScript>().index1 == testCube.GetComponent<CubeScript>().index1
+                && firstCube.GetComponent<CubeScript>().index2 == testCube.GetComponent<CubeScript>().index2)
             {
-                testCube = hits[i].transform.gameObject;
+                checkType = 1;
+            }
+            else if (firstCube.GetComponent<CubeScript>().index1 == testCube.GetComponent<CubeScript>().index1
+                && firstCube.GetComponent<CubeScript>().index3 == testCube.GetComponent<CubeScript>().index3)
+            {
+                checkType = 2;
+            }
+            else if (firstCube.GetComponent<CubeScript>().index2 == testCube.GetComponent<CubeScript>().index2
+                 && firstCube.GetComponent<CubeScript>().index3 == testCube.GetComponent<CubeScript>().index3)
+            {
+                checkType = 3;
+            }
+            
+            // now that we have the two coordinates that the cubes have in common, make sure the rest of the cubes
+            // in the initially hit array all have the same two axes as the first
+            
+            for(int i = 2; i < hitArray.Length; i++)
+            {
+                testCube = hitArray[i].transform.gameObject;
 
                 // TODO
                 // There may be issues here in the future when determining if allt he cubes are in the same row
                 // these are the three possible cases where the cubes are in the same row or column as the first cube
-                if ((firstCube.GetComponent<CubeScript>().index1 == testCube.GetComponent<CubeScript>().index1
-                   && firstCube.GetComponent<CubeScript>().index2 == testCube.GetComponent<CubeScript>().index2)
-                   ||
-                   (firstCube.GetComponent<CubeScript>().index1 == testCube.GetComponent<CubeScript>().index1
-                   && firstCube.GetComponent<CubeScript>().index3 == testCube.GetComponent<CubeScript>().index3)
-                   ||
-                   (firstCube.GetComponent<CubeScript>().index2 == testCube.GetComponent<CubeScript>().index2
-                   && firstCube.GetComponent<CubeScript>().index3 == testCube.GetComponent<CubeScript>().index3)
-                   )
+
+                // TODO
+                // refactor and clean this code up
+                
+                if(checkType == 1)
                 {
-                    // don't delete the cube
+                    if((firstCube.GetComponent<CubeScript>().index1 != testCube.GetComponent<CubeScript>().index1
+                    || firstCube.GetComponent<CubeScript>().index2 != testCube.GetComponent<CubeScript>().index2))
+                    {
+                        // ugly way to remove the cube from the array of hit objects
+                        // in the future store the hit objects from the array in a list
+                        List<RaycastHit> tempList = new List<RaycastHit>(hitArray);
+                        tempList.Remove(hitArray[i]);
+                        hits = tempList.ToArray();
+                    }
                 }
-                else
+
+                else if(checkType == 2)
                 {
-                    // ugly way to remove the cube from the array of hit objects
-                    // in the future store the hit objects from the array in a list
-                    List<RaycastHit> tempList = new List<RaycastHit>(hits);
-                    tempList.Remove(hits[i]);
-                    hits = tempList.ToArray();
+                    if (firstCube.GetComponent<CubeScript>().index1 != testCube.GetComponent<CubeScript>().index1
+                    || firstCube.GetComponent<CubeScript>().index3 != testCube.GetComponent<CubeScript>().index3)
+                    {
+                        // ugly way to remove the cube from the array of hit objects
+                        // in the future store the hit objects from the array in a list
+                        List<RaycastHit> tempList = new List<RaycastHit>(hitArray);
+                        tempList.Remove(hitArray[i]);
+                        hits = tempList.ToArray();
+                    }
+                }
+
+                else if(checkType == 3)
+                {
+                    if (firstCube.GetComponent<CubeScript>().index2 != testCube.GetComponent<CubeScript>().index2
+                 || firstCube.GetComponent<CubeScript>().index3 != testCube.GetComponent<CubeScript>().index3)
+                    {
+                        // ugly way to remove the cube from the array of hit objects
+                        // in the future store the hit objects from the array in a list                        
+                        List<RaycastHit> tempList = new List<RaycastHit>(hitArray);
+                        tempList.Remove(hitArray[i]);
+                        hits = tempList.ToArray();
+
+                    }
                 }
             }
-        }        
+            
+            
+
+        }
+    }
+
+    private void LogInfo(int x)
+    {
+        Debug.Log("hits length: " + hits.Length + "\nItem " + x +
+            "\ni: " + hits[x].transform.gameObject.GetComponent<CubeScript>().index1
+            + "\nj: " + hits[x].transform.gameObject.GetComponent<CubeScript>().index2
+            + "\nk: " + hits[x].transform.gameObject.GetComponent<CubeScript>().index3);
+
     }
 }
 

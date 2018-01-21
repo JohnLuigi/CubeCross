@@ -205,12 +205,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f95fb31e13d675e45a0add47a187424a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  puzzleSize: 6
+  puzzleSize: 4
   exampleCube: {fileID: 1044050213757572, guid: c9b3acc735a797b4ca2563e63ec9f71c,
     type: 2}
   exampleCubeDark: {fileID: 1692143240157808, guid: c8464366a54ade64cbfb89b7e82589ab,
     type: 2}
   cubeKillDelay: 0.1
+  rowDeletionDelay: 0.5
+  sequentialDeletionDelay: 0.2
   rotateDelay: 0.2
   rotationXSens: 200
   rotationYSens: 200
