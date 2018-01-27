@@ -37,7 +37,6 @@ public class CubeManager : MonoBehaviour {
     public float minZoom;               // camera control variables
     public float maxZoom;
     public float maxDistance;
-    //private float newZoom;
 
     private float smoothTime = 2.0f;    // time it will take to do the entire zoom
     private Vector3 velocity = Vector3.zero;    // velocity reference to be used by the smoothDamp function
@@ -48,6 +47,16 @@ public class CubeManager : MonoBehaviour {
     
     private RaycastHit[] hits;                       // an array that holds the cubes hit when holding LMB
     private List<GameObject> deletedCubes = new List<GameObject>();    // list of the deleted cubes, can be used to "undo" deletions
+
+    public GameObject xSlider;      // The three objects that will be dragged by the player to hide layers of the puzzle
+    private Plane movePlane;
+
+    public bool rotatableUp = true;  // This variable will track if we can vertically rotate the puzzle or not
+    public bool rotatableDown = true;
+    /*
+    public GameObject ySlider;
+    public GameObject zSlider;
+    */
 
     // create the array of cubes that will make up the puzzle
     public void Start () {
@@ -63,6 +72,12 @@ public class CubeManager : MonoBehaviour {
 
         puzzleBounds = new Bounds(cubeArray[0, 0, 0].transform.position, Vector3.zero);
         UpdateBounds();
+
+        // set the initial location of the x, y, and z sliders
+        // and make their parents this gameObject (the game manager) so that when we rotate the puzzle, the slider move with it
+        xSlider.transform.position += new Vector3(puzzleSize, 0, 0);
+        xSlider.transform.parent = gameObject.transform;
+        movePlane = new Plane(new Vector3(0, 0, -1), xSlider.transform.position);
     }
 
 	public void Update () {		
@@ -93,7 +108,8 @@ public class CubeManager : MonoBehaviour {
         // left mouse button
         if(Input.GetMouseButton(0))
         {            
-            LongCheckCubes(pressTime);
+            LongCheckCubes(pressTime);            
+            //Slider();
         }
 
         // when the mouse button is released, check if the cube can be deleted
@@ -117,7 +133,11 @@ public class CubeManager : MonoBehaviour {
                 deletedCubes.RemoveAt(deletedCubes.Count - 1);
             }            
         }
+
         UpdatePressTime();
+
+        Debug.Log("x rotation is: " + transform.eulerAngles.x);
+
 	}
 
     private void LateUpdate()
@@ -158,7 +178,34 @@ public class CubeManager : MonoBehaviour {
             }
         } 
     }
+/*
+    // methods to handle the sliding of the layer controllers
+    private void Slider()
+    {
+        // change the i,j layers (x axis in Unity), moving through the k coordinates
+        RaycastHit hit;
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+               
+        if(Physics.Raycast(ray, out hit, Mathf.Infinity))
+        {
+            if (hit.transform.gameObject.tag != "XSlider")
+                return;
+            else
+            {
+                movePlane = new Plane(hit.transform.forward, xSlider.transform.position);
 
+                float hitDistance;
+                if (movePlane.Raycast(ray, out hitDistance))
+                {
+                    //Vector3 newPosition = 
+                    xSlider.transform.position = ray.GetPoint(hitDistance);
+                }
+            }
+            // and Y silders and Z sliders here
+        }
+        
+    }
+*/
     // this method is used while the left mouse button is held down
     private void LongCheckCubes(float timePassed)
     {
@@ -291,15 +338,120 @@ public class CubeManager : MonoBehaviour {
     private void RotatePuzzle()
     {
         if (rotateTime < rotateDelay)
-            return;        
+            return;
 
         horizontalSpeed = rotationXSens * Input.GetAxis("Mouse X");
         verticalSpeed = rotationYSens * Input.GetAxis("Mouse Y");
+
+        // will use this to track where the puzzle is being rotated, since we'll need special handling around 0 rotation
+        float prevXRotation = transform.eulerAngles.x;
 
         // using the RotateAround method for X and Y axis rotation avoids a Gimbal lock (such as when
         // Euler angles were modified previously        
         transform.RotateAround(puzzleBounds.center, Vector3.down, horizontalSpeed * Time.deltaTime);       // horizontal rotation
         transform.RotateAround(puzzleBounds.center, Vector3.right, verticalSpeed * Time.deltaTime);        // vertical rotation
+/*
+        // if we are trying to rotate the cube upwards, we want to cap this movement at 90 degrees
+        if(verticalSpeed > 0 && rotatableUp)
+        {           
+            transform.RotateAround(puzzleBounds.center, Vector3.right, verticalSpeed * Time.deltaTime);        // vertical rotation
+                                                                                                                // if the object was able to rotate up, it can now rotate down again
+            rotatableDown = true;
+            // if previous rotation was between 0 and 90, cap to 90
+            if (prevXRotation >= 0 && prevXRotation <= 90)
+            {
+                // if the new rotation is more than 90, make it no longer rotatable up
+                if (transform.eulerAngles.x > 90)
+                {
+                    // set the rotation to be 90, and switch value for rotatableUp
+                    //transform.eulerAngles = new Vector3(90f, transform.eulerAngles.y, transform.eulerAngles.z);
+                    rotatableUp = false;
+                }
+            }                      
+        }
+        // we are trying to rotate the cube downwards
+        // make the rotation
+        // if the previous rotation was between 359 and 270, see if the resulting rotation will be less than 270
+        // if it will be less than 270, make the cube no longer rotatable
+        else if(verticalSpeed < 0 && rotatableDown)
+        {
+            transform.RotateAround(puzzleBounds.center, Vector3.right, verticalSpeed * Time.deltaTime);        // vertical rotation
+                                                                                                                // if the object was able to rotate down, it can now rotate up again
+            rotatableUp = true;
+            // if previous rotation was between 270 and 360, cap to 270
+            if (prevXRotation >= 270 && prevXRotation < 360)
+            {
+                // if the new rotation is less than 270, make it no longer rotatable up
+                if (transform.eulerAngles.x < 270)
+                {
+                    // set the rotation to be 270, and switch value for rotatableDown
+                    //transform.eulerAngles = new Vector3(270f, transform.eulerAngles.y, transform.eulerAngles.z);
+                    rotatableDown = false;
+                }
+            }
+        }
+*/
+        //if (!rotatableUp && transform.eulerAngles.x < 90f)
+        //    rotatableDown = true;
+        //if (!rotatableDown && transform.eulerAngles.x > 270f)
+        //    rotatableUp = true;
+
+        /*
+                //Vector3 testPoint = transform.eulerAngles;
+                //transform.RotateAround(testPoint, Vector3.right, verticalSpeed * Time.deltaTime);
+                if(rotatable)
+                {
+                    //if we are rotating the object up, cap at 90
+                    if (verticalSpeed > 0)
+                    {
+                        // if the rotation is between 0 and 90
+                        if (currentXRotation >= 0 && currentXRotation <= 90)
+                        {
+                            // rotate since it is within bounds
+                            transform.RotateAround(puzzleBounds.center, Vector3.right, verticalSpeed * Time.deltaTime); // vertical rotation
+                        }
+                        // if the rotation is between 270 and 359
+                        else if (currentXRotation >= 270 && currentXRotation < 360)
+                        {
+                            transform.RotateAround(puzzleBounds.center, Vector3.right, verticalSpeed * Time.deltaTime); // vertical rotation
+                        }
+                    }
+                    // if we are rotation the object down, cap at 270
+                    else if (verticalSpeed < 0)
+                    {
+                        if (oldXRotation >= 0f && transform.eulerAngles.x <= 360f)
+                        {
+                            ClampXRotation(270f, 360f);
+                        }
+                        else if (oldXRotation <= 90f && transform.eulerAngles.x >= 0f)
+                        {
+                            ClampXRotation(0f, 90f);
+                        }
+
+                    }
+                }
+          
+*/
+// OLD WORKING LINE
+//        transform.RotateAround(puzzleBounds.center, Vector3.right, verticalSpeed * Time.deltaTime);        // vertical rotation
+
+        // TODO this isn't working
+        //transform.eulerAngles = new Vector3(Mathf.Clamp(transform.eulerAngles.x, 0f, 90f),
+         //   transform.eulerAngles.y, transform.eulerAngles.z);
+        // don't allow the X-rotation (vertical) to be greater than 90 degrees or less than -90 degrees
+        // for vertical rotation, clamp movement to be within 270 and 360
+
+
+
+
+
+
+
+    }
+
+    private void RotatableStatus()
+    {
+        
     }
 
     // initialize the cube array
