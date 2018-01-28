@@ -133,10 +133,28 @@ public class CubeManager : MonoBehaviour {
                 deletedCubes.RemoveAt(deletedCubes.Count - 1);
             }            
         }
+/*
+        if (Input.GetKey(KeyCode.UpArrow))
+        {
+            Vector3 newRotation = new Vector3(transform.eulerAngles.x + 1f, transform.eulerAngles.y, transform.eulerAngles.z);
+            transform.eulerAngles = newRotation;
+        }
 
+        if (Input.GetKey(KeyCode.DownArrow))
+        {
+            Vector3 newRotation = new Vector3(transform.eulerAngles.x - 1f, transform.eulerAngles.y, transform.eulerAngles.z);
+            transform.eulerAngles = newRotation;
+        }
+
+        if (Input.GetKey(KeyCode.RightArrow))
+        {
+            Vector3 newRotation = new Vector3(transform.eulerAngles.x, transform.eulerAngles.y + 1f, transform.eulerAngles.z);
+            transform.eulerAngles = newRotation;
+        }
+*/
         UpdatePressTime();
 
-        Debug.Log("x rotation is: " + transform.eulerAngles.x);
+        //Debug.Log("x rotation is: " + transform.eulerAngles.x);
 
 	}
 
@@ -349,7 +367,30 @@ public class CubeManager : MonoBehaviour {
         // using the RotateAround method for X and Y axis rotation avoids a Gimbal lock (such as when
         // Euler angles were modified previously        
         transform.RotateAround(puzzleBounds.center, Vector3.down, horizontalSpeed * Time.deltaTime);       // horizontal rotation
-        transform.RotateAround(puzzleBounds.center, Vector3.right, verticalSpeed * Time.deltaTime);        // vertical rotation
+
+        // the desired vertical angle will be verticalSpeed * Time.deltaTime
+        Vector3 desiredRot = new Vector3(transform.eulerAngles.x + (verticalSpeed * Time.deltaTime),
+            transform.eulerAngles.y, transform.eulerAngles.z);
+
+        // see if the angle will be within bounds
+        // first check whether the previous angle was within 0 and 90
+        if(prevXRotation >= 0 && prevXRotation < 90)
+        {
+            if (desiredRot.x > 90)
+                desiredRot = new Vector3(89.9f, transform.eulerAngles.y, transform.eulerAngles.z);
+        }
+        // check if the angle is within 270 and 360
+        else if(prevXRotation > 270 && prevXRotation < 360)
+        {
+            if (desiredRot.x < 270)
+                desiredRot = new Vector3(270.1f, transform.eulerAngles.y, transform.eulerAngles.z);
+        }
+
+        transform.rotation = Quaternion.Euler(desiredRot);
+
+        //transform.RotateAround(puzzleBounds.center, Vector3.right, verticalSpeed * Time.deltaTime);        // vertical rotation
+
+        
 /*
         // if we are trying to rotate the cube upwards, we want to cap this movement at 90 degrees
         if(verticalSpeed > 0 && rotatableUp)
@@ -391,6 +432,8 @@ public class CubeManager : MonoBehaviour {
             }
         }
 */
+
+/*
         //if (!rotatableUp && transform.eulerAngles.x < 90f)
         //    rotatableDown = true;
         //if (!rotatableDown && transform.eulerAngles.x > 270f)
