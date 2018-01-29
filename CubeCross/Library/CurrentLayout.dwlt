@@ -110,7 +110,7 @@ MonoBehaviour:
   m_MinSize: {x: 911, y: 442}
   m_MaxSize: {x: 22006, y: 14042}
   vertical: 0
-  controlID: 95
+  controlID: 9
 --- !u!114 &6
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -516,8 +516,8 @@ MonoBehaviour:
   m_PersistentViewDataDictionary: {fileID: 0}
   m_TreeViewState:
     scrollPos: {x: 0, y: 0}
-    m_SelectedIDs: 
-    m_LastClickedID: 0
+    m_SelectedIDs: 0e280000
+    m_LastClickedID: 10254
     m_ExpandedIDs: 9efbffff00000000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
@@ -580,18 +580,18 @@ MonoBehaviour:
     m_ShowAllHits: 0
     m_SearchArea: 0
     m_Folders:
-    - Assets/Scripts
+    - Assets/Prefabs
   m_ViewMode: 1
   m_StartGridSize: 65
   m_LastFolders:
-  - Assets/Scripts
+  - Assets/Prefabs
   m_LastFoldersGridSize: 65
   m_LastProjectPath: C:\Users\Owner\Documents\GitHub\CubeCross\CubeCross
   m_IsLocked: 0
   m_FolderTreeState:
     scrollPos: {x: 0, y: 0}
-    m_SelectedIDs: 8a270000
-    m_LastClickedID: 10122
+    m_SelectedIDs: 6c270000
+    m_LastClickedID: 10092
     m_ExpandedIDs: 00000000662700008627000000ca9a3bffffff7f
     m_RenameOverlay:
       m_UserAcceptedRename: 0
