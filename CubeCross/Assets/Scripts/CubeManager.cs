@@ -45,15 +45,21 @@ public class CubeManager : MonoBehaviour {
     private RaycastHit[] hits;                       // an array that holds the cubes hit when holding LMB
     private List<GameObject> deletedCubes = new List<GameObject>();    // list of the deleted cubes, can be used to "undo" deletions
 
-    public GameObject xSlider;      // The three objects that will be dragged by the player to hide layers of the puzzle
-    private Plane movePlane;
+    //public GameObject xSlider;      // The three objects that will be dragged by the player to hide layers of the puzzle
+    //private Plane movePlane;
     /*
     public GameObject ySlider;
     public GameObject zSlider;
     */
 
     public Vector3 mainRotation;
-    private GameObject managerReference;
+    //private GameObject managerReference;
+
+    // TODO
+    // decide on how far away and where to place the sliders for X, Y, and Z
+    // starting distance for the sliders
+    public float sliderDistance;
+    public Vector3 zSliderStart = new Vector3();
 
     // create the array of cubes that will make up the puzzle
     public void Start () {
@@ -61,23 +67,33 @@ public class CubeManager : MonoBehaviour {
 
         minZoom = (float)puzzleSize;
         maxZoom = (float)puzzleSize + 3.0f;
+//************************************************************************************
+        // ORIGINAL
+        //Camera.main.transform.position = new Vector3(0f, 0f, ((float)puzzleSize * -1.0f) - 1.0f);
+        Camera.main.transform.position = new Vector3(0f, 0f, (10f * -1.0f) - 1.0f);
+//************************************************************************************
 
-        Camera.main.transform.position = new Vector3(0f, 0f, ((float)puzzleSize * -1.0f) - 1.0f);
-		CreateCubes();
+        CreateCubes();
 
         puzzleBounds = new Bounds(cubeArray[0, 0, 0].transform.position, Vector3.zero);
         UpdateBounds();
 
         // set the initial location of the x, y, and z sliders
         // and make their parents this gameObject (the game manager) so that when we rotate the puzzle, the slider move with it
-        xSlider.transform.position += new Vector3(puzzleSize, 0, 0);
+        sliderDistance = puzzleSize;
+
+/*
+        xSlider.transform.position = new Vector3(puzzleSize, 0, 0);
         xSlider.transform.parent = gameObject.transform;
-        movePlane = new Plane(new Vector3(0, 0, -1), xSlider.transform.position);
+*/
 
-        mainRotation = transform.eulerAngles;
 
-        managerReference = new GameObject();
-        managerReference.transform.rotation = transform.rotation;
+        //movePlane = new Plane(new Vector3(0, 0, -1), xSlider.transform.position);
+
+        //mainRotation = transform.eulerAngles;
+
+        //managerReference = new GameObject();
+        //managerReference.transform.rotation = transform.rotation;
     }
 
 	public void Update () {		
@@ -135,7 +151,8 @@ public class CubeManager : MonoBehaviour {
         }
         UpdatePressTime();
 
-        Debug.Log("X: " + transform.eulerAngles.x + ". Y: " + transform.eulerAngles.y + ". Z: " + transform.eulerAngles.z);
+        //Debug.Log("X: " + transform.eulerAngles.x + ". Y: " + transform.eulerAngles.y + ". Z: " + transform.eulerAngles.z);
+
         //Debug.Log("Manager X: " + managerReference.transform.rotation.eulerAngles.x + ". Y: " 
         //    + managerReference.transform.rotation.eulerAngles.y + ". Z: " + managerReference.transform.rotation.eulerAngles.z);
 
@@ -147,7 +164,11 @@ public class CubeManager : MonoBehaviour {
             return;
 
         //UpdateBounds();
-        CameraMove();
+
+//************************************************************************************
+        // REENABLE FOR NORMAL MOUSE MOVEMENT
+        //CameraMove();
+//************************************************************************************
 
         //transform.localRotation = Quaternion.Euler(mainRotation);
     }
@@ -320,8 +341,8 @@ public class CubeManager : MonoBehaviour {
         verticalSpeed = rotationYSens * Input.GetAxis("Mouse Y");
 
         // will use this to track where the puzzle is being rotated, since we'll need special handling around 0 rotation
-        float prevXRotation = transform.eulerAngles.x;
-        float prevZRotation = transform.eulerAngles.z;
+        //float prevXRotation = transform.eulerAngles.x;
+        //float prevZRotation = transform.eulerAngles.z;
 
         // using the RotateAround method for X and Y axis rotation avoids a Gimbal lock (such as when
         // Euler angles were modified previously     
@@ -635,8 +656,16 @@ public class CubeManager : MonoBehaviour {
     // this will remove the cubes that are not in the same row and column as the first cube
     private void PruneCubes(ref RaycastHit[] hitArray)
     {
-        if(hitArray.Length >= 2)
+        
+
+        if (hitArray.Length >= 2)
         {
+            // if the object hit is not a cube, don't do anything
+            if (!hitArray[0].transform.gameObject.GetComponent<CubeScript>())
+            {
+                return;
+            }
+
             GameObject firstCube = hitArray[0].transform.gameObject;
             GameObject testCube = hitArray[1].transform.gameObject;
 
