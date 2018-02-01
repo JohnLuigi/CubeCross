@@ -127,7 +127,7 @@ GameObject:
   - component: {fileID: 70547432}
   m_Layer: 0
   m_Name: XSlider
-  m_TagString: Untagged
+  m_TagString: Slider
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -145,6 +145,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   speed: 1
   parentObject: {fileID: 290909257}
+  startingDistance: {x: 0, y: 0, z: 0}
+  yReference: {fileID: 0}
+  originalLocation: {fileID: 0}
+  pointOnPlane: {x: 0, y: 0, z: 0}
+  oldPoint: {x: 0, y: 0, z: 0}
+  distanceToTravel: 0
+  unclicked: 1
 --- !u!23 &70547433
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -319,6 +326,8 @@ MonoBehaviour:
   maxZoom: 90
   maxDistance: 10
   mainRotation: {x: 0, y: 0, z: 0}
+  sliderDistance: 0
+  zSliderStart: {x: 0, y: 0, z: 0}
 --- !u!4 &290909259
 Transform:
   m_ObjectHideFlags: 0
