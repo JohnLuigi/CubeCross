@@ -22,6 +22,8 @@ public class SliderScript : MonoBehaviour {
     private float timeTracker = 0f;
     private float doubleClickDelay = 0.2f;  // default double click is half a second on windows
 
+    //public bool isSliding = false;
+
 
 	// Use this for initialization
 	void Start ()
@@ -179,6 +181,6 @@ public class SliderScript : MonoBehaviour {
 
     private void OnMouseExit()
     {
-        //unclicked = true;
+        unclicked = true;
     }
 }

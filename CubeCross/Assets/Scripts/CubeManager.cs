@@ -52,14 +52,18 @@ public class CubeManager : MonoBehaviour {
     public GameObject zSlider;
     */
 
-    public Vector3 mainRotation;
+    private Vector3 mainRotation;
     //private GameObject managerReference;
 
     // TODO
     // decide on how far away and where to place the sliders for X, Y, and Z
     // starting distance for the sliders
-    public float sliderDistance;
-    public Vector3 zSliderStart = new Vector3();
+    private float sliderDistance;
+    private Vector3 zSliderStart = new Vector3();
+
+    private GameObject sliderReferenceX;
+    public GameObject xSlider;
+    private bool hidden = false;
 
     // create the array of cubes that will make up the puzzle
     public void Start () {
@@ -81,6 +85,10 @@ public class CubeManager : MonoBehaviour {
         // set the initial location of the x, y, and z sliders
         // and make their parents this gameObject (the game manager) so that when we rotate the puzzle, the slider move with it
         sliderDistance = puzzleSize;
+
+        sliderReferenceX = new GameObject();
+        sliderReferenceX.transform.position = new Vector3(-(puzzleSize / 2f) + 0.5f, 0, 0);
+        sliderReferenceX.transform.parent = this.transform;
 
 /*
         xSlider.transform.position = new Vector3(puzzleSize, 0, 0);
@@ -105,6 +113,8 @@ public class CubeManager : MonoBehaviour {
         // if the player drags around the object for over a second, don't make it try to delete a cube
         // only have it delete a cube if the player immediately clicks on a cube
 
+
+
         // if the RMB is being continuously held down, rotate the entire puzzle about the average center of itself
         if(Input.GetMouseButton(1))
         {
@@ -122,7 +132,7 @@ public class CubeManager : MonoBehaviour {
         // see which of those cubes are in the same column and row as the nearest, then delete each cube after
         // a delay and continue from this first array of ray-hit cubes until they run out or the player lets go of the
         // left mouse button
-        if(Input.GetMouseButton(0))
+        if (Input.GetMouseButton(0))
         {            
             LongCheckCubes(pressTime);            
             //Slider();
@@ -149,13 +159,30 @@ public class CubeManager : MonoBehaviour {
                 deletedCubes.RemoveAt(deletedCubes.Count - 1);
             }            
         }
+
         UpdatePressTime();
+
+        HideCubes(xSlider);
 
         //Debug.Log("X: " + transform.eulerAngles.x + ". Y: " + transform.eulerAngles.y + ". Z: " + transform.eulerAngles.z);
 
         //Debug.Log("Manager X: " + managerReference.transform.rotation.eulerAngles.x + ". Y: " 
         //    + managerReference.transform.rotation.eulerAngles.y + ". Z: " + managerReference.transform.rotation.eulerAngles.z);
 
+    }
+
+    // TODO
+    // Do this for all three sliders
+    private bool CheckSliders(GameObject inputSlider)
+    {
+        SliderScript tempScript = inputSlider.GetComponent<SliderScript>();
+
+        if (tempScript.unclicked == false)
+        {
+            return true;
+        }
+        else
+            return false;
     }
 
     private void LateUpdate()
@@ -177,6 +204,12 @@ public class CubeManager : MonoBehaviour {
     // this is only done when the mouse button is released, and thus can only delete one cube at a time
     private void CheckCube(float timePassed)
     {
+        // make sure we aren't using the sliders
+        if (CheckSliders(xSlider))
+        {
+            return;
+        }
+
         // if the player has not been holding down the left mouse button, continue with checking the cube
         // otherwise, they are lifting up after dragging for a while, so don't try to delete a cube
         if (timePassed > cubeKillDelay)
@@ -233,6 +266,12 @@ public class CubeManager : MonoBehaviour {
     // this method is used while the left mouse button is held down
     private void LongCheckCubes(float timePassed)
     {
+        // make sure we aren't using the sliders
+        if (CheckSliders(xSlider))
+        {
+            return;
+        }
+
         // get the inital array of cubes hit by the ray when the mouse was clicked
         if (mouseDown == true && timePassed >= rowDeletionDelay)
         {
@@ -773,6 +812,87 @@ public class CubeManager : MonoBehaviour {
             angle += 360;
 
         return angle;
+    }
+
+    // Input a slider and see if its position is at a certain distance from the center of the puzzle.
+    // At specific distances, hide the corresponding 
+    private void HideCubes(GameObject inSlider)
+    {
+        // the furthest point from the slider is half the size of the puzzle, minus 0.5 (due to width of the cubes)
+        // in the opposide direction of the center
+
+        // TODO 
+        // udpate this to reflect the needed positions for each differnt slider
+        Vector3 sliderFromEdgeVector = inSlider.transform.position - sliderReferenceX.transform.position;
+
+        // if the slider is a certain distance from the edge reference, hide cubes as necessary
+        /*
+        int puzzleRef = puzzleSize / 2;
+        for (float i = -puzzleRef + 0.5f; i <= puzzleRef - 0.5f; i++) ;
+        {
+
+        }
+
+        */
+
+        Material tempMat;
+        Color tempColor;
+
+        float hideThreshold = 7f;
+        float fadeAmount = 0.1f;
+
+        // for testing purposes
+        if(sliderFromEdgeVector.magnitude <= hideThreshold && hidden == false)
+        {
+            // hide the rightmost layer of cubes
+            for (int i = 0; i < cubeArray.GetLength(0); i++)
+            {
+                for (int j = 0; j < cubeArray.GetLength(1); j++)
+                {
+                    for (int k = 0; k < cubeArray.GetLength(2); k++)
+                    {
+                        if(k == 3)
+                        {
+                            tempMat = cubeArray[i, j, k].GetComponent<Renderer>().material;
+                            tempColor = tempMat.color;
+                            tempColor.a = fadeAmount;
+
+                            tempMat.color = tempColor;
+
+                            cubeArray[i, j, k].GetComponent<Renderer>().material = tempMat;
+                        }
+                    }
+                }
+            }
+
+            hidden = true;
+
+        }
+        else if(sliderFromEdgeVector.magnitude > hideThreshold && hidden == true)
+        {
+            // hide the rightmost layer of cubes
+            for (int i = 0; i < cubeArray.GetLength(0); i++)
+            {
+                for (int j = 0; j < cubeArray.GetLength(1); j++)
+                {
+                    for (int k = 0; k < cubeArray.GetLength(2); k++)
+                    {
+                        if (k == 3)
+                        {
+                            tempMat = cubeArray[i, j, k].GetComponent<Renderer>().material;
+                            tempColor = tempMat.color;
+                            tempColor.a = 1.0f;
+
+                            tempMat.color = tempColor;
+
+                            cubeArray[i, j, k].GetComponent<Renderer>().material = tempMat;
+                        }
+                    }
+                }
+            }
+            hidden = false;
+        }
+
     }
 }
 

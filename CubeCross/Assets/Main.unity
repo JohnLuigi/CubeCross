@@ -325,9 +325,7 @@ MonoBehaviour:
   minZoom: 24
   maxZoom: 90
   maxDistance: 10
-  mainRotation: {x: 0, y: 0, z: 0}
-  sliderDistance: 0
-  zSliderStart: {x: 0, y: 0, z: 0}
+  xSlider: {fileID: 70547431}
 --- !u!4 &290909259
 Transform:
   m_ObjectHideFlags: 0
