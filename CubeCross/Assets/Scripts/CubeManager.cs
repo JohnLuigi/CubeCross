@@ -838,62 +838,272 @@ public class CubeManager : MonoBehaviour {
         Material tempMat;
         Color tempColor;
 
-        float hideThreshold = 7f;
+        // the hiding threshold will be some number of units away from the puzzleSize
+        // since the reference + puzzleSize is the entire width of the puzzle, so PuzzleSize number of 
+        // checks need to be made
+        float hideThreshold = 8f;
         float fadeAmount = 0.1f;
+        int tempIndex = puzzleSize - 1;
 
-        // for testing purposes
-        if(sliderFromEdgeVector.magnitude <= hideThreshold && hidden == false)
+        // initialize each array to be visible
+        bool[] hideIndices = new bool[puzzleSize];
+        for(int i = 0; i < hideIndices.Length; i++)
         {
-            // hide the rightmost layer of cubes
-            for (int i = 0; i < cubeArray.GetLength(0); i++)
+            hideIndices[i] = false;
+        }
+
+        if (sliderFromEdgeVector.magnitude <= hideThreshold)
+        {
+            int index = Mathf.FloorToInt(sliderFromEdgeVector.magnitude - puzzleSize);
+
+            // change the values of the hideIndices less than the index to be 
+
+            // if the index is within the bounds that are equal to the puzzle array indices
+            // for examply is the slider is 4 units away from the active sliding range
+            if (index <= puzzleSize - 1)
             {
-                for (int j = 0; j < cubeArray.GetLength(1); j++)
+                for (int i = 0; i < hideIndices.Length; i++)
                 {
-                    for (int k = 0; k < cubeArray.GetLength(2); k++)
+                    if(i < index)
                     {
-                        if(k == 3)
-                        {
-                            tempMat = cubeArray[i, j, k].GetComponent<Renderer>().material;
-                            tempColor = tempMat.color;
-                            tempColor.a = fadeAmount;
+                        hideIndices[i] = false;
+                    }
+                    else
+                    {
+                        hideIndices[i] = true;
+                    }
+                    
+                }
+            }
+        }
 
-                            tempMat.color = tempColor;
+        // now that each layer has been determined whether it should be shown or not, update layers as necessary
+        for (int layer = 0; layer < hideIndices.Length; layer++)
+        {
+            // TODO
+            // change the index of layer according to the X or Z or Y slider
+            // if the layer has to be hidden
+            if(hideIndices[layer] == true)
+            {
+                for (int i = 0; i < cubeArray.GetLength(0); i++)
+                {
+                    for (int j = 0; j < cubeArray.GetLength(1); j++)
+                    {
+                        tempMat = cubeArray[i, j, layer].GetComponent<Renderer>().material;
+                        tempColor = tempMat.color;
+                        tempColor.a = fadeAmount;
 
-                            cubeArray[i, j, k].GetComponent<Renderer>().material = tempMat;
-                        }
+                        tempMat.color = tempColor;
+
+                        cubeArray[i, j, layer].GetComponent<Renderer>().material = tempMat;
                     }
                 }
             }
 
-            hidden = true;
-
-        }
-        else if(sliderFromEdgeVector.magnitude > hideThreshold && hidden == true)
-        {
-            // hide the rightmost layer of cubes
-            for (int i = 0; i < cubeArray.GetLength(0); i++)
+            // if the layer has to be shown
+            else if(hideIndices[layer] == false)
             {
-                for (int j = 0; j < cubeArray.GetLength(1); j++)
+                for (int i = 0; i < cubeArray.GetLength(0); i++)
                 {
-                    for (int k = 0; k < cubeArray.GetLength(2); k++)
+                    for (int j = 0; j < cubeArray.GetLength(1); j++)
                     {
-                        if (k == 3)
-                        {
-                            tempMat = cubeArray[i, j, k].GetComponent<Renderer>().material;
-                            tempColor = tempMat.color;
-                            tempColor.a = 1.0f;
+                        tempMat = cubeArray[i, j, layer].GetComponent<Renderer>().material;
+                        tempColor = tempMat.color;
+                        tempColor.a = 1f;
 
-                            tempMat.color = tempColor;
+                        tempMat.color = tempColor;
 
-                            cubeArray[i, j, k].GetComponent<Renderer>().material = tempMat;
-                        }
+                        cubeArray[i, j, layer].GetComponent<Renderer>().material = tempMat;
                     }
                 }
             }
-            hidden = false;
         }
 
+/*
+        /////////////////////////////////////////
+
+        //int index;
+        // if the distance of the slider from the far edge of the puzzle is
+        // less than the threshold minus the width of the puzzle, hide that layer
+        // and any layers between it and the slider
+        if (sliderFromEdgeVector.magnitude <= hideThreshold)
+        {
+            index = Mathf.FloorToInt(sliderFromEdgeVector.magnitude - puzzleSize);
+
+            // if the index is within the bounds that are equal to the puzzle array indices
+            // for examply is the slider is 4 units away from the active sliding range
+            if(index <= puzzleSize - 1)
+            {
+               
+            }
+
+            /////////////////////////////////////////////////////////////////////////////////////////
+            // biggest index is puzzleSize - 1
+            // if the index distance is less than the maximum index, hide each index until the max index is reached
+            if (index <= puzzleSize - 1)
+            {
+                // hide the "num" layer of the puzzle
+                for (int num = index; num <= puzzleSize - 1; num++)
+                {
+                    Debug.Log("Should hide layer " + num);
+                    if (hidden == false)
+                    {
+                        // this block hides all the cubes at index Num for the K, index, change later
+                        // start of good block
+                        for (int i = 0; i < cubeArray.GetLength(0); i++)
+                        {
+                            for (int j = 0; j < cubeArray.GetLength(1); j++)
+                            {
+                                for (int k = 0; k < cubeArray.GetLength(2); k++)
+                                {
+                                    // TODO
+                                    // if the slider is the XSlider, compare to K
+                                    // if the slider is YSlider, compare to J
+                                    // if the slider is ZSlider, compare to I
+                                    if (k == num)
+                                    {
+                                        tempMat = cubeArray[i, j, k].GetComponent<Renderer>().material;
+                                        tempColor = tempMat.color;
+                                        tempColor.a = fadeAmount;
+
+                                        tempMat.color = tempColor;
+
+                                        cubeArray[i, j, k].GetComponent<Renderer>().material = tempMat;
+                                    }
+                                }
+                            }
+                        }
+                        // end of good block
+                        hidden = true;
+                    }
+
+                }
+
+            }
+
+            // if the index is beyond the greatest index of the puzzle
+            else if (index > puzzleSize - 1)
+            {
+                // hide the "num" layer of the puzzle
+                for (int num = index; num <= puzzleSize - 1; num++)
+                {
+                    Debug.Log("Should hide layer " + num);
+                    if (hidden == false)
+                    {
+                        // this block hides all the cubes at index Num for the K, index, change later
+                        // start of good block
+                        for (int i = 0; i < cubeArray.GetLength(0); i++)
+                        {
+                            for (int j = 0; j < cubeArray.GetLength(1); j++)
+                            {
+                                for (int k = 0; k < cubeArray.GetLength(2); k++)
+                                {
+                                    // TODO
+                                    // if the slider is the XSlider, compare to K
+                                    // if the slider is YSlider, compare to J
+                                    // if the slider is ZSlider, compare to I
+                                    if (k == num)
+                                    {
+                                        tempMat = cubeArray[i, j, k].GetComponent<Renderer>().material;
+                                        tempColor = tempMat.color;
+                                        tempColor.a = 1.0f;
+
+                                        tempMat.color = tempColor;
+
+                                        cubeArray[i, j, k].GetComponent<Renderer>().material = tempMat;
+                                    }
+                                }
+                            }
+                        }
+                        // end of good block
+                        hidden = false;
+                    }
+
+                }
+
+            }
+
+        */
+
+
+
+            // need to do this loop for each distance from the slider edge reference
+            // e.g. -1.5, -0.5, 0, 0.5, 1.5 if puzzleSize = 4
+            /*
+                    for (float x = hideThreshold; x > hideThreshold - puzzleSize; x--)
+                    {
+                        Debug.Log("Checking if less than " + x + " units away from edge");
+
+                        if (sliderFromEdgeVector.magnitude <= x && hidden == false)
+                        {
+
+                            // hide the rightmost layer of cubes
+                            for (int i = 0; i < cubeArray.GetLength(0); i++)
+                            {
+                                for (int j = 0; j < cubeArray.GetLength(1); j++)
+                                {
+                                    for (int k = 0; k < cubeArray.GetLength(2); k++)
+                                    {
+                                        // TODO
+                                        // if the slider is the XSlider, compare to K
+                                        // if the slider is YSlider, compare to J
+                                        // if the slider is ZSlider, compare to I
+                                        if (k == tempIndex)
+                                        {
+                                            tempMat = cubeArray[i, j, k].GetComponent<Renderer>().material;
+                                            tempColor = tempMat.color;
+                                            tempColor.a = fadeAmount;
+
+                                            tempMat.color = tempColor;
+
+                                            cubeArray[i, j, k].GetComponent<Renderer>().material = tempMat;
+                                        }
+                                    }
+                                }
+                            }
+
+                            hidden = true;
+
+                        }
+                        else if (sliderFromEdgeVector.magnitude > x && hidden == true)
+                        {
+                            // hide the rightmost layer of cubes
+                            for (int i = 0; i < cubeArray.GetLength(0); i++)
+                            {
+                                for (int j = 0; j < cubeArray.GetLength(1); j++)
+                                {
+                                    for (int k = 0; k < cubeArray.GetLength(2); k++)
+                                    {
+                                        if (k == tempIndex)
+                                        {
+                                            tempMat = cubeArray[i, j, k].GetComponent<Renderer>().material;
+                                            tempColor = tempMat.color;
+                                            tempColor.a = 1.0f;
+
+                                            tempMat.color = tempColor;
+
+                                            cubeArray[i, j, k].GetComponent<Renderer>().material = tempMat;
+                                        }
+                                    }
+                                }
+                            }
+                            hidden = false;
+                        }
+
+
+                        tempIndex--;
+
+
+
+
+                    }// end of for loop, each one checking a distance from the sliderReference
+               */
+
+
+
+        //}
     }
+
 }
 
 //TODO
