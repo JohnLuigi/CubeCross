@@ -22,6 +22,8 @@ public class SliderScript : MonoBehaviour {
     private float timeTracker = 0f;
     private float doubleClickDelay = 0.2f;  // default double click is half a second on windows
 
+    public bool sliding = false;   // use this to make sure cube deletion doesn't occur while using the sliders
+
     //public bool isSliding = false;
 
 
@@ -87,6 +89,8 @@ public class SliderScript : MonoBehaviour {
             // double click code to reset the position of the mouse
             if(Input.GetMouseButtonUp(0))
             {
+                sliding = false;
+
                 float oldClickTime = clickTime;
 
                 clickTime = timeTracker;
@@ -105,6 +109,8 @@ public class SliderScript : MonoBehaviour {
             // if the left mouse button is held over the slider controller
             if(Input.GetMouseButton(0))
             {
+                sliding = true;
+
                 Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
                 float newDistance;
                 if (movePlane.Raycast(ray, out newDistance))
@@ -119,7 +125,6 @@ public class SliderScript : MonoBehaviour {
                     // just save the location hit, since it's the first time the slider is hit it can't move until
                     // it is dragged
                     oldPoint = pointOnPlane;
-                    Debug.Log("first click");
                     unclicked = false;
                 }
                 else
@@ -182,5 +187,6 @@ public class SliderScript : MonoBehaviour {
     private void OnMouseExit()
     {
         unclicked = true;
+        sliding = false;
     }
 }
