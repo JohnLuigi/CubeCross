@@ -44,6 +44,7 @@ public class CubeManager : MonoBehaviour {
     private Bounds puzzleBounds;    
     private RaycastHit[] hits;                       // an array that holds the cubes hit when holding LMB
     private List<GameObject> deletedCubes = new List<GameObject>();    // list of the deleted cubes, can be used to "undo" deletions
+    private bool[] hideIndices;
 
     //public GameObject xSlider;      // The three objects that will be dragged by the player to hide layers of the puzzle
     //private Plane movePlane;
@@ -65,6 +66,7 @@ public class CubeManager : MonoBehaviour {
     private GameObject sliderReferenceX;
     private GameObject xSlider;
     public float fadeAmount;
+    public float threshValue = 8f;
     //private bool hidden = false;
 
     //private SliderScript sliderScriptRef;
@@ -97,12 +99,22 @@ public class CubeManager : MonoBehaviour {
 
         xSlider = GameObject.Find("XSlider");
 
+        // initialize each array to be visible
+        // this will be used to track which "layers" of the puzzle should be hidden
+        // TODO
+        // might have to make a version of this for the YSlider
+        hideIndices = new bool[puzzleSize];
+        for (int i = 0; i < hideIndices.Length; i++)
+        {
+            hideIndices[i] = false;
+        }
+
         //sliderScriptRef = xSlider.GetComponent<SliderScript>();
 
-/*
-        xSlider.transform.position = new Vector3(puzzleSize, 0, 0);
-        xSlider.transform.parent = gameObject.transform;
-*/
+        /*
+                xSlider.transform.position = new Vector3(puzzleSize, 0, 0);
+                xSlider.transform.parent = gameObject.transform;
+        */
 
 
         //movePlane = new Plane(new Vector3(0, 0, -1), xSlider.transform.position);
@@ -834,16 +846,11 @@ public class CubeManager : MonoBehaviour {
         // the hiding threshold will be some number of units away from the puzzleSize
         // since the reference + puzzleSize is the entire width of the puzzle, so PuzzleSize number of 
         // checks need to be made
+
+        // hide threshold is temporarily 8f;
         float hideThreshold = 8f;
         fadeAmount = 0.1f;
         //int tempIndex = puzzleSize - 1;
-
-        // initialize each array to be visible
-        bool[] hideIndices = new bool[puzzleSize];
-        for(int i = 0; i < hideIndices.Length; i++)
-        {
-            hideIndices[i] = false;
-        }
 
         if (sliderFromEdgeVector.magnitude <= hideThreshold)
         {
@@ -868,6 +875,11 @@ public class CubeManager : MonoBehaviour {
                     
                 }
             }
+        }
+        // if we are further than the threshold, make the final index of the layers to hide false
+        else if(sliderFromEdgeVector.magnitude > hideThreshold)
+        {
+            hideIndices[hideIndices.Length - 1] = false;
         }
 
         // now that each layer has been determined whether it should be shown or not, update layers as necessary

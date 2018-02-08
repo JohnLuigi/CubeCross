@@ -24,6 +24,8 @@ public class SliderScript : MonoBehaviour {
 
     public bool sliding = false;   // use this to make sure cube deletion doesn't occur while using the sliders
 
+    public float closestDistance;
+
     //public bool isSliding = false;
 
 
@@ -48,6 +50,12 @@ public class SliderScript : MonoBehaviour {
         // this wil be the maximum distance the slider can be away from the puzzle
         startingDistance = transform.position - parentObject.transform.position;
         // might need to swap the order of this subtraction
+
+        // point between the slider and the center of the cube that the cube cannot move any closer
+        // for the xSlider, it will be along the x-axis, located at theshold-puzzleSize-0.5 units
+        float tempThresh = parentObject.GetComponent<CubeManager>().threshValue;
+        float tempSize = parentObject.GetComponent<CubeManager>().puzzleSize;
+        closestDistance = (tempThresh - tempSize) - 1f;
     }
 	
 	// Update is called once per frame
@@ -169,6 +177,7 @@ public class SliderScript : MonoBehaviour {
 
                     // clamp the movement to not go past the starting distance from the cube
                     Vector3 currentDistance = transform.position - parentObject.transform.position;
+
                     if (currentDistance.magnitude > startingDistance.magnitude)
                     {
                         transform.position = Vector3.MoveTowards(transform.position, parentObject.transform.position,
@@ -176,6 +185,15 @@ public class SliderScript : MonoBehaviour {
                         Debug.Log("too far");
                         //return;
                     }
+                    else if(currentDistance.magnitude < closestDistance)
+                    {
+                        transform.position = Vector3.MoveTowards(transform.position, parentObject.transform.position,
+                    -step);
+                        Debug.Log("too close");
+                        //return;
+                    }
+
+                    // clamp the movement to not go too close to the center of the puzzle
 
                     // save the point after translating the slider
                     oldPoint = pointOnPlane;
