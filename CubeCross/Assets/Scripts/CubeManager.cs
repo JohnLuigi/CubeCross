@@ -65,6 +65,10 @@ public class CubeManager : MonoBehaviour {
 
     private GameObject sliderReferenceX;
     private GameObject xSlider;
+
+    private GameObject sliderReferenceZ;
+    private GameObject zSlider;
+
     public float fadeAmount;
     public float threshValue = 8f;
     //private bool hidden = false;
@@ -90,14 +94,22 @@ public class CubeManager : MonoBehaviour {
 
         // set the initial location of the x, y, and z sliders
         // and make their parents this gameObject (the game manager) so that when we rotate the puzzle, the slider move with it
-        
+
         //sliderDistance = puzzleSize;
 
-        sliderReferenceX = new GameObject();
+        // reference for the edge of the puzzle for the XSlider
+        sliderReferenceX = new GameObject { name = "SliderReferenceX" };
         sliderReferenceX.transform.position = new Vector3(-(puzzleSize / 2f) + 0.5f, 0, 0);
         sliderReferenceX.transform.parent = this.transform;
 
         xSlider = GameObject.Find("XSlider");
+
+        // reference for the edge of the puzzle for the ZSlider
+        sliderReferenceZ = new GameObject { name = "SliderReferenceZ" };
+        sliderReferenceZ.transform.position = new Vector3(0, 0, (puzzleSize / 2f) - 0.5f);
+        sliderReferenceZ.transform.parent = this.transform;
+
+        zSlider = GameObject.Find("ZSlider");
 
         // initialize each array to be visible
         // this will be used to track which "layers" of the puzzle should be hidden
@@ -183,7 +195,20 @@ public class CubeManager : MonoBehaviour {
 
         UpdatePressTime();
 
-        HideCubes(xSlider);
+        //HideCubes(xSlider);
+        //HideCubes(zSlider);
+
+        if(xSlider.GetComponent<SliderScript>().sliding == true)
+        {
+            HideCubes(xSlider);
+            Debug.Log("x in action");
+        }
+        else if(zSlider.GetComponent<SliderScript>().sliding == true)
+        {
+            HideCubes(zSlider);
+            Debug.Log("z in action");
+        }
+        
 
         //Debug.Log("X: " + transform.eulerAngles.x + ". Y: " + transform.eulerAngles.y + ". Z: " + transform.eulerAngles.z);
 
@@ -826,9 +851,20 @@ public class CubeManager : MonoBehaviour {
         // the furthest point from the slider is half the size of the puzzle, minus 0.5 (due to width of the cubes)
         // in the opposide direction of the center
 
+        Vector3 sliderFromEdgeVector;
         // TODO 
         // udpate this to reflect the needed positions for each differnt slider
-        Vector3 sliderFromEdgeVector = inSlider.transform.position - sliderReferenceX.transform.position;
+        if (inSlider.name == "XSlider")
+        {
+            sliderFromEdgeVector = inSlider.transform.position - sliderReferenceX.transform.position;
+        }
+        else if (inSlider.name == "ZSlider")
+        {
+            sliderFromEdgeVector = inSlider.transform.position - sliderReferenceZ.transform.position;
+        }
+        else
+            sliderFromEdgeVector = Vector3.zero;
+
 
         // if the slider is a certain distance from the edge reference, hide cubes as necessary
         /*
@@ -849,10 +885,20 @@ public class CubeManager : MonoBehaviour {
 
         // hide threshold is temporarily 8f;
         float hideThreshold = 8f;
+        if(inSlider.name == "ZSlider")
+        {
+            hideThreshold = -8f;
+        }
         fadeAmount = 0.1f;
         //int tempIndex = puzzleSize - 1;
 
-        if (sliderFromEdgeVector.magnitude <= hideThreshold)
+        bool magCompare = (sliderFromEdgeVector.magnitude <= hideThreshold);
+        if (inSlider.name == "ZSlider")
+        {
+            magCompare = (sliderFromEdgeVector.magnitude >= hideThreshold);
+        }
+
+        if (magCompare)
         {
             int index = Mathf.FloorToInt(sliderFromEdgeVector.magnitude - puzzleSize);
 
@@ -888,16 +934,31 @@ public class CubeManager : MonoBehaviour {
             // TODO
             // change the index of layer according to the X or Z or Y slider
             // if the layer has to be hidden
+
+            // TODO
+            // this might only work if the dimensions of the puzzle are always equal, rectangular
+            // puzzles might need tweaking here
             if(hideIndices[layer] == true)
             {
                 for (int i = 0; i < cubeArray.GetLength(0); i++)
                 {
                     for (int j = 0; j < cubeArray.GetLength(1); j++)
                     {
-                        tempColor = cubeArray[i, j, layer].GetComponent<Renderer>().material.color;
-                        tempColor.a = fadeAmount;
+                        if (inSlider.name == "XSlider")
+                        {
+                            tempColor = cubeArray[i, j, layer].GetComponent<Renderer>().material.color;
+                            tempColor.a = fadeAmount;
 
-                        cubeArray[i, j, layer].GetComponent<Renderer>().material.color = tempColor;
+                            cubeArray[i, j, layer].GetComponent<Renderer>().material.color = tempColor;
+                        }
+                        else if (inSlider.name == "ZSlider")
+                        {
+                            tempColor = cubeArray[layer, i, j].GetComponent<Renderer>().material.color;
+                            tempColor.a = fadeAmount;
+
+                            cubeArray[layer, i, j].GetComponent<Renderer>().material.color = tempColor;
+                        }
+
                     }
                 }
             }
@@ -909,10 +970,21 @@ public class CubeManager : MonoBehaviour {
                 {
                     for (int j = 0; j < cubeArray.GetLength(1); j++)
                     {
-                        tempColor = cubeArray[i, j, layer].GetComponent<Renderer>().material.color;
-                        tempColor.a = 1f;
+                        if (inSlider.name == "XSlider")
+                        {
+                            tempColor = cubeArray[i, j, layer].GetComponent<Renderer>().material.color;
+                            tempColor.a = 1f;
 
-                        cubeArray[i, j, layer].GetComponent<Renderer>().material.color = tempColor;
+                            cubeArray[i, j, layer].GetComponent<Renderer>().material.color = tempColor;
+                        }
+                        else if (inSlider.name == "ZSlider")
+                        {
+                            tempColor = cubeArray[layer, i, j].GetComponent<Renderer>().material.color;
+                            tempColor.a = 1f;
+
+                            cubeArray[layer, i, j].GetComponent<Renderer>().material.color = tempColor;
+                        }
+
                     }
                 }
             }

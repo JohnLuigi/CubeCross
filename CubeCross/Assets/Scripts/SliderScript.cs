@@ -4,19 +4,19 @@ using UnityEngine;
 
 public class SliderScript : MonoBehaviour {
 
-    public float speed;
-    public GameObject parentObject;
+    //public float speed;
+    private GameObject parentObject;
 
-    public Vector3 startingDistance;
-    public GameObject yReference;
+    private Vector3 startingDistance;
+    private GameObject axisReference;
     //public Vector3 yReference;
-    public Plane movePlane;
-    public GameObject originalLocation;
+    private Plane movePlane;
+    private GameObject originalLocation;
 
-    public Vector3 pointOnPlane;
-    public Vector3 oldPoint;   // distance to be used to see how far the slider was dragged along a plane in a frame
-    public float distanceToTravel;
-    public bool unclicked = true;
+    private Vector3 pointOnPlane;
+    private Vector3 oldPoint;   // distance to be used to see how far the slider was dragged along a plane in a frame
+    private float distanceToTravel;
+    private bool unclicked = true;
 
     private float clickTime = 0f;
     private float timeTracker = 0f;
@@ -24,7 +24,9 @@ public class SliderScript : MonoBehaviour {
 
     public bool sliding = false;   // use this to make sure cube deletion doesn't occur while using the sliders
 
-    public float closestDistance;
+    private float closestDistance;
+
+    private GameObject otherSlider;
 
     //public bool isSliding = false;
 
@@ -32,14 +34,29 @@ public class SliderScript : MonoBehaviour {
 	// Use this for initialization
 	void Start ()
     {
+        parentObject = GameObject.Find("GameManager");
         transform.parent = parentObject.transform;
 
-        // set the starting point to be moved towards when dragging away from
-        yReference = new GameObject();
-        yReference.transform.position = new Vector3(0, 1, 0);
-        yReference.transform.parent = parentObject.transform;
+        // set the reference point to be used to define the plane that will contain the slider
+        if(gameObject.name == "XSlider")
+        {
+            axisReference = new GameObject();
+            axisReference.transform.position = new Vector3(0, 1, 0);
+            axisReference.transform.parent = parentObject.transform;
 
-        movePlane = new Plane(transform.parent.position, transform.position, yReference.transform.position);
+            otherSlider = GameObject.Find("ZSlider");
+        }
+        else if(gameObject.name == "ZSlider")
+        {
+            axisReference = new GameObject();
+            axisReference.transform.position = new Vector3(0, 1, 0);
+            axisReference.transform.parent = parentObject.transform;
+
+            otherSlider = GameObject.Find("XSlider");
+        }
+        
+
+        movePlane = new Plane(transform.parent.position, transform.position, axisReference.transform.position);
 
         // store a gameobject that is parented to the gameManager cube puzzle
         originalLocation = new GameObject();
@@ -56,13 +73,19 @@ public class SliderScript : MonoBehaviour {
         float tempThresh = parentObject.GetComponent<CubeManager>().threshValue;
         float tempSize = parentObject.GetComponent<CubeManager>().puzzleSize;
         closestDistance = (tempThresh - tempSize) - 1f;
+/*
+        if(gameObject.name == "ZSlider")
+        {
+            closestDistance = (-tempThresh + tempSize) + 1f;
+        }
+*/
     }
 	
 	// Update is called once per frame
 	void Update ()
     {
         // update the location of the intersecting plane each frame so that its consistent with rotation
-        movePlane = new Plane(transform.parent.position, transform.position, yReference.transform.position);
+        movePlane = new Plane(transform.parent.position, transform.position, axisReference.transform.position);
 
         if(Input.GetMouseButtonUp(0))
         {
@@ -91,6 +114,12 @@ public class SliderScript : MonoBehaviour {
 
     private void OnMouseOver()
     {
+        // this prevents the slider from doing anything if another slider is in use
+        if(otherSlider.GetComponent<SliderScript>().sliding == true)
+        {
+            return;
+        }
+
         // make sure the slider has a parent, in this case the GameManager
         if (transform.parent != null)
         {
@@ -169,7 +198,6 @@ public class SliderScript : MonoBehaviour {
 
                     // if moving towards the center of the puzzle
                     //if(travelNormalized)
-
                     // if moving away from the puzzle                    
                     transform.position = Vector3.MoveTowards(transform.position, parentObject.transform.position,
                     step);
@@ -178,14 +206,27 @@ public class SliderScript : MonoBehaviour {
                     // clamp the movement to not go past the starting distance from the cube
                     Vector3 currentDistance = transform.position - parentObject.transform.position;
 
-                    if (currentDistance.magnitude > startingDistance.magnitude)
+                    // change the comparisons based on the slider (since the Z axis values are going to be dealing with negatives)
+                    bool compDist = (currentDistance.magnitude > startingDistance.magnitude);
+                    if(gameObject.name == "ZSlider")
+                    {
+                        compDist = (currentDistance.magnitude > startingDistance.magnitude);
+                    }
+
+                    bool compClose = (currentDistance.magnitude < closestDistance);
+                    if (gameObject.name == "ZSlider")
+                    {
+
+                    }
+
+                    if (compDist)
                     {
                         transform.position = Vector3.MoveTowards(transform.position, parentObject.transform.position,
                     -step);
                         Debug.Log("too far");
                         //return;
                     }
-                    else if(currentDistance.magnitude < closestDistance)
+                    else if(compClose)
                     {
                         transform.position = Vector3.MoveTowards(transform.position, parentObject.transform.position,
                     -step);
