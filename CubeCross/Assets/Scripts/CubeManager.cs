@@ -71,6 +71,8 @@ public class CubeManager : MonoBehaviour {
 
     public float fadeAmount;
     public float threshValue = 8f;
+
+    private bool firstRotation = false;
     //private bool hidden = false;
 
     //private SliderScript sliderScriptRef;
@@ -99,14 +101,14 @@ public class CubeManager : MonoBehaviour {
 
         // reference for the edge of the puzzle for the XSlider
         sliderReferenceX = new GameObject { name = "SliderReferenceX" };
-        sliderReferenceX.transform.position = new Vector3(-(puzzleSize / 2f) + 0.5f, 0, 0);
+        sliderReferenceX.transform.position = new Vector3(-(puzzleSize / 2f) + 0.5f, 0, (puzzleSize / 2f) - 0.5f);
         sliderReferenceX.transform.parent = this.transform;
 
         xSlider = GameObject.Find("XSlider");
 
         // reference for the edge of the puzzle for the ZSlider
         sliderReferenceZ = new GameObject { name = "SliderReferenceZ" };
-        sliderReferenceZ.transform.position = new Vector3(0, 0, (puzzleSize / 2f) - 0.5f);
+        sliderReferenceZ.transform.position = new Vector3(-(puzzleSize / 2f) + 0.5f, 0, (puzzleSize / 2f) - 0.5f);
         sliderReferenceZ.transform.parent = this.transform;
 
         zSlider = GameObject.Find("ZSlider");
@@ -120,6 +122,10 @@ public class CubeManager : MonoBehaviour {
         {
             hideIndices[i] = false;
         }
+
+        // set the rotation to be at 45 degrees initially so the sliders aren't immediately in front of
+        // the camera
+        //transform.Rotate(0, 45, 0);
 
         //sliderScriptRef = xSlider.GetComponent<SliderScript>();
 
@@ -217,6 +223,18 @@ public class CubeManager : MonoBehaviour {
 
     }
 
+    // do this on the first frame after everything has been set up
+    private void LateUpdate()
+    {
+        if(!firstRotation)
+        {
+            // set the rotation to be at 45 degrees initially so the sliders aren't immediately in front of
+            // the camera
+            transform.Rotate(0, 45, 0);
+            firstRotation = true;
+        }
+    }
+
     // TODO
     // Do this for all three sliders
     private bool CheckSliders(GameObject inputSlider)
@@ -232,6 +250,7 @@ public class CubeManager : MonoBehaviour {
             return false;
     }
 
+/*
     private void LateUpdate()
     {
         if (puzzleSize == 0)
@@ -246,7 +265,7 @@ public class CubeManager : MonoBehaviour {
 
         //transform.localRotation = Quaternion.Euler(mainRotation);
     }
-
+*/
     // cast a ray at the location of the mouse click, and delete the one cube that is hit, if a cube is hit
     // this is only done when the mouse button is released, and thus can only delete one cube at a time
     private void CheckCube(float timePassed)
@@ -990,6 +1009,31 @@ public class CubeManager : MonoBehaviour {
             }
         }
 
+    }
+
+    // public method to make all the cubes visible again
+    public void ShowAllCubes()
+    {
+        for(int i = 0; i < hideIndices.Length;i++)
+        {
+            hideIndices[i] = false;
+        }
+
+        Color tempColor;
+
+        for (int i = 0; i < cubeArray.GetLength(0); i++)
+        {
+            for (int j = 0; j < cubeArray.GetLength(1); j++)
+            {
+                for (int k = 0; k < cubeArray.GetLength(2); k++)
+                {
+                    tempColor = cubeArray[i, j, k].GetComponent<Renderer>().material.color;
+                    tempColor.a = 1f;
+
+                    cubeArray[i, j, k].GetComponent<Renderer>().material.color = tempColor;
+                }
+            }
+        }
     }
 
 }
