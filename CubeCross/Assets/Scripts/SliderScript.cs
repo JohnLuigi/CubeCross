@@ -249,14 +249,14 @@ public class SliderScript : MonoBehaviour {
                     {
                         transform.position = Vector3.MoveTowards(transform.position, axisReference2.transform.position,
                     -step);
-                        Debug.Log("too far");
+                        //Debug.Log("too far");
                         //return;
                     }
                     else if(compClose)
                     {
                         transform.position = Vector3.MoveTowards(transform.position, axisReference2.transform.position,
                     -step);
-                        Debug.Log("too close");
+                        //Debug.Log("too close");
                         //return;
                     }
 
