@@ -11,6 +11,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.IO;
+using System.Text;
+using System;
 
 public class CubeManager : MonoBehaviour {
 
@@ -122,6 +125,9 @@ public class CubeManager : MonoBehaviour {
         {
             hideIndices[i] = false;
         }
+
+        //create the puzzle itself
+        CreatePuzzle("Assets/Puzzles/XSolution");
 
         // set the rotation to be at 45 degrees initially so the sliders aren't immediately in front of
         // the camera
@@ -656,6 +662,83 @@ public class CubeManager : MonoBehaviour {
             }
             // reset and update the starting position for the next grid
             startingPoint += new Vector3(0, (float)puzzleSize * -1.0f, 1.0f);
+        }   // end of cube creation loop
+        
+    }
+
+    // TODO
+    // make this based on the first line that might contain info aobut the puzzle
+    // such as the initial dimensions, etc
+
+    // create a puzzle based on a text file that contains a solution
+    private bool CreatePuzzle(string fileName)
+    {
+        // use try to hanfle any problems that might arisewith reading text
+        try
+        {
+            string line;    // this will store lines as they are read from the text file
+
+            int i_Index = 0;
+            int j_Index = puzzleSize - 1;
+
+            // create a StreamReader using the location and name of the file to read, also what encoding 
+            // was used when saving the file (default for now)
+            StreamReader theReader = new StreamReader(fileName, Encoding.Default);
+
+            // Immediately clean up the read after this block of code.
+            // Generally use the "using" statement for potentially memory-intensive processes
+            // as opposed to depending on garbage collection.
+            using (theReader)
+            {
+                //while there are lines left in the text file, read in data
+                do
+                {
+                    line = theReader.ReadLine();
+
+                    if (line != null)
+                    {
+                        // read in the line of text
+                        // if the line is a newLine, proceed to the next line
+                        if(line == "")
+                        {
+                            // move to the next I index
+                            i_Index++;
+                        }
+                        // if it is 1s and 0s, store them in the cube array
+                        else
+                        {
+                            for(int i = 0; i < line.Length; i++)
+                            {
+                                //TODO
+                                // this is temporary, just seeing if the puzzle can even be read
+                                // TEMPORARY
+                                // if the value is 0, set the corresponding cube to be invisble
+                                if(line[i].Equals('0'))
+                                {
+                                    //cubeArray[i_Index, j_Index, i].GetComponent<Renderer>().enabled = false;
+                                    cubeArray[i_Index, j_Index, i].SetActive(false);
+                                }
+                            }
+
+                            j_Index--;
+                            if(j_Index < 0)
+                            {
+                                j_Index = puzzleSize - 1;
+                            }
+                        }
+                    }
+                }
+                while (line != null);
+
+                // the reader is done reading the text file, so close the reader and return true to broadcast success
+                theReader.Close();
+                return true;
+            }
+        }
+        catch (Exception e)
+        {
+            Debug.Log("failed to read the text file" + e.Message);
+            return false;
         }
         
     }
