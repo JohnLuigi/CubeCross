@@ -29,14 +29,21 @@ public class SliderScript : MonoBehaviour {
     private float closestDistance;
 
     private GameObject otherSlider;
-    private int puzzSize;
-    private float halfCubeDist;
+// private int puzzSize;
+
+//private float halfCubeDist;
+    private float halfCubeDist_X;
+    private float halfCubeDist_Y;
+    private float halfCubeDist_Z;
 
     //public bool isSliding = false;
+    // TODO
+    // update the uses of 8.5f as a starting distance for the sliders to be some function of
+    // the respective dimension of the puzzle
 
 
-	// Use this for initialization
-	void Start ()
+    // Use this for initialization
+    void Start ()
     {
         
         parentObject = GameObject.Find("GameManager");
@@ -44,35 +51,43 @@ public class SliderScript : MonoBehaviour {
 
         parentManager = parentObject.GetComponent<CubeManager>();
 
-        puzzSize = parentManager.puzzleSize;
-        halfCubeDist = (puzzSize / 2f) - 0.5f;
+    //puzzSize = parentManager.puzzleSize;
+    //halfCubeDist = (puzzSize / 2f) - 0.5f;
+
+        halfCubeDist_X = (parentManager.puzzleSize_X / 2f) - 0.5f;
+        halfCubeDist_Y = (parentManager.puzzleSize_Y / 2f) - 0.5f;
+        halfCubeDist_Z = (parentManager.puzzleSize_Z / 2f) - 0.5f;
 
         // set the reference point to be used to define the plane that will contain the slider
         // also set the starting position of the slider
-        if(gameObject.name == "XSlider")
+        if (gameObject.name == "XSlider")
         {
-            transform.position = new Vector3(8.5f, 0, halfCubeDist);
+            transform.position = new Vector3(8.5f, 0, halfCubeDist_Z);
 
+            // this reference is on the same edge of the cube as the X Slider, but with an increased y-value (high ref)
             axisReference = new GameObject { name = "XSliderReference1"};
-            axisReference.transform.position = new Vector3(0, halfCubeDist, halfCubeDist);
+            axisReference.transform.position = new Vector3(0, halfCubeDist_Y, halfCubeDist_Z);
             axisReference.transform.parent = parentObject.transform;
 
+            // this reference is on the same y-value as the slider, and same z-value (even ref)
             axisReference2 = new GameObject { name = "XSliderReference2" };
-            axisReference2.transform.position = new Vector3(0, 0, halfCubeDist);
+            axisReference2.transform.position = new Vector3(0, 0, halfCubeDist_Z);
             axisReference2.transform.parent = parentObject.transform;
 
             otherSlider = GameObject.Find("ZSlider");
         }
         else if(gameObject.name == "ZSlider")
         {
-            transform.position = new Vector3(-halfCubeDist, 0, -8.5f);
+            transform.position = new Vector3(-halfCubeDist_X, 0, -8.5f);
 
+            // this reference is on the same edge of the cube as the Z Slider, but with an increased y-value (high ref)
             axisReference = new GameObject { name = "ZSliderReference1" };
-            axisReference.transform.position = new Vector3(-halfCubeDist, halfCubeDist, 0);
+            axisReference.transform.position = new Vector3(-halfCubeDist_X, halfCubeDist_Y, 0);
             axisReference.transform.parent = parentObject.transform;
 
+            // this reference is on the same y-value as the Z slider, and same x-value (even ref)
             axisReference2 = new GameObject { name = "ZSliderReference2" };
-            axisReference2.transform.position = new Vector3(-halfCubeDist, 0, 0);
+            axisReference2.transform.position = new Vector3(-halfCubeDist_X, 0, 0);
             axisReference2.transform.parent = parentObject.transform;
 
             otherSlider = GameObject.Find("XSlider");
@@ -234,16 +249,8 @@ public class SliderScript : MonoBehaviour {
 
                     // change the comparisons based on the slider (since the Z axis values are going to be dealing with negatives)
                     bool compDist = (currentDistance.magnitude > startingDistance.magnitude);
-                    if(gameObject.name == "ZSlider")
-                    {
-                        compDist = (currentDistance.magnitude > startingDistance.magnitude);
-                    }
 
                     bool compClose = (currentDistance.magnitude < closestDistance);
-                    if (gameObject.name == "ZSlider")
-                    {
-
-                    }
 
                     if (compDist)
                     {

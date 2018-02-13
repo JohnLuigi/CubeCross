@@ -21,6 +21,8 @@ public class CubeManager : MonoBehaviour {
     public GameObject[,,] cubeArray;            // this three dimensional array will contain all the cubes for the puzzle
 	public GameObject exampleCube;
     public GameObject exampleCubeDark;
+    public GameObject exampleCube_0;
+    public GameObject exampleCubeDark_0;
 
     private float pressTime;                    // cube deletion variables
     public float cubeKillDelay = 0.1f;
@@ -76,9 +78,20 @@ public class CubeManager : MonoBehaviour {
     public float threshValue = 8f;
 
     private bool firstRotation = false;
+
+    public int puzzleSize_X;
+    public int puzzleSize_Y;
+    public int puzzleSize_Z;
     //private bool hidden = false;
 
     //private SliderScript sliderScriptRef;
+
+    // Stuff to do before Start()
+    // Mostly used to set values that other scripts will need to access
+    public void Awake()
+    {
+        GetPuzzleInfo("Assets/Puzzles/XSolution");
+    }
 
     // create the array of cubes that will make up the puzzle
     public void Start () {
@@ -685,6 +698,9 @@ public class CubeManager : MonoBehaviour {
             // was used when saving the file (default for now)
             StreamReader theReader = new StreamReader(fileName, Encoding.Default);
 
+            bool firstLineRead = false;
+            GameObject newCube;
+
             // Immediately clean up the read after this block of code.
             // Generally use the "using" statement for potentially memory-intensive processes
             // as opposed to depending on garbage collection.
@@ -694,12 +710,19 @@ public class CubeManager : MonoBehaviour {
                 do
                 {
                     line = theReader.ReadLine();
+                    //Debug.Log(line);
+                    //line = theReader.ReadLine();
 
                     if (line != null)
                     {
+                        // skip the first line of text
+                        if(!firstLineRead)
+                        {
+                            firstLineRead = true;
+                        }
                         // read in the line of text
                         // if the line is a newLine, proceed to the next line
-                        if(line == "")
+                        else if(line == "")
                         {
                             // move to the next I index
                             i_Index++;
@@ -711,12 +734,39 @@ public class CubeManager : MonoBehaviour {
                             {
                                 //TODO
                                 // this is temporary, just seeing if the puzzle can even be read
-                                // TEMPORARY
+//***********************************************************************************************************************
+//***********************************************************************************************************************
+// TEMPORARY
+//***********************************************************************************************************************
+//***********************************************************************************************************************
                                 // if the value is 0, set the corresponding cube to be invisble
-                                if(line[i].Equals('0'))
+                                if (line[i].Equals('0'))
                                 {
                                     //cubeArray[i_Index, j_Index, i].GetComponent<Renderer>().enabled = false;
-                                    cubeArray[i_Index, j_Index, i].SetActive(false);
+                                    //cubeArray[i_Index, j_Index, i].SetActive(false);
+
+                                    // set the cube as a deletable cube
+                                    // TODO 
+                                    // need to alternate between light and dark
+                                    Vector3 location = cubeArray[i_Index, j_Index, i].transform.position;
+                                    Destroy(cubeArray[i_Index, j_Index, i]);
+
+                                     newCube = Instantiate(exampleCube_0, location, Quaternion.identity) as GameObject;
+
+                                    newCube.transform.localScale = Vector3.one;
+                                    newCube.transform.parent = gameObject.transform;        // set each cube as a child of this game manager
+                                                                                            // so that you can manipulate the manager's transform
+                                                                                            // to manipualte all the cubes
+                                    newCube.GetComponent<CubeScript>().index1 = i_Index;
+                                    newCube.GetComponent<CubeScript>().index2 = j_Index;
+                                    newCube.GetComponent<CubeScript>().index3 = i;
+
+                                    cubeArray[i_Index, j_Index, i] = newCube;
+
+                                }
+                                if(line[i].Equals('1'))
+                                {
+                                    // set the cube as part of the puzzle that is to NOT be deleted
                                 }
                             }
 
@@ -741,6 +791,48 @@ public class CubeManager : MonoBehaviour {
             return false;
         }
         
+    }
+
+    //TODO
+    // do this in an awake function, and set puzzle size to be used in the slider script
+    // in slider script set puzzSize depending on size I, J, or K depending on the distance of the slider
+    // and that dimension's size (especially for non-cubic puzzles)
+    // TODO
+    // will probably combine this with the cube creation script
+    private bool GetPuzzleInfo(string fileName)
+    {
+        try
+        {
+            string line;    // this string will store the text of the first line
+
+            StreamReader theReader = new StreamReader(fileName, Encoding.Default);
+
+            using (theReader)
+            {
+                line = theReader.ReadLine();
+
+                // set the contents of the first line that are separated by x characters to be the
+                // I, J, and K indices of the puzzle
+                if(line != null)
+                {
+                    string[] dimensions = line.Split('x');
+
+                    // dimensions should now be a 3 element array with 3 strings that are the i, j, k dimensions
+                    // of the puzzle in the text file
+                    puzzleSize_X = int.Parse(dimensions[0]);    // k dimension
+                    puzzleSize_Y = int.Parse(dimensions[1]);    // j dimension
+                    puzzleSize_Z = int.Parse(dimensions[2]);    // i dimension
+                }
+
+                theReader.Close();
+                return true;
+            }
+        }
+        catch (Exception e)
+        {
+            Debug.Log("failed to read the text file" + e.Message);
+            return false;
+        }
     }
 
     private void UpdateBounds()
@@ -985,18 +1077,10 @@ public class CubeManager : MonoBehaviour {
 
         // hide threshold is temporarily 8f;
         float hideThreshold = 8f;
-        if (inSlider.name == "ZSlider")
-        {
-            //hideThreshold = 8f;
-        }
         fadeAmount = 0.1f;
         //int tempIndex = puzzleSize - 1;
 
         bool magCompare = (sliderFromEdgeVector.magnitude <= hideThreshold);
-        if (inSlider.name == "ZSlider")
-        {
-            //magCompare = (sliderFromEdgeVector.magnitude >= hideThreshold);
-        }
 
         if (magCompare)
         {
