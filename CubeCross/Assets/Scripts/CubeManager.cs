@@ -14,6 +14,7 @@ using UnityEngine;
 using System.IO;
 using System.Text;
 using System;
+using UnityEngine.UI;
 
 public class CubeManager : MonoBehaviour {
 
@@ -82,6 +83,8 @@ public class CubeManager : MonoBehaviour {
     public int puzzleSize_X;
     public int puzzleSize_Y;
     public int puzzleSize_Z;
+
+    private Text warnText;
     //private bool hidden = false;
 
     //private SliderScript sliderScriptRef;
@@ -90,7 +93,19 @@ public class CubeManager : MonoBehaviour {
     // Mostly used to set values that other scripts will need to access
     public void Awake()
     {
-        GetPuzzleInfo("Assets/Puzzles/XSolution");
+        warnText = GameObject.Find("WarnText").GetComponent<Text>();
+        // initially don't have any text showing
+        warnText.text = "";
+
+        if(GetPuzzleInfo("Assets/Puzzles/XSolution"))
+        {
+            // let the game carry out
+        }
+        else
+        {
+            // if there was a problem with the reading of the puzzleFile, let the player know
+            warnText.text = "There was an issue with your puzzle's format";
+        }
     }
 
     // create the array of cubes that will make up the puzzle
@@ -141,6 +156,8 @@ public class CubeManager : MonoBehaviour {
 
         //create the puzzle itself
         CreatePuzzle("Assets/Puzzles/XSolution");
+
+        
 
         // set the rotation to be at 45 degrees initially so the sliders aren't immediately in front of
         // the camera
@@ -807,13 +824,18 @@ public class CubeManager : MonoBehaviour {
 
             StreamReader theReader = new StreamReader(fileName, Encoding.Default);
 
+            int i_Index = 0;
+            int j_Index;
+            int lineTracker = 0;
+
             using (theReader)
             {
                 line = theReader.ReadLine();
+                lineTracker++;
 
                 // set the contents of the first line that are separated by x characters to be the
                 // I, J, and K indices of the puzzle
-                if(line != null)
+                if (line != null)
                 {
                     string[] dimensions = line.Split('x');
 
@@ -824,15 +846,91 @@ public class CubeManager : MonoBehaviour {
                     puzzleSize_Z = int.Parse(dimensions[2]);    // i dimension
                 }
 
+                j_Index = puzzleSize_Y - 1;
+ 
+                
+                // check the rest of the text file to make sure it is in the right format
+                do
+                {                    
+                    line = theReader.ReadLine();
+                    lineTracker++;
+
+                    if (line != null)
+                    {
+                        // if the line is a newLine, increment the i_tracker
+                        if (line == "")
+                        {
+                            i_Index++;
+                            // if there are too many newLines, aka too many layers,
+                            // return false
+                            if (i_Index > puzzleSize_Z - 1)
+                            {
+                                Debug.Log("More layers than indicated in first line");
+                                return false;
+                            }
+
+                        }                        
+                        // ensure that each line is as wide as the input x size
+                        else if (line.Length == puzzleSize_X)
+                        {
+                            // read through the line and see if it make up of only 0s or 1s
+                            for (int i = 0; i < line.Length; i++)
+                            {
+                                if (line[i].Equals('0') || line[i].Equals('1'))
+                                {
+
+                                }
+                                // if any of the numbers used in the text are not 0 or 1, 
+                                // return false since it is in the wrong format
+                                else
+                                {
+                                    Debug.Log("cube values weren't 0 or 1");
+                                    return false;
+                                }
+
+                            }
+
+                            j_Index--;
+                            // if one of the layers is too tall, return false since the file is
+                            // not in the right format
+                            if (j_Index < -1)
+                            {
+                                Debug.Log("Too many rows in layer " + (Mathf.Abs(puzzleSize_Y - j_Index) + 1) );
+                                return false;
+                            }
+                            else if (j_Index < 0)
+                            {
+                                j_Index = puzzleSize_Y - 1;
+                            }
+
+                        }
+                        // if the line isn't a newLine or a proper length line of 0s and 1s, 
+                        // the text file is not in the right format so return false
+                        else
+                        {
+                            Debug.Log("line " + lineTracker + " was too long");
+                            return false;
+                        }
+                        
+                        
+                    }
+                    
+
+                }
+                while (line != null);
+                
+
                 theReader.Close();
                 return true;
             }
+           
         }
         catch (Exception e)
         {
-            Debug.Log("failed to read the text file" + e.Message);
+            Debug.Log("failed to read the text file " + e.Message);
             return false;
         }
+        
     }
 
     private void UpdateBounds()
