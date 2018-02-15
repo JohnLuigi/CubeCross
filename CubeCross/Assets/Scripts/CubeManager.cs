@@ -85,6 +85,10 @@ public class CubeManager : MonoBehaviour {
     public int puzzleSize_Z;
 
     private Text warnText;
+    private bool canProceed = false;    // used to check if the input puzzle file worked, then display the puzzle
+
+    private int[,,] puzzleContentArray;
+
     //private bool hidden = false;
 
     //private SliderScript sliderScriptRef;
@@ -97,65 +101,70 @@ public class CubeManager : MonoBehaviour {
         // initially don't have any text showing
         warnText.text = "";
 
-        if(GetPuzzleInfo("Assets/Puzzles/XSolution"))
+        if(GetPuzzleInfo("Assets/Puzzles/XSolution.txt"))
         {
             // let the game carry out
+            canProceed = true;
         }
         else
         {
             // if there was a problem with the reading of the puzzleFile, let the player know
-            warnText.text = "There was an issue with your puzzle's format";
+            warnText.text = "There was an issue with\n your puzzle's format";
         }
     }
 
     // create the array of cubes that will make up the puzzle
-    public void Start () {
+    public void Start()
+    {
         maxDistance = (float)puzzleSize;
 
         minZoom = (float)puzzleSize;
         maxZoom = (float)puzzleSize + 3.0f;
-//************************************************************************************
+        //************************************************************************************
         // ORIGINAL
         //Camera.main.transform.position = new Vector3(0f, 0f, ((float)puzzleSize * -1.0f) - 1.0f);
         Camera.main.transform.position = new Vector3(0f, 0f, (10f * -1.0f) - 1.0f);
-//************************************************************************************
-
-        CreateCubes();
-
-        puzzleBounds = new Bounds(cubeArray[0, 0, 0].transform.position, Vector3.zero);
-        UpdateBounds();
-
-        // set the initial location of the x, y, and z sliders
-        // and make their parents this gameObject (the game manager) so that when we rotate the puzzle, the slider move with it
-
-        //sliderDistance = puzzleSize;
-
-        // reference for the edge of the puzzle for the XSlider
-        sliderReferenceX = new GameObject { name = "SliderReferenceX" };
-        sliderReferenceX.transform.position = new Vector3(-(puzzleSize / 2f) + 0.5f, 0, (puzzleSize / 2f) - 0.5f);
-        sliderReferenceX.transform.parent = this.transform;
-
-        xSlider = GameObject.Find("XSlider");
-
-        // reference for the edge of the puzzle for the ZSlider
-        sliderReferenceZ = new GameObject { name = "SliderReferenceZ" };
-        sliderReferenceZ.transform.position = new Vector3(-(puzzleSize / 2f) + 0.5f, 0, (puzzleSize / 2f) - 0.5f);
-        sliderReferenceZ.transform.parent = this.transform;
-
-        zSlider = GameObject.Find("ZSlider");
-
-        // initialize each array to be visible
-        // this will be used to track which "layers" of the puzzle should be hidden
-        // TODO
-        // might have to make a version of this for the YSlider
-        hideIndices = new bool[puzzleSize];
-        for (int i = 0; i < hideIndices.Length; i++)
+        //************************************************************************************
+        if (canProceed)
         {
-            hideIndices[i] = false;
-        }
+            CreateCubes();
 
-        //create the puzzle itself
-        CreatePuzzle("Assets/Puzzles/XSolution");
+            puzzleBounds = new Bounds(cubeArray[0, 0, 0].transform.position, Vector3.zero);
+            UpdateBounds();
+
+            //create the puzzle itself
+            CreatePuzzle("Assets/Puzzles/XSolution.txt");
+        }
+            // set the initial location of the x, y, and z sliders
+            // and make their parents this gameObject (the game manager) so that when we rotate the puzzle, the slider move with it
+
+            //sliderDistance = puzzleSize;
+
+            // reference for the edge of the puzzle for the XSlider
+            sliderReferenceX = new GameObject { name = "SliderReferenceX" };
+            sliderReferenceX.transform.position = new Vector3(-(puzzleSize / 2f) + 0.5f, 0, (puzzleSize / 2f) - 0.5f);
+            sliderReferenceX.transform.parent = this.transform;
+
+            xSlider = GameObject.Find("XSlider");
+
+            // reference for the edge of the puzzle for the ZSlider
+            sliderReferenceZ = new GameObject { name = "SliderReferenceZ" };
+            sliderReferenceZ.transform.position = new Vector3(-(puzzleSize / 2f) + 0.5f, 0, (puzzleSize / 2f) - 0.5f);
+            sliderReferenceZ.transform.parent = this.transform;
+
+            zSlider = GameObject.Find("ZSlider");
+
+            // initialize each array to be visible
+            // this will be used to track which "layers" of the puzzle should be hidden
+            // TODO
+            // might have to make a version of this for the YSlider
+            hideIndices = new bool[puzzleSize];
+            for (int i = 0; i < hideIndices.Length; i++)
+            {
+                hideIndices[i] = false;
+            }
+
+        
 
         
 
@@ -818,14 +827,14 @@ public class CubeManager : MonoBehaviour {
     // will probably combine this with the cube creation script
     private bool GetPuzzleInfo(string fileName)
     {
-        try
-        {
+        //try
+        //{
             string line;    // this string will store the text of the first line
 
             StreamReader theReader = new StreamReader(fileName, Encoding.Default);
 
             int i_Index = 0;
-            int j_Index;
+            int j_Index = 0;
             int lineTracker = 0;
 
             using (theReader)
@@ -846,9 +855,14 @@ public class CubeManager : MonoBehaviour {
                     puzzleSize_Z = int.Parse(dimensions[2]);    // i dimension
                 }
 
+
+                // TODO
+                // check this with non-cubic arrays to ensure the dimensions are being used properly
+                puzzleContentArray = new int[puzzleSize_Z, puzzleSize_Y, puzzleSize_X];
+
+                // start the j index at the size of the puzzle minus one since it will be stored in an array
                 j_Index = puzzleSize_Y - 1;
- 
-                
+
                 // check the rest of the text file to make sure it is in the right format
                 do
                 {                    
@@ -857,6 +871,19 @@ public class CubeManager : MonoBehaviour {
 
                     if (line != null)
                     {
+                        // if we have hit the number of rows (vertically counted on the j aka Y axis)
+                        // and the next line is blank, proceed
+                        // Otherwise if the next line is not blank, there are too many rows in the input layer
+                        if (j_Index == -1 && line != "")
+                        {
+                            Debug.Log("Too many rows in layer " + (i_Index + 1) + ".\nAt line " + lineTracker);
+                            return false;
+                        }
+                        else if(j_Index == -1 && line =="")
+                        {
+                            j_Index = puzzleSize_Y - 1;
+                        }
+
                         // if the line is a newLine, increment the i_tracker
                         if (line == "")
                         {
@@ -878,7 +905,14 @@ public class CubeManager : MonoBehaviour {
                             {
                                 if (line[i].Equals('0') || line[i].Equals('1'))
                                 {
+                                //////////////////////////////////////////////////
+                                //                   TODO                       //
+                                //        POSSIBLY MAKE THE PUZZLE HERE         //
+                                //////////////////////////////////////////////////
+                                // because these indices are the same as the ones used in the real puzzle
 
+                                // add the value of the cube index character to the puzzleContentArray
+                                puzzleContentArray[i_Index, j_Index, i] = (int)Char.GetNumericValue(line[i]);
                                 }
                                 // if any of the numbers used in the text are not 0 or 1, 
                                 // return false since it is in the wrong format
@@ -889,19 +923,9 @@ public class CubeManager : MonoBehaviour {
                                 }
 
                             }
-
+                            
+                            // decrement the j aka Y tracker because we've reached the bottom layer
                             j_Index--;
-                            // if one of the layers is too tall, return false since the file is
-                            // not in the right format
-                            if (j_Index < -1)
-                            {
-                                Debug.Log("Too many rows in layer " + (Mathf.Abs(puzzleSize_Y - j_Index) + 1) );
-                                return false;
-                            }
-                            else if (j_Index < 0)
-                            {
-                                j_Index = puzzleSize_Y - 1;
-                            }
 
                         }
                         // if the line isn't a newLine or a proper length line of 0s and 1s, 
@@ -923,13 +947,14 @@ public class CubeManager : MonoBehaviour {
                 theReader.Close();
                 return true;
             }
-           
+        /*   
         }
         catch (Exception e)
         {
             Debug.Log("failed to read the text file " + e.Message);
             return false;
         }
+        */
         
     }
 
