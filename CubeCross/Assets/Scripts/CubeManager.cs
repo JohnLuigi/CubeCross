@@ -874,6 +874,7 @@ public class CubeManager : MonoBehaviour {
                         // if we have hit the number of rows (vertically counted on the j aka Y axis)
                         // and the next line is blank, proceed
                         // Otherwise if the next line is not blank, there are too many rows in the input layer
+                        /*
                         if (j_Index == -1 && line != "")
                         {
                             Debug.Log("Too many rows in layer " + (i_Index + 1) + ".\nAt line " + lineTracker);
@@ -883,7 +884,7 @@ public class CubeManager : MonoBehaviour {
                         {
                             j_Index = puzzleSize_Y - 1;
                         }
-
+                        */
                         // if the line is a newLine, increment the i_tracker
                         if (line == "")
                         {
@@ -892,27 +893,45 @@ public class CubeManager : MonoBehaviour {
                             // return false
                             if (i_Index > puzzleSize_Z - 1)
                             {
-                                Debug.Log("More layers than indicated in first line");
+                                Debug.Log("There are more layers than indicated in first line of the file");
                                 return false;
+                            }
+                            // if we hit a newLine but the previous layer has too few rows
+                            else if(j_Index > -1)
+                            {
+                                Debug.Log("Too few rows in layer " + (i_Index) + ".\nAt line " + (lineTracker - 1));
+                                return false;
+                            }
+                            // if we hit a newLine but the previous layer has too many rows
+                            else if (j_Index < -1)
+                            {
+                                Debug.Log("Too many rows in layer " + (i_Index) + ".\nAt line " + (lineTracker - 1));
+                                return false;
+                            }
+                            // If we hit a newLine and the previous layer had the expected amount of rows, 
+                            // reset the j aka Y value tracker to be back at the top of the cube
+                            else if(j_Index == -1)
+                            {
+                                j_Index = puzzleSize_Y - 1;
                             }
 
                         }                        
                         // ensure that each line is as wide as the input x size
-                        else if (line.Length == puzzleSize_X)
+                        else if (line.Length == puzzleSize_X && j_Index >-1)
                         {
                             // read through the line and see if it make up of only 0s or 1s
                             for (int i = 0; i < line.Length; i++)
                             {
                                 if (line[i].Equals('0') || line[i].Equals('1'))
                                 {
-                                //////////////////////////////////////////////////
-                                //                   TODO                       //
-                                //        POSSIBLY MAKE THE PUZZLE HERE         //
-                                //////////////////////////////////////////////////
-                                // because these indices are the same as the ones used in the real puzzle
+                                    //////////////////////////////////////////////////
+                                    //                   TODO                       //
+                                    //        POSSIBLY MAKE THE PUZZLE HERE         //
+                                    //////////////////////////////////////////////////
+                                    // because these indices are the same as the ones used in the real puzzle
 
-                                // add the value of the cube index character to the puzzleContentArray
-                                puzzleContentArray[i_Index, j_Index, i] = (int)Char.GetNumericValue(line[i]);
+                                    // add the value of the cube index character to the puzzleContentArray
+                                    puzzleContentArray[i_Index, j_Index, i] = (int)Char.GetNumericValue(line[i]);
                                 }
                                 // if any of the numbers used in the text are not 0 or 1, 
                                 // return false since it is in the wrong format
@@ -923,13 +942,24 @@ public class CubeManager : MonoBehaviour {
                                 }
 
                             }
-                            
                             // decrement the j aka Y tracker because we've reached the bottom layer
                             j_Index--;
 
                         }
+                        // if a line is not the length of the puzzle's k aka X dimension, return false
+                        // since there is a row that has too few or too many cubes
+                        else if (line.Length != puzzleSize_X)
+                        {
+                            Debug.Log("Wrong number of cubes in line " + lineTracker);
+                            return false;
+                        }
                         // if the line isn't a newLine or a proper length line of 0s and 1s, 
                         // the text file is not in the right format so return false
+                        else if(j_Index <= - 1)
+                        {
+                            Debug.Log("Too many rows in layer " + (i_Index + 1) + ".\nAt line " + lineTracker);
+                            return false;
+                        }
                         else
                         {
                             Debug.Log("line " + lineTracker + " was too long");
@@ -937,6 +967,15 @@ public class CubeManager : MonoBehaviour {
                         }
                         
                         
+                    }
+                    // If we have reached the end of the file, check to make sure that enough layers were made
+                    else if (line == null)
+                    {
+                        if(i_Index != puzzleSize_Z - 1)
+                        {
+                            Debug.Log("Not enough layers were made to match the input values on the first line");
+                            return false;
+                        }
                     }
                     
 
