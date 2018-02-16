@@ -206,9 +206,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   puzzleSize: 4
-  exampleCube: {fileID: 1044050213757572, guid: c9b3acc735a797b4ca2563e63ec9f71c,
+  exampleCube_1: {fileID: 1044050213757572, guid: c9b3acc735a797b4ca2563e63ec9f71c,
     type: 2}
-  exampleCubeDark: {fileID: 1692143240157808, guid: c8464366a54ade64cbfb89b7e82589ab,
+  exampleCubeDark_1: {fileID: 1692143240157808, guid: c8464366a54ade64cbfb89b7e82589ab,
     type: 2}
   exampleCube_0: {fileID: 1654018037058756, guid: 024b74a593627d7438f1213a9e220736,
     type: 2}

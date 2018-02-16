@@ -20,8 +20,8 @@ public class CubeManager : MonoBehaviour {
 
     public int puzzleSize = 4;
     public GameObject[,,] cubeArray;            // this three dimensional array will contain all the cubes for the puzzle
-	public GameObject exampleCube;
-    public GameObject exampleCubeDark;
+	public GameObject exampleCube_1;
+    public GameObject exampleCubeDark_1;
     public GameObject exampleCube_0;
     public GameObject exampleCubeDark_0;
 
@@ -133,7 +133,7 @@ public class CubeManager : MonoBehaviour {
             UpdateBounds();
 
             //create the puzzle itself
-            CreatePuzzle("Assets/Puzzles/XSolution.txt");
+            //CreatePuzzle("Assets/Puzzles/XSolution.txt");
         }
             // set the initial location of the x, y, and z sliders
             // and make their parents this gameObject (the game manager) so that when we rotate the puzzle, the slider move with it
@@ -649,37 +649,52 @@ public class CubeManager : MonoBehaviour {
 
         // TODO
         // Update this so that the dimensions of the puzzle aren't always a cube, sometimes it might be rectangular
-		cubeArray = new GameObject[puzzleSize, puzzleSize, puzzleSize];
+		cubeArray = new GameObject[puzzleSize_Z, puzzleSize_Y, puzzleSize_X];
 
-		for (int i = 0; i < cubeArray.GetLength(0); i++)
+
+        for (int i = 0; i < cubeArray.GetLength(0); i++)
         {			
             for(int j = 0; j < cubeArray.GetLength(1); j++)
             {
                 for(int k = 0; k < cubeArray.GetLength(2); k++)
                 {
                     GameObject newCube;
+
+                    // Depending on the corresponding cube in the array of 0 and 1s that make up the puzzle,
+                    // create a cube at a similar index in the identically-sized cubeArray accordingly
+
+                    // if the cube is to be a 1, aka a core part of the puzzle, instantiate it as a keyCube
+                    if(puzzleContentArray[i, j, k] == 1)
+                    {
+                        newCube = Instantiate(exampleCube_1, startingPoint, Quaternion.identity) as GameObject;
+                    }
+                    // if the cube is to be a 0, aka a deletable cube, instantiate it as a blankCube
+                    else if(puzzleContentArray[i, j, k] == 0)
+                    {
+                        newCube = Instantiate(exampleCube_0, startingPoint, Quaternion.identity) as GameObject;
+                    }
+                    else
+                    {
+                        newCube = null;
+                    }
+
                     // we are going to alternate between dark and light cubes based on whether the current
                     // index is even or odd
                     if(k % 2 == 0)
                     {
                         if ((i % 2 == 0 && j % 2 == 0) || (i % 2 == 1 && j % 2 == 1))
                         {
-                            newCube = Instantiate(exampleCubeDark, startingPoint, Quaternion.identity) as GameObject;
-                        }
-                        else
-                        {
-                            newCube = Instantiate(exampleCube, startingPoint, Quaternion.identity) as GameObject;
+                            newCube.GetComponent<Renderer>().material.color = new Color(212f / 255f, 223f / 255f, 255f / 255f);
                         }
                     }
                     else
                     {
                         if ((i % 2 == 0 && j % 2 == 0) || (i % 2 == 1 && j % 2 == 1))
                         {
-                            newCube = Instantiate(exampleCube, startingPoint, Quaternion.identity) as GameObject;
                         }
                         else
                         {
-                            newCube = Instantiate(exampleCubeDark, startingPoint, Quaternion.identity) as GameObject;
+                            newCube.GetComponent<Renderer>().material.color = new Color(212f / 255f, 223f / 255f, 255f / 255f);
                         }
                     }
                     
@@ -777,7 +792,17 @@ public class CubeManager : MonoBehaviour {
                                     Vector3 location = cubeArray[i_Index, j_Index, i].transform.position;
                                     Destroy(cubeArray[i_Index, j_Index, i]);
 
-                                     newCube = Instantiate(exampleCube_0, location, Quaternion.identity) as GameObject;
+                                    newCube = Instantiate(exampleCube_0, location, Quaternion.identity) as GameObject;
+
+                                    //Color tempC = newCube.GetComponent<Renderer>().material.color;
+
+                                    //tempC = new Color(212, 223, 255);
+
+                                    newCube.GetComponent<Renderer>().material.color = new Color(212f/255f,223f/255f, 255f/255f);
+                                    newCube.GetComponent<Renderer>().material.color = new Color(255f / 255f, 255f / 255f, 255f / 255f);
+
+
+
 
                                     newCube.transform.localScale = Vector3.one;
                                     newCube.transform.parent = gameObject.transform;        // set each cube as a child of this game manager
