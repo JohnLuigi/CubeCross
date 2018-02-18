@@ -24,6 +24,7 @@ public class CubeManager : MonoBehaviour {
     public GameObject exampleCubeDark_1;
     public GameObject exampleCube_0;
     public GameObject exampleCubeDark_0;
+    public GameObject fullCube;
 
     private float pressTime;                    // cube deletion variables
     public float cubeKillDelay = 0.1f;
@@ -650,6 +651,7 @@ public class CubeManager : MonoBehaviour {
         // TODO
         // Update this so that the dimensions of the puzzle aren't always a cube, sometimes it might be rectangular
 		cubeArray = new GameObject[puzzleSize_Z, puzzleSize_Y, puzzleSize_X];
+        CubeFacesScript faces;
 
 
         for (int i = 0; i < cubeArray.GetLength(0); i++)
@@ -666,17 +668,29 @@ public class CubeManager : MonoBehaviour {
                     // if the cube is to be a 1, aka a core part of the puzzle, instantiate it as a keyCube
                     if(puzzleContentArray[i, j, k] == 1)
                     {
-                        newCube = Instantiate(exampleCube_1, startingPoint, Quaternion.identity) as GameObject;
+                        //newCube = Instantiate(exampleCube_1, startingPoint, Quaternion.identity) as GameObject;
+                        newCube = Instantiate(fullCube, startingPoint, Quaternion.identity) as GameObject;
+                        newCube.tag = "KeyCube";
+                        faces = newCube.GetComponent<CubeFacesScript>();
+                        faces.SetFaces("1");
                     }
                     // if the cube is to be a 0, aka a deletable cube, instantiate it as a blankCube
                     else if(puzzleContentArray[i, j, k] == 0)
                     {
-                        newCube = Instantiate(exampleCube_0, startingPoint, Quaternion.identity) as GameObject;
+                        //newCube = Instantiate(exampleCube_0, startingPoint, Quaternion.identity) as GameObject;
+                        newCube = Instantiate(fullCube, startingPoint, Quaternion.identity) as GameObject;
+                        newCube.tag = "BlankCube";
+                        faces = newCube.GetComponent<CubeFacesScript>();
+                        faces.SetFaces("0");
                     }
                     else
                     {
                         newCube = null;
                     }
+
+                    //TODO
+                    // Clean this up, maybe set these two cases where a cube is shaded dark in the previous method 
+                    // so that they are immediately created at the right texture instead of being reassigned
 
                     // we are going to alternate between dark and light cubes based on whether the current
                     // index is even or odd
@@ -684,7 +698,17 @@ public class CubeManager : MonoBehaviour {
                     {
                         if ((i % 2 == 0 && j % 2 == 0) || (i % 2 == 1 && j % 2 == 1))
                         {
-                            newCube.GetComponent<Renderer>().material.color = new Color(212f / 255f, 223f / 255f, 255f / 255f);
+                            //newCube.GetComponent<Renderer>().material.color = new Color(212f / 255f, 223f / 255f, 255f / 255f);
+                            if (puzzleContentArray[i, j, k] == 1)
+                            {
+                                faces = newCube.GetComponent<CubeFacesScript>();
+                                faces.SetFaces("1_D");
+                            }
+                            else if (puzzleContentArray[i, j, k] == 0)
+                            {
+                                faces = newCube.GetComponent<CubeFacesScript>();
+                                faces.SetFaces("0_D");
+                            }
                         }
                     }
                     else
@@ -694,7 +718,17 @@ public class CubeManager : MonoBehaviour {
                         }
                         else
                         {
-                            newCube.GetComponent<Renderer>().material.color = new Color(212f / 255f, 223f / 255f, 255f / 255f);
+                            //newCube.GetComponent<Renderer>().material.color = new Color(212f / 255f, 223f / 255f, 255f / 255f);
+                            if (puzzleContentArray[i, j, k] == 1)
+                            {
+                                faces = newCube.GetComponent<CubeFacesScript>();
+                                faces.SetFaces("1_D");
+                            }
+                            else if (puzzleContentArray[i, j, k] == 0)
+                            {
+                                faces = newCube.GetComponent<CubeFacesScript>();
+                                faces.SetFaces("0_D");
+                            }
                         }
                     }
                     
