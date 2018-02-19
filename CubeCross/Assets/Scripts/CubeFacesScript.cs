@@ -15,7 +15,8 @@ public class CubeFacesScript : MonoBehaviour {
     {
         // set the variables that are being referenced
         mesh = GetComponent<MeshFilter>().mesh;
-        UVs = new Vector2[mesh.vertices.Length];
+        UVs = new Vector2[mesh.uv.Length];
+        //UVs = mesh.uv;
 
         if (mesh == null || UVs.Length != 24)
         {
@@ -31,86 +32,23 @@ public class CubeFacesScript : MonoBehaviour {
     // Use this for initialization
     void Start () {
 
-        /*
-        // set the variables that are being referenced
-        mesh = GetComponent<MeshFilter>().mesh;
-        UVs = new Vector2[mesh.vertices.Length];
-
-        if(mesh == null || UVs.Length != 24)
-        {
-            Debug.Log("Script needs to be attached to a Unity cube");
-            return;
-        }
-
-        // division units
-        // In this case we are using 128x128 cubes from a 1024x1024 texture atlas
-        div = 128f / 1024f;
-
-        */
-
-
-
         // TODO to assign a specific part of a texture to a cube face, the location on the texture map needs to be saved
         // could save 4 vector2s that are the location of a specific square texture
 
         // order to assign textures
         // if the cube face is 
         /*
-         *  1-----2
+         *  2-----3
          *  |     |
          *  |     |
-         *  3-----4
+         *  0-----1
          */
-        // Assign in the order 1, 2, 3, 4
-
-        /*
-        // front
-        // location of normal 0
-        UVs[0] = new Vector2(0f, 1f);
-        UVs[1] = new Vector2(div, 1f);
-        UVs[2] = new Vector2(0f, 1f - div);
-        UVs[3] = new Vector2(div, 1f - div);
-
-        //top is UVs 4-9
-        // location of dark red 4
-        UVs[4] = new Vector2(0.5f - div, 0.5f);
-        UVs[5] = new Vector2(0.5f, 0.5f);
-        UVs[8] = new Vector2(0.5f - div, 0.5f - div);
-        UVs[9] = new Vector2(0.5f, 0.5f - div);
-
-        // back is UVs 6 - 11
-        // location of light red 1
-        UVs[11] = new Vector2(2 * div, 1f - div);
-        UVs[10] = new Vector2(0.5f - div, 1f - div);
-        UVs[7] = new Vector2(2 * div, 1f - 2*div);
-        UVs[6] = new Vector2(0.5f - div, 1f - 2 * div);
-
-        // bottom is UVs 12-15
-        // location of dark red 2
-        UVs[12] = new Vector2(3f * div, 6f * div);
-        UVs[13] = new Vector2(4f * div, 6f * div);
-        UVs[14] = new Vector2(4f * div, 5f * div);
-        UVs[15] = new Vector2(3f * div, 5f * div);
-
-        // right is UVs 16-19
-        // location of normal dark 3
-        UVs[16] = new Vector2(1f * div, 5f * div);
-        UVs[17] = new Vector2(2f * div, 5f * div);
-        UVs[18] = new Vector2(2f * div, 4f * div);
-        UVs[19] = new Vector2(1f * div, 4f * div);
-
-        // left is UVs 20-23
-        // location of normal 4
-        UVs[20] = new Vector2(0f * div, 4f * div);
-        UVs[21] = new Vector2(1f * div, 4f * div);
-        UVs[22] = new Vector2(1f * div, 3f * div);
-        UVs[23] = new Vector2(0f * div, 3f * div);
-        
-        mesh.uv = UVs;
-        */
+        // Assign in the order 2, 3, 0, 1
 
         // for testing faces
-        SetFaces("0");
+        //SetFaces("1");
+
+        //mesh.uv = UVs;
     }
 	
 	// Update is called once per frame
@@ -132,8 +70,8 @@ public class CubeFacesScript : MonoBehaviour {
             tempVerts = new Vector2[]{
                 new Vector2(0f * div, 8f * div),
                 new Vector2(1f * div, 8f * div),
-                new Vector2(1f * div, 7f * div),
-                new Vector2(0f * div, 7f * div) };
+                new Vector2(0f * div, 7f * div),
+                new Vector2(1f * div, 7f * div) };
             SetVertices(tempVerts);
         }
         else if (input.Equals("1"))
@@ -142,8 +80,8 @@ public class CubeFacesScript : MonoBehaviour {
             tempVerts = new Vector2[]{
                 new Vector2(0f * div, 7f * div),
                 new Vector2(1f * div, 7f * div),
-                new Vector2(7f * div, 6f * div),
-                new Vector2(0f * div, 6f * div) };
+                new Vector2(0f * div, 6f * div),
+                new Vector2(1f * div, 6f * div) };
             SetVertices(tempVerts);
         }
         else if(input.Equals("0_D"))
@@ -152,8 +90,8 @@ public class CubeFacesScript : MonoBehaviour {
             tempVerts = new Vector2[]{
                 new Vector2(1f * div, 8f * div),
                 new Vector2(2f * div, 8f * div),
-                new Vector2(2f * div, 7f * div),
-                new Vector2(1f * div, 7f * div) };
+                new Vector2(1f * div, 7f * div),
+                new Vector2(2f * div, 7f * div) };
             SetVertices(tempVerts);
         }
         else if(input.Equals("1_D"))
@@ -162,25 +100,76 @@ public class CubeFacesScript : MonoBehaviour {
             tempVerts = new Vector2[]{
                 new Vector2(1f * div, 7f * div),
                 new Vector2(2f * div, 7f * div),
-                new Vector2(2f * div, 6f * div),
-                new Vector2(1f * div, 6f * div) };
+                new Vector2(1f * div, 6f * div),
+                new Vector2(2f * div, 6f * div) };
             SetVertices(tempVerts);
         }
     }
 
     public void SetVertices(Vector2[] inputVerts)
     {
-        for(int i = 0; i < UVs.Length; i+= 4)
-        {
-            UVs[i] = inputVerts[0];
-            UVs[i+1] = inputVerts[1];
-            UVs[i+2] = inputVerts[2];
-            UVs[i+3] = inputVerts[3];
-        }
+        // FRONT    2    3    0    1
+        UVs[2] = inputVerts[0];
+        UVs[3] = inputVerts[1];
+        UVs[0] = inputVerts[2];
+        UVs[1] = inputVerts[3];
+
+
+        // BACK    6    7   10   11
+        UVs[6] = inputVerts[0];
+        UVs[7] = inputVerts[1];
+        UVs[10] = inputVerts[2];
+        UVs[11] = inputVerts[3];
+
+        // RIGHT   17 18 16 19
+        UVs[17] = inputVerts[0];
+        UVs[18] = inputVerts[1];
+        UVs[16] = inputVerts[2];
+        UVs[19] = inputVerts[3];
+
+        // LEFT  23   20    22    21
+        UVs[23] = inputVerts[0];
+        UVs[20] = inputVerts[1];
+        UVs[22] = inputVerts[2];
+        UVs[21] = inputVerts[3];
+
+
+
+        // TOP    4    5    8    9
+        UVs[4] = inputVerts[0];
+        UVs[5] = inputVerts[1];
+        UVs[8] = inputVerts[2];
+        UVs[9] = inputVerts[3];
+
+
+        // BOTTOM   13   14   12   15
+        UVs[13] = inputVerts[0];
+        UVs[14] = inputVerts[1];
+        UVs[12] = inputVerts[2];
+        UVs[15] = inputVerts[3];
+
         mesh.uv = UVs;
-        // swap the values of 6 and 7 with 8 and 9 if need be
     }
 }
+
+
+//   2 --- 3
+//   |     |
+//   |     |
+//   0 --- 1
+
+/*  theUVs[2] = Vector2( 0, 1 );
+    theUVs[3] = Vector2( 1, 1 );
+    theUVs[0] = Vector2( 0, 0 );
+    theUVs[1] = Vector2( 1, 0 );
+ * 
+ * */
+//    2    3    0    1   Front
+//    6    7   10   11   Back
+//   19   17   16   18   Left
+//   23   21   20   22   Right
+//    4    5    8    9   Top
+//   15   13   12   14   Bottom
 
 //reference
 /*
@@ -224,4 +213,3 @@ public class CubeFacesScript : MonoBehaviour {
 
     */
 
-    
