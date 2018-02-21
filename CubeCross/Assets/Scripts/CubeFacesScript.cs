@@ -48,6 +48,15 @@ public class CubeFacesScript : MonoBehaviour {
         // for testing faces
         //SetFaces("1");
 
+        /*
+        // set the front to be red 4
+        Vector2[] inputVerts = new Vector2[]{
+                new Vector2(3f * div, 4f * div),
+                new Vector2(4f * div, 4f * div),
+                new Vector2(3f * div, 3f * div),
+                new Vector2(4f * div, 3f * div) };
+        */
+
         //mesh.uv = UVs;
     }
 	
@@ -72,7 +81,7 @@ public class CubeFacesScript : MonoBehaviour {
                 new Vector2(1f * div, 8f * div),
                 new Vector2(0f * div, 7f * div),
                 new Vector2(1f * div, 7f * div) };
-            SetVertices(tempVerts);
+            SetAllVertices(tempVerts);
         }
         else if (input.Equals("1"))
         {
@@ -82,7 +91,7 @@ public class CubeFacesScript : MonoBehaviour {
                 new Vector2(1f * div, 7f * div),
                 new Vector2(0f * div, 6f * div),
                 new Vector2(1f * div, 6f * div) };
-            SetVertices(tempVerts);
+            SetAllVertices(tempVerts);
         }
         else if(input.Equals("0_D"))
         {
@@ -92,7 +101,7 @@ public class CubeFacesScript : MonoBehaviour {
                 new Vector2(2f * div, 8f * div),
                 new Vector2(1f * div, 7f * div),
                 new Vector2(2f * div, 7f * div) };
-            SetVertices(tempVerts);
+            SetAllVertices(tempVerts);
         }
         else if(input.Equals("1_D"))
         {
@@ -102,11 +111,13 @@ public class CubeFacesScript : MonoBehaviour {
                 new Vector2(2f * div, 7f * div),
                 new Vector2(1f * div, 6f * div),
                 new Vector2(2f * div, 6f * div) };
-            SetVertices(tempVerts);
+            SetAllVertices(tempVerts);
         }
     }
 
-    public void SetVertices(Vector2[] inputVerts)
+    // This will set all sides of a cube to the same texture that is derived from
+    // the inpu vertices
+    public void SetAllVertices(Vector2[] inputVerts)
     {
         // FRONT    2    3    0    1
         UVs[2] = inputVerts[0];
@@ -114,12 +125,11 @@ public class CubeFacesScript : MonoBehaviour {
         UVs[0] = inputVerts[2];
         UVs[1] = inputVerts[3];
 
-
-        // BACK    6    7   10   11
-        UVs[6] = inputVerts[0];
-        UVs[7] = inputVerts[1];
-        UVs[10] = inputVerts[2];
-        UVs[11] = inputVerts[3];
+        // BACK    11    10     7     6
+        UVs[11] = inputVerts[0];
+        UVs[10] = inputVerts[1];
+        UVs[7] = inputVerts[2];
+        UVs[6] = inputVerts[3];
 
         // RIGHT   17 18 16 19
         UVs[17] = inputVerts[0];
@@ -127,32 +137,37 @@ public class CubeFacesScript : MonoBehaviour {
         UVs[16] = inputVerts[2];
         UVs[19] = inputVerts[3];
 
-        // LEFT  23   20    22    21
-        UVs[23] = inputVerts[0];
-        UVs[20] = inputVerts[1];
-        UVs[22] = inputVerts[2];
-        UVs[21] = inputVerts[3];
+        // LEFT 21   22    20    23
+        UVs[21] = inputVerts[0];
+        UVs[22] = inputVerts[1];
+        UVs[20] = inputVerts[2];
+        UVs[23] = inputVerts[3];
 
+        // TOP    9    8    5    4
+        UVs[9] = inputVerts[0];
+        UVs[8] = inputVerts[1];
+        UVs[5] = inputVerts[2];
+        UVs[4] = inputVerts[3];
 
-
-        // TOP    4    5    8    9
-        UVs[4] = inputVerts[0];
-        UVs[5] = inputVerts[1];
-        UVs[8] = inputVerts[2];
-        UVs[9] = inputVerts[3];
-
-
-        // BOTTOM   13   14   12   15
-        UVs[13] = inputVerts[0];
-        UVs[14] = inputVerts[1];
-        UVs[12] = inputVerts[2];
-        UVs[15] = inputVerts[3];
+        // BOTTOM   15   12   14   13
+        UVs[15] = inputVerts[0];
+        UVs[12] = inputVerts[1];
+        UVs[14] = inputVerts[2];
+        UVs[13] = inputVerts[3];
 
         mesh.uv = UVs;
     }
 }
 
 
+// To flip a face vertically, swap the first two vertices with the second two vertices,
+// then swap the new first with the new second, and the new third with the new fourth
+// e.g.
+// 2 3 0 1
+//    to
+// 1 0 3 2
+
+// OLD VALUES FOR REFERENCE IF NEED BE
 //   2 --- 3
 //   |     |
 //   |     |
@@ -170,46 +185,4 @@ public class CubeFacesScript : MonoBehaviour {
 //   23   21   20   22   Right
 //    4    5    8    9   Top
 //   15   13   12   14   Bottom
-
-//reference
-/*
- * 
- * void Start () {
-     Mesh mesh = GetComponent<MeshFilter>().mesh;
-     Vector2[] UVs = new Vector2[mesh.vertices.Length];
-     // Front
-     UVs[0] = new Vector2(0.0f, 0.0f);
-     UVs[1] = new Vector2(0.333f, 0.0f);
-     UVs[2] = new Vector2(0.0f, 0.333f);
-     UVs[3] = new Vector2(0.333f, 0.333f);
-     // Top
-     UVs[4] = new Vector2(0.334f, 0.333f);
-     UVs[5] = new Vector2(0.666f, 0.333f);
-     UVs[8] = new Vector2(0.334f, 0.0f);
-     UVs[9] = new Vector2(0.666f, 0.0f);
-     // Back
-     UVs[6] = new Vector2(1.0f, 0.0f);
-     UVs[7] = new Vector2(0.667f, 0.0f);
-     UVs[10] = new Vector2(1.0f, 0.333f);
-     UVs[11] = new Vector2(0.667f, 0.333f);
-     // Bottom
-     UVs[12] = new Vector2(0.0f, 0.334f);
-     UVs[13] = new Vector2(0.0f, 0.666f);
-     UVs[14] = new Vector2(0.333f, 0.666f);
-     UVs[15] = new Vector2(0.333f, 0.334f);
-     // Left
-     UVs[16] = new Vector2(0.334f, 0.334f);
-     UVs[17] = new Vector2(0.334f, 0.666f);
-     UVs[18] = new Vector2(0.666f, 0.666f);
-     UVs[19] = new Vector2(0.666f, 0.334f);
-     // Right        
-     UVs[20] = new Vector2(0.667f, 0.334f);
-     UVs[21] = new Vector2(0.667f, 0.666f);
-     UVs[22] = new Vector2(1.0f, 0.666f);
-     UVs[23] = new Vector2(1.0f, 0.334f);
-     mesh.uv = UVs;
- }
-
-
-    */
 
