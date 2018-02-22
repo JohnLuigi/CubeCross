@@ -672,7 +672,7 @@ public class CubeManager : MonoBehaviour {
                         newCube = Instantiate(fullCube, startingPoint, Quaternion.identity) as GameObject;
                         newCube.tag = "KeyCube";
                         faces = newCube.GetComponent<CubeFacesScript>();
-                        faces.SetFaces("1");
+                        faces.SetAllFaces("1");
                     }
                     // if the cube is to be a 0, aka a deletable cube, instantiate it as a blankCube
                     else if(puzzleContentArray[i, j, k] == 0)
@@ -681,7 +681,7 @@ public class CubeManager : MonoBehaviour {
                         newCube = Instantiate(fullCube, startingPoint, Quaternion.identity) as GameObject;
                         newCube.tag = "BlankCube";
                         faces = newCube.GetComponent<CubeFacesScript>();
-                        faces.SetFaces("0");
+                        faces.SetAllFaces("0");
                     }
                     else
                     {
@@ -702,12 +702,12 @@ public class CubeManager : MonoBehaviour {
                             if (puzzleContentArray[i, j, k] == 1)
                             {
                                 faces = newCube.GetComponent<CubeFacesScript>();
-                                faces.SetFaces("1_D");
+                                faces.SetAllFaces("1_D");
                             }
                             else if (puzzleContentArray[i, j, k] == 0)
                             {
                                 faces = newCube.GetComponent<CubeFacesScript>();
-                                faces.SetFaces("0_D");
+                                faces.SetAllFaces("0_D");
                             }
                         }
                     }
@@ -722,12 +722,12 @@ public class CubeManager : MonoBehaviour {
                             if (puzzleContentArray[i, j, k] == 1)
                             {
                                 faces = newCube.GetComponent<CubeFacesScript>();
-                                faces.SetFaces("1_D");
+                                faces.SetAllFaces("1_D");
                             }
                             else if (puzzleContentArray[i, j, k] == 0)
                             {
                                 faces = newCube.GetComponent<CubeFacesScript>();
-                                faces.SetFaces("0_D");
+                                faces.SetAllFaces("0_D");
                             }
                         }
                     }

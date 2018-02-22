@@ -7,6 +7,8 @@ public class CubeFacesScript : MonoBehaviour {
     public Mesh mesh;
     public Vector2[] UVs;
     public float div;
+    public string[] facesArray;
+
 
     // Initializing all this stuff in Awake() because this method is called immediately when the attached object is
     // instantiated in a different script
@@ -58,6 +60,13 @@ public class CubeFacesScript : MonoBehaviour {
         */
 
         //mesh.uv = UVs;
+
+        SetFace("front", "0");
+        SetFace("back", "1");
+        SetFace("left", "0_D");
+        SetFace("right", "1_D");
+        SetFace("top", "x");
+        SetFace("bottom", "0");
     }
 	
 	// Update is called once per frame
@@ -65,9 +74,128 @@ public class CubeFacesScript : MonoBehaviour {
 
     }
 
+    // This method will set a specific cube's face to be a specific texture on the texture map for the cubes
+    public void SetFace(string face, string texture)
+    {        
+        Vector2[] faceVerts = GetFaceVerts(texture);
+
+        switch (face)
+        {
+            case "front":
+                // FRONT    2    3    0    1
+                UVs[2] = faceVerts[0];
+                UVs[3] = faceVerts[1];
+                UVs[0] = faceVerts[2];
+                UVs[1] = faceVerts[3];
+                break;
+
+            case "back":
+                // BACK    11    10     7     6
+                UVs[11] = faceVerts[0];
+                UVs[10] = faceVerts[1];
+                UVs[7] = faceVerts[2];
+                UVs[6] = faceVerts[3];
+                break;
+
+            case "left":
+                // LEFT 21   22    20    23
+                UVs[21] = faceVerts[0];
+                UVs[22] = faceVerts[1];
+                UVs[20] = faceVerts[2];
+                UVs[23] = faceVerts[3];
+                break;
+
+            case "right":
+                // RIGHT   17 18 16 19
+                UVs[17] = faceVerts[0];
+                UVs[18] = faceVerts[1];
+                UVs[16] = faceVerts[2];
+                UVs[19] = faceVerts[3];
+                break;
+
+            case "top":
+                // TOP    9    8    5    4
+                UVs[9] = faceVerts[0];
+                UVs[8] = faceVerts[1];
+                UVs[5] = faceVerts[2];
+                UVs[4] = faceVerts[3];
+                break;
+
+            case "bottom":
+                // BOTTOM   15   12   14   13
+                UVs[15] = faceVerts[0];
+                UVs[12] = faceVerts[1];
+                UVs[14] = faceVerts[2];
+                UVs[13] = faceVerts[3];
+                break;
+
+            default:
+                Debug.Log("You tried to use an invalid side.");
+                break;
+        }
+
+        mesh.uv = UVs;
+    }
+
+    // This will return an array of Vector2s that contain the necessary vertices to
+    // map a specific texture
+    public Vector2[] GetFaceVerts(string input)
+    {
+        // TODO
+        // Make this default to a blank cube
+        // default the face to be a blank cube face
+        Vector2[] returnArray = new Vector2[]{
+                new Vector2(0f * div, 1f * div),
+                new Vector2(1f * div, 1f * div),
+                new Vector2(0f * div, 0f * div),
+                new Vector2(1f * div, 0f * div) };
+
+        // set the returnArray to have the relevant coordinates from the texture map
+        switch (input)
+        {
+            case "0":
+                returnArray = new Vector2[]{
+                new Vector2(0f * div, 8f * div),
+                new Vector2(1f * div, 8f * div),
+                new Vector2(0f * div, 7f * div),
+                new Vector2(1f * div, 7f * div) };
+                break;
+
+            case "1":
+                returnArray = new Vector2[]{
+                new Vector2(0f * div, 7f * div),
+                new Vector2(1f * div, 7f * div),
+                new Vector2(0f * div, 6f * div),
+                new Vector2(1f * div, 6f * div) };
+                break;
+
+            case "0_D":
+                returnArray = new Vector2[]{
+                new Vector2(1f * div, 8f * div),
+                new Vector2(2f * div, 8f * div),
+                new Vector2(1f * div, 7f * div),
+                new Vector2(2f * div, 7f * div) };
+                break;
+
+            case "1_D":
+                returnArray = new Vector2[]{
+                new Vector2(1f * div, 7f * div),
+                new Vector2(2f * div, 7f * div),
+                new Vector2(1f * div, 6f * div),
+                new Vector2(2f * div, 6f * div) };
+                break;
+
+            default:
+                Debug.Log("The face you gave was invalid. Cube face was set to blank.");
+                break;
+        }
+
+        return returnArray;
+    }
+
     // Will input different strings into this function to set the according faces of the cube to certain parts
     // of its texture atlas.
-    public void SetFaces(string input)
+    public void SetAllFaces(string input)
     {
         Vector2[] tempVerts;
         // TODO
