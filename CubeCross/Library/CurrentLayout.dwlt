@@ -443,9 +443,9 @@ MonoBehaviour:
   m_isRotationLocked: 0
   m_AudioPlay: 0
   m_Position:
-    m_Target: {x: -1.0929189, y: 0.13919732, z: -5.6591444}
+    m_Target: {x: 2.7051888, y: 0.29560566, z: -3.3415604}
     speed: 2
-    m_Value: {x: -1.0929189, y: 0.13919732, z: -5.6591444}
+    m_Value: {x: 2.7051888, y: 0.29560566, z: -3.3415604}
   m_RenderMode: 0
   m_ValidateTrueMetals: 0
   m_SceneViewState:
@@ -469,13 +469,13 @@ MonoBehaviour:
       speed: 2
       m_Value: 0
   m_Rotation:
-    m_Target: {x: 0.005728861, y: -0.9929327, z: 0.093102224, w: 0.08446906}
+    m_Target: {x: 0.1670655, y: -0.28200132, z: 0.052336033, w: 0.9442385}
     speed: 2
-    m_Value: {x: 0.0057238513, y: -0.9920644, z: 0.09302081, w: 0.08439519}
+    m_Value: {x: 0.16691859, y: -0.28175333, z: 0.05229001, w: 0.9434082}
   m_Size:
-    m_Target: 4.567729
+    m_Target: 12.771316
     speed: 2
-    m_Value: 4.567729
+    m_Value: 12.771316
   m_Ortho:
     m_Target: 0
     speed: 2
@@ -518,7 +518,7 @@ MonoBehaviour:
     scrollPos: {x: 0, y: 0}
     m_SelectedIDs: 
     m_LastClickedID: 0
-    m_ExpandedIDs: 9cfbffff9efbffff00000000
+    m_ExpandedIDs: 9efbffff0000000038280000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -580,19 +580,19 @@ MonoBehaviour:
     m_ShowAllHits: 0
     m_SearchArea: 0
     m_Folders:
-    - Assets/Scripts
+    - Assets/Prefabs
   m_ViewMode: 1
   m_StartGridSize: 65
   m_LastFolders:
-  - Assets/Scripts
+  - Assets/Prefabs
   m_LastFoldersGridSize: 65
   m_LastProjectPath: C:\Users\Owner\Documents\GitHub\CubeCross\CubeCross
   m_IsLocked: 0
   m_FolderTreeState:
     scrollPos: {x: 0, y: 0}
-    m_SelectedIDs: 94270000
-    m_LastClickedID: 10132
-    m_ExpandedIDs: 00000000682700009027000000ca9a3bffffff7f
+    m_SelectedIDs: 70270000
+    m_LastClickedID: 10096
+    m_ExpandedIDs: 000000006a2700009227000000ca9a3bffffff7f
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -620,7 +620,7 @@ MonoBehaviour:
     scrollPos: {x: 0, y: 0}
     m_SelectedIDs: 
     m_LastClickedID: 0
-    m_ExpandedIDs: 000000006827000090270000
+    m_ExpandedIDs: 000000006a27000092270000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 

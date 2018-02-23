@@ -7,7 +7,11 @@ public class CubeFacesScript : MonoBehaviour {
     public Mesh mesh;
     public Vector2[] UVs;
     public float div;
-    public string[] facesArray;
+    // TODO
+    // use this
+    public string[] facesArray; // this will possibly store the state of each face (texture, highlightef or not)
+    public bool dark = false;   // This value will track whether a cube is to be a dark or light cube
+                                // to create the checkerboard pattern
 
 
     // Initializing all this stuff in Awake() because this method is called immediately when the attached object is
@@ -60,18 +64,19 @@ public class CubeFacesScript : MonoBehaviour {
         */
 
         //mesh.uv = UVs;
-
+        /*
         SetFace("front", "0");
         SetFace("back", "1");
         SetFace("left", "0_D");
         SetFace("right", "1_D");
         SetFace("top", "x");
         SetFace("bottom", "0");
+        */
     }
 	
 	// Update is called once per frame
 	void Update () {
-
+        
     }
 
     // This method will set a specific cube's face to be a specific texture on the texture map for the cubes
@@ -161,14 +166,6 @@ public class CubeFacesScript : MonoBehaviour {
                 new Vector2(1f * div, 7f * div) };
                 break;
 
-            case "1":
-                returnArray = new Vector2[]{
-                new Vector2(0f * div, 7f * div),
-                new Vector2(1f * div, 7f * div),
-                new Vector2(0f * div, 6f * div),
-                new Vector2(1f * div, 6f * div) };
-                break;
-
             case "0_D":
                 returnArray = new Vector2[]{
                 new Vector2(1f * div, 8f * div),
@@ -177,12 +174,68 @@ public class CubeFacesScript : MonoBehaviour {
                 new Vector2(2f * div, 7f * div) };
                 break;
 
+            case "1":
+                returnArray = new Vector2[]{
+                new Vector2(0f * div, 7f * div),
+                new Vector2(1f * div, 7f * div),
+                new Vector2(0f * div, 6f * div),
+                new Vector2(1f * div, 6f * div) };
+                break;            
+
             case "1_D":
                 returnArray = new Vector2[]{
                 new Vector2(1f * div, 7f * div),
                 new Vector2(2f * div, 7f * div),
                 new Vector2(1f * div, 6f * div),
                 new Vector2(2f * div, 6f * div) };
+                break;
+
+            case "2":
+                returnArray = new Vector2[]{
+                new Vector2(0f * div, 6f * div),
+                new Vector2(1f * div, 6f * div),
+                new Vector2(0f * div, 5f * div),
+                new Vector2(1f * div, 5f * div) };
+                break;
+
+            case "2_D":
+                returnArray = new Vector2[]{
+                new Vector2(1f * div, 6f * div),
+                new Vector2(2f * div, 6f * div),
+                new Vector2(1f * div, 5f * div),
+                new Vector2(2f * div, 5f * div) };
+                break;
+
+            case "3":
+                returnArray = new Vector2[]{
+                new Vector2(0f * div, 5f * div),
+                new Vector2(1f * div, 5f * div),
+                new Vector2(0f * div, 4f * div),
+                new Vector2(1f * div, 4f * div) };
+                break;
+
+            case "3_D":
+                returnArray = new Vector2[]{
+                new Vector2(1f * div, 5f * div),
+                new Vector2(2f * div, 5f * div),
+                new Vector2(1f * div, 4f * div),
+                new Vector2(2f * div, 4f * div) };
+                break;
+
+            case "4":
+                returnArray = new Vector2[]{
+                new Vector2(0f * div, 4f * div),
+                new Vector2(1f * div, 4f * div),
+                new Vector2(0f * div, 3f * div),
+                new Vector2(1f * div, 3f * div) };
+                break;
+
+            case "4_D":
+                returnArray = new Vector2[]{
+                new Vector2(1f * div, 4f * div),
+                new Vector2(2f * div, 4f * div),
+                new Vector2(1f * div, 3f * div),
+                new Vector2(2f * div, 3f * div) };
                 break;
 
             default:

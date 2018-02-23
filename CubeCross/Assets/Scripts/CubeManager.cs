@@ -703,11 +703,13 @@ public class CubeManager : MonoBehaviour {
                             {
                                 faces = newCube.GetComponent<CubeFacesScript>();
                                 faces.SetAllFaces("1_D");
+                                faces.dark = true;
                             }
                             else if (puzzleContentArray[i, j, k] == 0)
                             {
                                 faces = newCube.GetComponent<CubeFacesScript>();
                                 faces.SetAllFaces("0_D");
+                                faces.dark = true;
                             }
                         }
                     }
@@ -723,15 +725,16 @@ public class CubeManager : MonoBehaviour {
                             {
                                 faces = newCube.GetComponent<CubeFacesScript>();
                                 faces.SetAllFaces("1_D");
+                                faces.dark = true;
                             }
                             else if (puzzleContentArray[i, j, k] == 0)
                             {
                                 faces = newCube.GetComponent<CubeFacesScript>();
                                 faces.SetAllFaces("0_D");
+                                faces.dark = true;
                             }
                         }
                     }
-                    
 
                     newCube.transform.localScale = Vector3.one;
                     newCube.transform.parent = gameObject.transform;        // set each cube as a child of this game manager
@@ -740,6 +743,8 @@ public class CubeManager : MonoBehaviour {
                     newCube.GetComponent<CubeScript>().index1 = i;
                     newCube.GetComponent<CubeScript>().index2 = j;
                     newCube.GetComponent<CubeScript>().index3 = k;
+
+                    SetFaceNumbers(newCube);
 
                     cubeArray[i, j, k] = newCube;
 
@@ -1462,37 +1467,98 @@ public class CubeManager : MonoBehaviour {
         }
     }
 
-}
+    // TODO
+    // Make this set faces to hve circles or squares depending on the number
+    // on connected groups of keycubes in the row.
 
-//TODO
-// Use this as an example for changing the material of the cubes to something that can be transparent
-/*
- * 
- * public class ExampleClass : MonoBehaviour
-{
-    void Update()
+    // This is run once for a cube after a cube has been initialized.
+    // The 6 faces will be compared to the rest of the contents of the row that it is in
+    // and will set the texture of the respective face accordingly
+    private void SetFaceNumbers(GameObject inputObject)
     {
-        RaycastHit[] hits;
-        hits = Physics.RaycastAll(transform.position, transform.forward, 100.0F);
+        CubeFacesScript faceScript = inputObject.GetComponent<CubeFacesScript>();
+        CubeScript cubeScript = inputObject.GetComponent<CubeScript>();
+            
+        int cubeCount = 0;  // this value will store the number of keyCubes in the current row
 
-        for (int i = 0; i < hits.Length; i++)
+        // Use the three indices saved in the cubeScript to determine the
+        // location of the input cube in the CubeArray
+
+        //*********************
+        // FRONT AND BACK FACES
+        //*********************
+        // to check the front, we are going to move along the Z axis aka the i coordinate
+        // using the CubeArray whose dimensions are stored as CubeArray[z, y, x]
+        for (int i = 0; i < cubeArray.GetLength(0); i++)
         {
-            RaycastHit hit = hits[i];
-            Renderer rend = hit.transform.GetComponent<Renderer>();
-
-            if (rend)
-            {
-                // Change the material of all hit colliders
-                // to use a transparent shader.
-                rend.material.shader = Shader.Find("Transparent/Diffuse");
-                Color tempColor = rend.material.color;
-                tempColor.a = 0.3F;
-                rend.material.color = tempColor;
-            }
+            // if a cube in the row is a keyCube, increment the cubeCount
+            if (puzzleContentArray[i, cubeScript.index2, cubeScript.index3] == 1)
+                cubeCount++;
         }
+
+        // now that we have the number of cubes in the Z-axis row, we can set the front and back
+        // faces of the cube accordingly
+
+        // convert the number of cubes in the row to a string
+        // add the correct modifier to the string if need be (dark, highlighted, circled, squared)
+
+        string tex = cubeCount.ToString();
+
+        // TODO
+        // add the other face modifiers here
+        if(faceScript.dark)
+        {
+            tex += "_D";
+        }
+
+        // set the front and back
+        faceScript.SetFace("front", tex);
+        faceScript.SetFace("back", tex);
+
+        //*********************
+        // TOP AND BOTTOM FACES
+        //*********************
+        cubeCount = 0;  // reset cubeCount
+
+        for (int j = 0; j < cubeArray.GetLength(1); j++)
+        {
+            // if a cube in the row is a keyCube, increment the cubeCount
+            if (puzzleContentArray[cubeScript.index1, j, cubeScript.index3] == 1)
+                cubeCount++;
+        }
+        tex = cubeCount.ToString();
+        // TODO
+        // add the other face modifiers here
+        if (faceScript.dark)
+        {
+            tex += "_D";
+        }
+        // set the top and bottom
+        faceScript.SetFace("top", tex);
+        faceScript.SetFace("bottom", tex);
+
+        //*********************
+        // LEFT AND RIGHT FACES
+        //*********************
+        cubeCount = 0;  // reset cubeCount
+
+        for (int k = 0; k < cubeArray.GetLength(2); k++)
+        {
+            // if a cube in the row is a keyCube, increment the cubeCount
+            if (puzzleContentArray[cubeScript.index1, cubeScript.index2, k] == 1)
+                cubeCount++;
+        }
+        tex = cubeCount.ToString();
+        // TODO
+        // add the other face modifiers here
+        if (faceScript.dark)
+        {
+            tex += "_D";
+        }
+        // set the top and bottom
+        faceScript.SetFace("left", tex);
+        faceScript.SetFace("right", tex);
+
     }
+
 }
- * 
- * 
- * 
- */
