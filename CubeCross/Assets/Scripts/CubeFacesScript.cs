@@ -12,6 +12,12 @@ public class CubeFacesScript : MonoBehaviour {
     public string[] facesArray; // this will possibly store the state of each face (texture, highlightef or not)
     public bool dark = false;   // This value will track whether a cube is to be a dark or light cube
                                 // to create the checkerboard pattern
+    
+    // These 3 strings will store the three textures that will define the 6 faces of the cube
+    // They will be used when changing the cube to flagged or un-flagged
+    public string frontBack;
+    public string topBottom;
+    public string leftRight;
 
 
     // Initializing all this stuff in Awake() because this method is called immediately when the attached object is
@@ -32,7 +38,7 @@ public class CubeFacesScript : MonoBehaviour {
 
         // division units
         // In this case we are using 128x128 cubes from a 1024x1024 texture atlas
-        div = 128f / 1024f;
+        div = 120f / 1440f;
     }
 
     // Use this for initialization
@@ -81,8 +87,8 @@ public class CubeFacesScript : MonoBehaviour {
 
     // This method will set a specific cube's face to be a specific texture on the texture map for the cubes
     public void SetFace(string face, string texture)
-    {        
-        Vector2[] faceVerts = GetFaceVerts(texture);
+    {
+        Vector2[] faceVerts = FaceStringToVertices(texture);
 
         switch (face)
         {
@@ -142,6 +148,110 @@ public class CubeFacesScript : MonoBehaviour {
         mesh.uv = UVs;
     }
 
+    
+
+    public Vector2[] FaceStringToVertices(string input)
+    {
+        
+
+        string[] textureInfo = input.Split('_');
+
+        // Possible textures for a number (12 different ones)
+        // Examples for 0
+
+        // normal = 0
+        // normal dark = 0_D
+        // circled  = 0_C
+        // circled dark = 0_C_D
+        // squared  = 0_S
+        // squared dark = 0_S_D
+        // flagged  = 0_F
+        // flagged dark =   0_F_D
+        // flagged circled = 0_C_F
+        // flagged circled dark = 0_C_F_D
+        // flagged squared  =   0_S_F
+        // flagged squared dark =   0_S_F_D
+
+        // the number that will be on the face of the cube, default to 0
+        int number = 0;
+
+        // each number will start at an x-axis value of zero since that is the normal number texture
+        int xStart = 0;
+
+        // go through the texture info and see if a certain index has a certain character
+        for(int i = 0; i < textureInfo.Length; i++)
+        {            
+            // the first element of the string will be the number on the texture
+            if(i == 0)
+            {
+                number = int.Parse(textureInfo[i]);
+            }
+            else
+            {
+                // Dark = +1
+                // Circle = +2
+                // Square = +4
+                // Flagged = +6
+                
+                // Get the string element and add to the starting x value depending on the letter
+                if(textureInfo[i].Equals("D"))
+                {
+                    xStart += 1;
+                }
+                else if (textureInfo[i].Equals("C"))
+                {
+                    xStart += 2;
+                }
+                else if (textureInfo[i].Equals("S"))
+                {
+                    xStart += 4;
+                }
+                else if (textureInfo[i].Equals("F"))
+                {
+                    xStart += 6;
+                }
+            }
+                
+        }
+
+        // format for each texture is
+        // 1----2
+        // |    |
+        // 3----4
+
+        // there are 12 rows and 12 columns in the cube texture so we are using units of 12
+        // for each possible cube face. Refer to the CubeFaces_12x12.png texture in the Textures folder
+        int divisions = 12;
+
+        // the four coordinates that will make up the UV vertices for the texture
+        // laid out like this
+        // xLeft, yTop ----------------- xRight, yTop
+        //   |                                    |
+        //   |                                    |
+        //   |                                    |
+        //   |                                    |
+        //   |                                    |
+        //   |                                    |
+        //   |                                    |
+        //   |                                    |
+        // xLeft, yBottom -------------- xRight, yBottom
+
+        float xLeft = xStart * div;
+        float xRight = (xStart + 1) * div;
+        float yTop = (divisions - number) * div;
+        float yBottom = (divisions - number - 1) * div;
+
+        Vector2[] output = new Vector2[]
+        {
+            new Vector2(xLeft, yTop),
+            new Vector2(xRight, yTop),
+            new Vector2(xLeft, yBottom),
+            new Vector2(xRight, yBottom),
+        };
+
+        return output;
+    }
+
     // This will return an array of Vector2s that contain the necessary vertices to
     // map a specific texture
     public Vector2[] GetFaceVerts(string input)
@@ -160,34 +270,34 @@ public class CubeFacesScript : MonoBehaviour {
         {
             case "0":
                 returnArray = new Vector2[]{
-                new Vector2(0f * div, 8f * div),
-                new Vector2(1f * div, 8f * div),
-                new Vector2(0f * div, 7f * div),
-                new Vector2(1f * div, 7f * div) };
+                new Vector2(0f * div, 12 * div),
+                new Vector2(1 * div, 12 * div),
+                new Vector2(0f * div, 11 * div),
+                new Vector2(1f * div, 11f * div) };
                 break;
 
             case "0_D":
                 returnArray = new Vector2[]{
-                new Vector2(1f * div, 8f * div),
-                new Vector2(2f * div, 8f * div),
-                new Vector2(1f * div, 7f * div),
-                new Vector2(2f * div, 7f * div) };
+                new Vector2(1f * div, 12 * div),
+                new Vector2(2f * div, 12 * div),
+                new Vector2(1f * div, 11 * div),
+                new Vector2(2f * div, 11 * div) };
                 break;
 
             case "1":
                 returnArray = new Vector2[]{
-                new Vector2(0f * div, 7f * div),
-                new Vector2(1f * div, 7f * div),
-                new Vector2(0f * div, 6f * div),
-                new Vector2(1f * div, 6f * div) };
-                break;            
+                new Vector2(0f * div, 11 * div),
+                new Vector2(1f * div, 11 * div),
+                new Vector2(0f * div, 10 * div),
+                new Vector2(1f * div, 10 * div) };
+                break;
 
             case "1_D":
                 returnArray = new Vector2[]{
-                new Vector2(1f * div, 7f * div),
-                new Vector2(2f * div, 7f * div),
-                new Vector2(1f * div, 6f * div),
-                new Vector2(2f * div, 6f * div) };
+                new Vector2(1f * div, 11 * div),
+                new Vector2(2f * div, 11 * div),
+                new Vector2(1f * div, 10 * div),
+                new Vector2(2f * div, 10 * div) };
                 break;
 
             case "2":
@@ -297,7 +407,7 @@ public class CubeFacesScript : MonoBehaviour {
     }
 
     // This will set all sides of a cube to the same texture that is derived from
-    // the inpu vertices
+    // the input vertices
     public void SetAllVertices(Vector2[] inputVerts)
     {
         // FRONT    2    3    0    1

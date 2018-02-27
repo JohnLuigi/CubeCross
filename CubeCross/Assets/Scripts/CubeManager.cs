@@ -1515,6 +1515,9 @@ public class CubeManager : MonoBehaviour {
         faceScript.SetFace("front", tex);
         faceScript.SetFace("back", tex);
 
+        // save the format the two faces were set to
+        faceScript.frontBack = tex;
+
         //*********************
         // TOP AND BOTTOM FACES
         //*********************
@@ -1536,6 +1539,9 @@ public class CubeManager : MonoBehaviour {
         // set the top and bottom
         faceScript.SetFace("top", tex);
         faceScript.SetFace("bottom", tex);
+
+        // save the format the two faces were set to
+        faceScript.topBottom = tex;
 
         //*********************
         // LEFT AND RIGHT FACES
@@ -1559,6 +1565,8 @@ public class CubeManager : MonoBehaviour {
         faceScript.SetFace("left", tex);
         faceScript.SetFace("right", tex);
 
+        // save the format the two faces were set to
+        faceScript.leftRight = tex;
     }
 
 }
