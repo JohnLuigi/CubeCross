@@ -1481,6 +1481,15 @@ public class CubeManager : MonoBehaviour {
             
         int cubeCount = 0;  // this value will store the number of keyCubes in the current row
 
+        // Store a copy of the row, and separate it into substrings using
+        // "0" as a delimiter
+        string row = "";
+        string[] rowArray;  // this array will contain the substrings
+                            // that will be counted to determine the 
+                            // number of groups of keyCubes in a row
+
+        char[] separator = new char[] { '0' };  // the separator to be used to split row into substrings
+
         // Use the three indices saved in the cubeScript to determine the
         // location of the input cube in the CubeArray
 
@@ -1491,9 +1500,15 @@ public class CubeManager : MonoBehaviour {
         // using the CubeArray whose dimensions are stored as CubeArray[z, y, x]
         for (int i = 0; i < cubeArray.GetLength(0); i++)
         {
+            // add the element to the row string, either a 0 or a 1 is added
+            row += puzzleContentArray[i, cubeScript.index2, cubeScript.index3].ToString();
+
             // if a cube in the row is a keyCube, increment the cubeCount
             if (puzzleContentArray[i, cubeScript.index2, cubeScript.index3] == 1)
-                cubeCount++;
+            {
+                cubeCount++;                 
+            }
+                
         }
 
         // now that we have the number of cubes in the Z-axis row, we can set the front and back
@@ -1504,9 +1519,27 @@ public class CubeManager : MonoBehaviour {
 
         string tex = cubeCount.ToString();
 
+        // split the row string into an array stored in rowArray
+        rowArray = row.Split(separator, StringSplitOptions.RemoveEmptyEntries);
+
+        // the size of rowArray is the number of groups that make up the keyCubes in that row
+
+        // If there are only two groups of keyCubes in the row, add the "_C" circle modifier to the
+        // format of the texture to be place on the cube
+        if (rowArray.Length == 2)
+        {
+            tex += "_C";
+        }
+        // If there are more than two groups of keyCubes, ass the "_S" modifier to the 
+        // format of the texture
+        else if(rowArray.Length > 2)
+        {
+            tex += "_S";
+        }
+
         // TODO
-        // add the other face modifiers here
-        if(faceScript.dark)
+        // add the other face modifiers here ESPECIALLY FLAGGED
+        if (faceScript.dark)
         {
             tex += "_D";
         }
@@ -1522,14 +1555,38 @@ public class CubeManager : MonoBehaviour {
         // TOP AND BOTTOM FACES
         //*********************
         cubeCount = 0;  // reset cubeCount
+        row = "";       // reset the row
 
         for (int j = 0; j < cubeArray.GetLength(1); j++)
         {
+            // add the element to the row string, either a 0 or a 1 is added
+            row += puzzleContentArray[cubeScript.index1, j, cubeScript.index3].ToString();
+
             // if a cube in the row is a keyCube, increment the cubeCount
             if (puzzleContentArray[cubeScript.index1, j, cubeScript.index3] == 1)
                 cubeCount++;
         }
+
         tex = cubeCount.ToString();
+
+        // split the row string into an array stored in rowArray
+        rowArray = row.Split(separator, StringSplitOptions.RemoveEmptyEntries);
+
+        // the size of rowArray is the number of groups that make up the keyCubes in that row
+
+        // If there are only two groups of keyCubes in the row, add the "_C" circle modifier to the
+        // format of the texture to be place on the cube
+        if (rowArray.Length == 2)
+        {
+            tex += "_C";
+        }
+        // If there are more than two groups of keyCubes, ass the "_S" modifier to the 
+        // format of the texture
+        else if (rowArray.Length > 2)
+        {
+            tex += "_S";
+        }
+
         // TODO
         // add the other face modifiers here
         if (faceScript.dark)
@@ -1547,14 +1604,38 @@ public class CubeManager : MonoBehaviour {
         // LEFT AND RIGHT FACES
         //*********************
         cubeCount = 0;  // reset cubeCount
+        row = "";       // reset the row
 
         for (int k = 0; k < cubeArray.GetLength(2); k++)
         {
+            // add the element to the row string, either a 0 or a 1 is added
+            row += puzzleContentArray[cubeScript.index1, cubeScript.index2, k].ToString();
+
             // if a cube in the row is a keyCube, increment the cubeCount
             if (puzzleContentArray[cubeScript.index1, cubeScript.index2, k] == 1)
                 cubeCount++;
         }
+
         tex = cubeCount.ToString();
+
+        // split the row string into an array stored in rowArray
+        rowArray = row.Split(separator, StringSplitOptions.RemoveEmptyEntries);
+
+        // the size of rowArray is the number of groups that make up the keyCubes in that row
+
+        // If there are only two groups of keyCubes in the row, add the "_C" circle modifier to the
+        // format of the texture to be place on the cube
+        if (rowArray.Length == 2)
+        {
+            tex += "_C";
+        }
+        // If there are more than two groups of keyCubes, ass the "_S" modifier to the 
+        // format of the texture
+        else if (rowArray.Length > 2)
+        {
+            tex += "_S";
+        }
+
         // TODO
         // add the other face modifiers here
         if (faceScript.dark)
