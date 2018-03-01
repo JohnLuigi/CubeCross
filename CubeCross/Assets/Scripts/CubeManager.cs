@@ -90,19 +90,27 @@ public class CubeManager : MonoBehaviour {
 
     private int[,,] puzzleContentArray;
 
+    private string solution;
+
     //private bool hidden = false;
 
     //private SliderScript sliderScriptRef;
 
     // Stuff to do before Start()
     // Mostly used to set values that other scripts will need to access
-    public void Awake()
+    public void Awake()        
     {
+        // string to use for selecting a puzzle
+        //solution = "XSolution.txt";
+        //solution = "6x6x6_Solution.txt";
+        solution = "2x4x2_Solution.txt";
+        solution = "2x4x1_Solution.txt";
+
         warnText = GameObject.Find("WarnText").GetComponent<Text>();
         // initially don't have any text showing
         warnText.text = "";
 
-        if(GetPuzzleInfo("Assets/Puzzles/XSolution.txt"))
+        if(GetPuzzleInfo("Assets/Puzzles/" + solution))
         {
             // let the game carry out
             canProceed = true;
@@ -112,6 +120,7 @@ public class CubeManager : MonoBehaviour {
             // if there was a problem with the reading of the puzzleFile, let the player know
             warnText.text = "There was an issue with\n your puzzle's format";
         }
+
     }
 
     // create the array of cubes that will make up the puzzle
@@ -136,34 +145,34 @@ public class CubeManager : MonoBehaviour {
             //create the puzzle itself
             //CreatePuzzle("Assets/Puzzles/XSolution.txt");
         }
-            // set the initial location of the x, y, and z sliders
-            // and make their parents this gameObject (the game manager) so that when we rotate the puzzle, the slider move with it
+        // set the initial location of the x, y, and z sliders
+        // and make their parents this gameObject (the game manager) so that when we rotate the puzzle, the slider move with it
 
-            //sliderDistance = puzzleSize;
+        //sliderDistance = puzzleSize;
 
-            // reference for the edge of the puzzle for the XSlider
-            sliderReferenceX = new GameObject { name = "SliderReferenceX" };
-            sliderReferenceX.transform.position = new Vector3(-(puzzleSize / 2f) + 0.5f, 0, (puzzleSize / 2f) - 0.5f);
-            sliderReferenceX.transform.parent = this.transform;
+        // reference for the edge of the puzzle for the XSlider
+        sliderReferenceX = new GameObject { name = "SliderReferenceX" };
+        sliderReferenceX.transform.position = new Vector3(-(puzzleSize_X / 2f) + 0.5f, 0, (puzzleSize_Z / 2f) - 0.5f);
+        sliderReferenceX.transform.parent = this.transform;
 
-            xSlider = GameObject.Find("XSlider");
+        xSlider = GameObject.Find("XSlider");
 
-            // reference for the edge of the puzzle for the ZSlider
-            sliderReferenceZ = new GameObject { name = "SliderReferenceZ" };
-            sliderReferenceZ.transform.position = new Vector3(-(puzzleSize / 2f) + 0.5f, 0, (puzzleSize / 2f) - 0.5f);
-            sliderReferenceZ.transform.parent = this.transform;
+        // reference for the edge of the puzzle for the ZSlider
+        sliderReferenceZ = new GameObject { name = "SliderReferenceZ" };
+        sliderReferenceZ.transform.position = new Vector3(-(puzzleSize_X / 2f) + 0.5f, 0, (puzzleSize_Z / 2f) - 0.5f);
+        sliderReferenceZ.transform.parent = this.transform;
 
-            zSlider = GameObject.Find("ZSlider");
+        zSlider = GameObject.Find("ZSlider");
 
-            // initialize each array to be visible
-            // this will be used to track which "layers" of the puzzle should be hidden
-            // TODO
-            // might have to make a version of this for the YSlider
-            hideIndices = new bool[puzzleSize];
-            for (int i = 0; i < hideIndices.Length; i++)
-            {
-                hideIndices[i] = false;
-            }
+        // initialize each array to be visible
+        // this will be used to track which "layers" of the puzzle should be hidden
+        // TODO
+        // might have to make a version of this for the YSlider
+        hideIndices = new bool[puzzleSize];
+        for (int i = 0; i < hideIndices.Length; i++)
+        {
+            hideIndices[i] = false;
+        }
 
         
 
@@ -645,8 +654,8 @@ public class CubeManager : MonoBehaviour {
 	{
 		// set a starting point based on the number of cubes to be created
 		// this starting point should be half of the number of cubes, centered at 0.5 units from there due to the cubes being 1 unit
-		Vector3 startingPoint = new Vector3((float) ((puzzleSize / 2.0f) * -1.0f) + 0.5f, (float)((puzzleSize / 2.0f) * -1.0f) + 0.5f,
-            (float)((puzzleSize / 2.0f) * -1.0f) + 0.5f);
+		Vector3 startingPoint = new Vector3((float) ((puzzleSize_X / 2.0f) * -1.0f) + 0.5f, (float)((puzzleSize_Y / 2.0f) * -1.0f) + 0.5f,
+            (float)((puzzleSize_Z / 2.0f) * -1.0f) + 0.5f);
 
         // TODO
         // Update this so that the dimensions of the puzzle aren't always a cube, sometimes it might be rectangular
@@ -751,10 +760,10 @@ public class CubeManager : MonoBehaviour {
                     startingPoint += new Vector3(1.0f, 0, 0);
                 }
                 // reset and update the starting position for the next row
-                startingPoint += new Vector3((float)puzzleSize * -1.0f, 1.0f, 0);
+                startingPoint += new Vector3((float)puzzleSize_X * -1.0f, 1.0f, 0);
             }
             // reset and update the starting position for the next grid
-            startingPoint += new Vector3(0, (float)puzzleSize * -1.0f, 1.0f);
+            startingPoint += new Vector3(0, (float)puzzleSize_Y * -1.0f, 1.0f);
         }   // end of cube creation loop
         
     }
@@ -772,7 +781,7 @@ public class CubeManager : MonoBehaviour {
             string line;    // this will store lines as they are read from the text file
 
             int i_Index = 0;
-            int j_Index = puzzleSize - 1;
+            int j_Index = puzzleSize_Y - 1;
 
             // create a StreamReader using the location and name of the file to read, also what encoding 
             // was used when saving the file (default for now)

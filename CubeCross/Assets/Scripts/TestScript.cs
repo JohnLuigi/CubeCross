@@ -6,7 +6,7 @@ using System;
 public class TestScript : MonoBehaviour {
 
     private int[] intArray = new int[] {0, 1, 1, 0 };
-    private int count = 0;
+    //private int count = 0;
     private string row = "";
     private string[] rowArray;
 
