@@ -62,7 +62,7 @@ public class SliderScript : MonoBehaviour {
         // also set the starting position of the slider
         if (gameObject.name == "XSlider")
         {
-            transform.position = new Vector3(8.5f, 0, halfCubeDist_Z);
+            transform.position = new Vector3((parentManager.puzzleSize_X / 2) + 2, 0, halfCubeDist_Z);
 
             // this reference is on the same edge of the cube as the X Slider, but with an increased y-value (high ref)
             axisReference = new GameObject { name = "XSliderReference1"};
@@ -78,7 +78,7 @@ public class SliderScript : MonoBehaviour {
         }
         else if(gameObject.name == "ZSlider")
         {
-            transform.position = new Vector3(-halfCubeDist_X, 0, -8.5f);
+            transform.position = new Vector3(-halfCubeDist_X, 0, -(parentManager.puzzleSize_Z/2) - 2);
 
             // this reference is on the same edge of the cube as the Z Slider, but with an increased y-value (high ref)
             axisReference = new GameObject { name = "ZSliderReference1" };
@@ -108,16 +108,26 @@ public class SliderScript : MonoBehaviour {
 
         // point between the slider and the center of the cube that the cube cannot move any closer
         // for the xSlider, it will be along the x-axis, located at theshold-puzzleSize-0.5 units
-        float tempThresh = parentObject.GetComponent<CubeManager>().threshValue;
-        float tempSize = parentObject.GetComponent<CubeManager>().puzzleSize;
-        closestDistance = (tempThresh - tempSize) - 1f;        
+        float tempThresh = parentObject.GetComponent<CubeManager>().hideThreshold_X;
+        float tempSize = parentObject.GetComponent<CubeManager>().puzzleSize_X;
+        closestDistance = (tempThresh - tempSize) - 1f;
 
-        /*
-                if(gameObject.name == "ZSlider")
-                {
-                    closestDistance = (-tempThresh + tempSize) + 1f;
-                }
-        */
+        closestDistance = 1f;
+        
+        // if this is the ZSlider, set these values according to the z-values in the parent object
+        if(gameObject.name == "ZSlider")
+        {
+            tempThresh = parentObject.GetComponent<CubeManager>().hideThreshold_Z;
+            tempSize = parentObject.GetComponent<CubeManager>().puzzleSize_Z;
+            closestDistance = (-tempThresh + tempSize) + 1f;
+
+            closestDistance = -1f;
+        }
+
+        //TODO
+        // see if closest distance is being stopped in this script
+        closestDistance = 0f;
+        
     }
 
     // Update is called once per frame

@@ -52,6 +52,13 @@ public class CubeManager : MonoBehaviour {
     private RaycastHit[] hits;                       // an array that holds the cubes hit when holding LMB
     private List<GameObject> deletedCubes = new List<GameObject>();    // list of the deleted cubes, can be used to "undo" deletions
     private bool[] hideIndices;
+    private bool[] hideIndices_X;   // array that will be used to track which cubes to hide along the X-axis
+    private bool[] hideIndices_Z;   // array that will be used to track which cubes to hide along the Z-axis
+
+    // The thresholds to start hiding the puzzle are one unit away from the edge, and the sliders
+    // themselves are set to be at 2 units away from the edge of the puzzle
+    public float hideThreshold_X;
+    public float hideThreshold_Z;
 
     //public GameObject xSlider;      // The three objects that will be dragged by the player to hide layers of the puzzle
     //private Plane movePlane;
@@ -103,7 +110,7 @@ public class CubeManager : MonoBehaviour {
         // string to use for selecting a puzzle
         //solution = "XSolution.txt";
         //solution = "6x6x6_Solution.txt";
-        solution = "2x4x2_Solution.txt";
+        //solution = "2x4x2_Solution.txt";
         solution = "2x4x1_Solution.txt";
 
         warnText = GameObject.Find("WarnText").GetComponent<Text>();
@@ -120,6 +127,9 @@ public class CubeManager : MonoBehaviour {
             // if there was a problem with the reading of the puzzleFile, let the player know
             warnText.text = "There was an issue with\n your puzzle's format";
         }
+
+        hideThreshold_X = puzzleSize_X + 1;
+        hideThreshold_Z = puzzleSize_Z + 1;
 
     }
 
@@ -174,9 +184,19 @@ public class CubeManager : MonoBehaviour {
             hideIndices[i] = false;
         }
 
-        
+        // initially set the x values all to false, meaning they are not to be hidden
+        hideIndices_X = new bool[puzzleSize_X];
+        for (int i = 0; i < hideIndices_X.Length; i++)
+            hideIndices_X[i] = false;
 
-        
+        // initially set the z values all to false, meaning they are not to be hidden
+        hideIndices_Z = new bool[puzzleSize_Z];
+        for (int i = 0; i < hideIndices_Z.Length; i++)
+            hideIndices_Z[i] = false;
+
+
+
+
 
         // set the rotation to be at 45 degrees initially so the sliders aren't immediately in front of
         // the camera
@@ -1284,24 +1304,12 @@ public class CubeManager : MonoBehaviour {
         if (inSlider.name == "XSlider")
         {
             sliderFromEdgeVector = inSlider.transform.position - sliderReferenceX.transform.position;
+            
         }
         else if (inSlider.name == "ZSlider")
         {
             sliderFromEdgeVector = inSlider.transform.position - sliderReferenceZ.transform.position;
         }
-        //else
-            //sliderFromEdgeVector = Vector3.zero;
-
-
-        // if the slider is a certain distance from the edge reference, hide cubes as necessary
-        /*
-        int puzzleRef = puzzleSize / 2;
-        for (float i = -puzzleRef + 0.5f; i <= puzzleRef - 0.5f; i++) ;
-        {
-
-        }
-
-        */
 
         //Material tempMat;
         Color tempColor;
@@ -1310,21 +1318,46 @@ public class CubeManager : MonoBehaviour {
         // since the reference + puzzleSize is the entire width of the puzzle, so PuzzleSize number of 
         // checks need to be made
 
+        // TODO make a different threshold for X and Z sliders
         // hide threshold is temporarily 8f;
-        float hideThreshold = 8f;
+        //float hideThreshold = 8f;
+
+        
+
+        // The opacity to set the cubes to when they are "hidden." The value ranged from 0 to 1.
         fadeAmount = 0.1f;
+
         //int tempIndex = puzzleSize - 1;
 
-        bool magCompare = (sliderFromEdgeVector.magnitude <= hideThreshold);
+        bool magCompare = (sliderFromEdgeVector.magnitude <= hideThreshold_X);
 
+        if (inSlider.name == "ZSlider")
+        {
+            magCompare = (sliderFromEdgeVector.magnitude <= hideThreshold_Z);
+        }
+
+        // If the distance from the slider to the reference (at the back, mid corner of the cube)
+        // is less than the threshold for a specific dimension, start hiding stuff
         if (magCompare)
         {
+            /*
+            int index = Mathf.FloorToInt(sliderFromEdgeVector.magnitude - puzzleSize_X);
 
-            //Debug.Log(inSlider.name + " is under the threshold");
+            if (inSlider.name == "ZSlider")
+            {
+                index = Mathf.FloorToInt(sliderFromEdgeVector.magnitude - puzzleSize_Z);
+            }
+            */
 
-            int index = Mathf.FloorToInt(sliderFromEdgeVector.magnitude - puzzleSize);
+            // Take the X position of the X slider, and round it down to the nearest integer
+            int index = Mathf.FloorToInt(inSlider.transform.position.x) - 1;
 
-            //Debug.Log("at index " + index);
+            // do the same for the Z slider if need be
+            if (inSlider.name == "ZSlider")
+            {
+                index = Mathf.CeilToInt(inSlider.transform.position.z) + 1;
+                index = Math.Abs(index);
+            }
 
             // change the values of the hideIndices less than the index to be 
 
@@ -1332,18 +1365,22 @@ public class CubeManager : MonoBehaviour {
             // for examply is the slider is 4 units away from the active sliding range
             if (inSlider.name == "XSlider")
             {
-                if (index <= puzzleSize - 1)
+                // TODO
+                // might not need this check
+                if (index <= puzzleSize_X)
                 {
-                    for (int i = 0; i < hideIndices.Length; i++)
+                    for (int i = 0; i < hideIndices_X.Length; i++)
                     {
-
-                        if (i < index)
+                        // Set the array indices less than the current index (derived by the slider's
+                        // distance fromt he reference) to be false (don't hide) and everything greater
+                        // than that index is to be hidden
+                        if (i <= index)
                         {
-                            hideIndices[i] = false;
+                            hideIndices_X[i] = false;
                         }
                         else
                         {
-                            hideIndices[i] = true;
+                            hideIndices_X[i] = true;
                         }
                     }
 
@@ -1354,20 +1391,17 @@ public class CubeManager : MonoBehaviour {
             // instead of from layers 4 to zero as the XSlider does
             else if (inSlider.name == "ZSlider")
             {
-                if (index <= puzzleSize - 1)
+                if (index <= puzzleSize_Z)
                 {
-                    index -= (puzzleSize - 1);
-                    index = Mathf.Abs(index);
-
-                    for (int i = 0; i < hideIndices.Length; i++)
+                    for (int i = 0; i < hideIndices_Z.Length; i++)
                     {
                         if (i > index)
                         {
-                            hideIndices[i] = false;
+                            hideIndices_Z[i] = false;
                         }
                         else
                         {
-                            hideIndices[i] = true;
+                            hideIndices_Z[i] = true;
                         }
                     }
 
@@ -1375,78 +1409,125 @@ public class CubeManager : MonoBehaviour {
 
             }
 
+            if(inSlider.name == "XSlider")
+            {
+                // now that each layer has been determined whether it should be shown or not, update layers as necessary
+                for (int layer = 0; layer < hideIndices_X.Length; layer++)
+                {
+                    // TODO
+                    // change the index of layer according to the X or Z or Y slider
+                    // if the layer has to be hidden
+
+                    // TODO
+                    // this might only work if the dimensions of the puzzle are always equal, rectangular
+                    // puzzles might need tweaking here
+                    if (hideIndices_X[layer] == true)
+                    {
+                        for (int i = 0; i < cubeArray.GetLength(0); i++)
+                        {
+                            for (int j = 0; j < cubeArray.GetLength(1); j++)
+                            {
+                                tempColor = cubeArray[i, j, layer].GetComponent<Renderer>().material.color;
+                                tempColor.a = fadeAmount;
+
+                                cubeArray[i, j, layer].GetComponent<Renderer>().material.color = tempColor;                               
+
+                            }
+                        }
+                    }
+
+                    // if the layer has to be shown
+                    else if (hideIndices_X[layer] == false)
+                    {
+                        for (int i = 0; i < cubeArray.GetLength(0); i++)
+                        {
+                            for (int j = 0; j < cubeArray.GetLength(1); j++)
+                            {
+                                if (inSlider.name == "XSlider")
+                                {
+                                    tempColor = cubeArray[i, j, layer].GetComponent<Renderer>().material.color;
+                                    tempColor.a = 1f;
+
+                                    cubeArray[i, j, layer].GetComponent<Renderer>().material.color = tempColor;
+                                }
+
+                            }
+                        }
+                    }
+                } // end of hide/show loop
+            }
+            
+
+            // TODO
+            // CHANGE FOR Z
+            if(inSlider.name == "ZSlider")
+            {
+                // now that each layer has been determined whether it should be shown or not, update layers as necessary
+                for (int layer = 0; layer < hideIndices_Z.Length; layer++)
+                {
+                    // TODO
+                    // change the index of layer according to the X or Z or Y slider
+                    // if the layer has to be hidden
+
+                    // TODO
+                    // this might only work if the dimensions of the puzzle are always equal, rectangular
+                    // puzzles might need tweaking here
+                    if (hideIndices_Z[layer] == true)
+                    {
+                        for (int j = 0; j < cubeArray.GetLength(1); j++)
+                        {
+                            for (int k = 0; k < cubeArray.GetLength(2); k++)
+                            {
+                                tempColor = cubeArray[layer, j, k].GetComponent<Renderer>().material.color;
+                                tempColor.a = fadeAmount;
+
+                                cubeArray[layer, j, k].GetComponent<Renderer>().material.color = tempColor;
+                            }
+                        }
+                    }
+
+                    // if the layer has to be shown
+                    else if (hideIndices_Z[layer] == false)
+                    {
+                        for (int j = 0; j < cubeArray.GetLength(1); j++)
+                        {
+                            for (int k = 0; k < cubeArray.GetLength(2); k++)
+                            {
+                                tempColor = cubeArray[layer, j, k].GetComponent<Renderer>().material.color;
+                                tempColor.a = 1f;
+
+                                cubeArray[layer, j, k].GetComponent<Renderer>().material.color = tempColor;
+                            }
+                        }
+                    }
+                } // end of hide/show loop
+            }
+
+            
+
+
+        } // end of magcompare
+        if (inSlider.name == "XSlider")
+        {
             // if we are further than the threshold, make the final index of the layers to hide false
-            if (sliderFromEdgeVector.magnitude > hideThreshold)
+            if (sliderFromEdgeVector.magnitude > hideThreshold_X)
             {
-                for (int i = 0; i < hideIndices.Length; i++)
+                for (int i = 0; i < hideIndices_X.Length; i++)
                 {
-                    hideIndices[i] = false;
-                }
-
-            }
-
-            // now that each layer has been determined whether it should be shown or not, update layers as necessary
-            for (int layer = 0; layer < hideIndices.Length; layer++)
-            {
-                // TODO
-                // change the index of layer according to the X or Z or Y slider
-                // if the layer has to be hidden
-
-                // TODO
-                // this might only work if the dimensions of the puzzle are always equal, rectangular
-                // puzzles might need tweaking here
-                if (hideIndices[layer] == true)
-                {
-                    for (int i = 0; i < cubeArray.GetLength(0); i++)
-                    {
-                        for (int j = 0; j < cubeArray.GetLength(1); j++)
-                        {
-                            if (inSlider.name == "XSlider")
-                            {
-                                tempColor = cubeArray[i, j, layer].GetComponent<Renderer>().material.color;
-                                tempColor.a = fadeAmount;
-
-                                cubeArray[i, j, layer].GetComponent<Renderer>().material.color = tempColor;
-                            }
-                            else if (inSlider.name == "ZSlider")
-                            {
-                                tempColor = cubeArray[layer, i, j].GetComponent<Renderer>().material.color;
-                                tempColor.a = fadeAmount;
-
-                                cubeArray[layer, i, j].GetComponent<Renderer>().material.color = tempColor;
-                            }
-
-                        }
-                    }
-                }
-
-                // if the layer has to be shown
-                else if (hideIndices[layer] == false)
-                {
-                    for (int i = 0; i < cubeArray.GetLength(0); i++)
-                    {
-                        for (int j = 0; j < cubeArray.GetLength(1); j++)
-                        {
-                            if (inSlider.name == "XSlider")
-                            {
-                                tempColor = cubeArray[i, j, layer].GetComponent<Renderer>().material.color;
-                                tempColor.a = 1f;
-
-                                cubeArray[i, j, layer].GetComponent<Renderer>().material.color = tempColor;
-                            }
-                            else if (inSlider.name == "ZSlider")
-                            {
-                                tempColor = cubeArray[layer, i, j].GetComponent<Renderer>().material.color;
-                                tempColor.a = 1f;
-
-                                cubeArray[layer, i, j].GetComponent<Renderer>().material.color = tempColor;
-                            }
-
-                        }
-                    }
+                    hideIndices_X[i] = false;
                 }
             }
-
+        }
+        if (inSlider.name == "ZSlider")
+        {
+            // if we are further than the threshold, make the final index of the layers to hide false
+            if (sliderFromEdgeVector.magnitude > hideThreshold_Z)
+            {
+                for (int i = 0; i < hideIndices_Z.Length; i++)
+                {
+                    hideIndices_Z[i] = false;
+                }
+            }
         }
 
     }
@@ -1454,9 +1535,14 @@ public class CubeManager : MonoBehaviour {
     // public method to make all the cubes visible again
     public void ShowAllCubes()
     {
-        for(int i = 0; i < hideIndices.Length;i++)
+        for(int i = 0; i < hideIndices_X.Length;i++)
         {
-            hideIndices[i] = false;
+            hideIndices_X[i] = false;
+        }
+
+        for (int i = 0; i < hideIndices_Z.Length; i++)
+        {
+            hideIndices_Z[i] = false;
         }
 
         Color tempColor;
