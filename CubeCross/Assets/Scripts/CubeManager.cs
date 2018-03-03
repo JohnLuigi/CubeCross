@@ -162,14 +162,14 @@ public class CubeManager : MonoBehaviour {
 
         // reference for the edge of the puzzle for the XSlider
         sliderReferenceX = new GameObject { name = "SliderReferenceX" };
-        sliderReferenceX.transform.position = new Vector3(-(puzzleSize_X / 2f) + 0.5f, 0, (puzzleSize_Z / 2f) - 0.5f);
+        sliderReferenceX.transform.position = new Vector3(-(puzzleSize_X / 2f), 0, (puzzleSize_Z / 2f) + 1f);
         sliderReferenceX.transform.parent = this.transform;
 
         xSlider = GameObject.Find("XSlider");
 
         // reference for the edge of the puzzle for the ZSlider
         sliderReferenceZ = new GameObject { name = "SliderReferenceZ" };
-        sliderReferenceZ.transform.position = new Vector3(-(puzzleSize_X / 2f) + 0.5f, 0, (puzzleSize_Z / 2f) - 0.5f);
+        sliderReferenceZ.transform.position = new Vector3(-(puzzleSize_X / 2f) - 1, 0, (puzzleSize_Z / 2f));
         sliderReferenceZ.transform.parent = this.transform;
 
         zSlider = GameObject.Find("ZSlider");
@@ -1430,7 +1430,9 @@ public class CubeManager : MonoBehaviour {
                                 tempColor = cubeArray[i, j, layer].GetComponent<Renderer>().material.color;
                                 tempColor.a = fadeAmount;
 
-                                cubeArray[i, j, layer].GetComponent<Renderer>().material.color = tempColor;                               
+                                cubeArray[i, j, layer].GetComponent<Renderer>().material.color = tempColor;
+                                SetCollider(cubeArray[i, j, layer], false);
+
 
                             }
                         }
@@ -1449,6 +1451,7 @@ public class CubeManager : MonoBehaviour {
                                     tempColor.a = 1f;
 
                                     cubeArray[i, j, layer].GetComponent<Renderer>().material.color = tempColor;
+                                    SetCollider(cubeArray[i, j, layer], true);
                                 }
 
                             }
@@ -1482,6 +1485,7 @@ public class CubeManager : MonoBehaviour {
                                 tempColor.a = fadeAmount;
 
                                 cubeArray[layer, j, k].GetComponent<Renderer>().material.color = tempColor;
+                                SetCollider(cubeArray[layer, j, k], false);
                             }
                         }
                     }
@@ -1497,6 +1501,7 @@ public class CubeManager : MonoBehaviour {
                                 tempColor.a = 1f;
 
                                 cubeArray[layer, j, k].GetComponent<Renderer>().material.color = tempColor;
+                                SetCollider(cubeArray[layer, j, k], true);
                             }
                         }
                     }
@@ -1557,9 +1562,45 @@ public class CubeManager : MonoBehaviour {
                     tempColor.a = 1f;
 
                     cubeArray[i, j, k].GetComponent<Renderer>().material.color = tempColor;
+                    SetCollider(cubeArray[i, j, k], true);
                 }
             }
         }
+    }
+
+    // this method will be called to enable or disable a collider for a cube
+    public void SetCollider(GameObject theCube, bool onOff)
+    {
+        Collider theCollider = theCube.GetComponent<Collider>();
+
+        if (!theCollider)
+            return;
+
+        //theCollider.enabled = onOff;
+        // using the line above caused an error when destroying a game object that had its collider disabled
+        // so instead I'll use this:
+
+        if(!theCollider.gameObject.activeInHierarchy && !onOff && theCollider.enabled)
+            Debug.LogWarning("Disabling inactive collider: " + GetHierarchyPath(theCollider.transform), theCollider);
+        theCollider.enabled = onOff;
+    }
+
+    // This is used in helping fix the bug with the gameobjects without colliders enabled being destroyed
+    // The method goes up through the cube's hierarchy to determine the path of children-parents connected to
+    // the problem cube.
+    public static string GetHierarchyPath(Transform transform)
+    {
+        if (!transform)
+            return string.Empty;
+
+        string path = transform.name;
+        while(transform.parent != null)
+        {
+            transform = transform.parent;
+            path = transform.name + "/" + path;
+        }
+
+        return path;
     }
 
     // TODO

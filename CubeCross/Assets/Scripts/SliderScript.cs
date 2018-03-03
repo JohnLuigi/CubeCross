@@ -54,40 +54,40 @@ public class SliderScript : MonoBehaviour {
     //puzzSize = parentManager.puzzleSize;
     //halfCubeDist = (puzzSize / 2f) - 0.5f;
 
-        halfCubeDist_X = (parentManager.puzzleSize_X / 2f) - 0.5f;
-        halfCubeDist_Y = (parentManager.puzzleSize_Y / 2f) - 0.5f;
-        halfCubeDist_Z = (parentManager.puzzleSize_Z / 2f) - 0.5f;
+        halfCubeDist_X = (parentManager.puzzleSize_X / 2f);
+        halfCubeDist_Y = (parentManager.puzzleSize_Y / 2f);
+        halfCubeDist_Z = (parentManager.puzzleSize_Z / 2f);
 
         // set the reference point to be used to define the plane that will contain the slider
         // also set the starting position of the slider
         if (gameObject.name == "XSlider")
         {
-            transform.position = new Vector3((parentManager.puzzleSize_X / 2) + 2, 0, halfCubeDist_Z);
+            transform.position = new Vector3(halfCubeDist_X + 2, 0, halfCubeDist_Z + 1);
 
             // this reference is on the same edge of the cube as the X Slider, but with an increased y-value (high ref)
             axisReference = new GameObject { name = "XSliderReference1"};
-            axisReference.transform.position = new Vector3(0, halfCubeDist_Y, halfCubeDist_Z);
+            axisReference.transform.position = new Vector3(0, halfCubeDist_Y, halfCubeDist_Z + 1);
             axisReference.transform.parent = parentObject.transform;
 
             // this reference is on the same y-value as the slider, and same z-value (even ref)
             axisReference2 = new GameObject { name = "XSliderReference2" };
-            axisReference2.transform.position = new Vector3(0, 0, halfCubeDist_Z);
+            axisReference2.transform.position = new Vector3(-halfCubeDist_X, 0, halfCubeDist_Z + 1);
             axisReference2.transform.parent = parentObject.transform;
 
             otherSlider = GameObject.Find("ZSlider");
         }
         else if(gameObject.name == "ZSlider")
         {
-            transform.position = new Vector3(-halfCubeDist_X, 0, -(parentManager.puzzleSize_Z/2) - 2);
+            transform.position = new Vector3(-halfCubeDist_X - 1, 0, -halfCubeDist_Z - 2);
 
             // this reference is on the same edge of the cube as the Z Slider, but with an increased y-value (high ref)
             axisReference = new GameObject { name = "ZSliderReference1" };
-            axisReference.transform.position = new Vector3(-halfCubeDist_X, halfCubeDist_Y, 0);
+            axisReference.transform.position = new Vector3(-halfCubeDist_X - 1, halfCubeDist_Y, 0);
             axisReference.transform.parent = parentObject.transform;
 
             // this reference is on the same y-value as the Z slider, and same x-value (even ref)
             axisReference2 = new GameObject { name = "ZSliderReference2" };
-            axisReference2.transform.position = new Vector3(-halfCubeDist_X, 0, 0);
+            axisReference2.transform.position = new Vector3(-halfCubeDist_X - 1, 0, halfCubeDist_Z);
             axisReference2.transform.parent = parentObject.transform;
 
             otherSlider = GameObject.Find("XSlider");
@@ -106,6 +106,7 @@ public class SliderScript : MonoBehaviour {
         startingDistance = transform.position - axisReference2.transform.position;
         // might need to swap the order of this subtraction
 
+        /*
         // point between the slider and the center of the cube that the cube cannot move any closer
         // for the xSlider, it will be along the x-axis, located at theshold-puzzleSize-0.5 units
         float tempThresh = parentObject.GetComponent<CubeManager>().hideThreshold_X;
@@ -123,10 +124,10 @@ public class SliderScript : MonoBehaviour {
 
             closestDistance = -1f;
         }
-
+        */
         //TODO
         // see if closest distance is being stopped in this script
-        closestDistance = 0f;
+        closestDistance = 0.5f;
         
     }
 

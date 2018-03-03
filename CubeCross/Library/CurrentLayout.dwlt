@@ -110,7 +110,7 @@ MonoBehaviour:
   m_MinSize: {x: 917, y: 442}
   m_MaxSize: {x: 22012, y: 14042}
   vertical: 0
-  controlID: 172
+  controlID: 97
 --- !u!114 &6
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -443,9 +443,9 @@ MonoBehaviour:
   m_isRotationLocked: 0
   m_AudioPlay: 0
   m_Position:
-    m_Target: {x: 0.51014614, y: 0.7836226, z: -5.168029}
+    m_Target: {x: 1.9669838, y: -0.28835368, z: 2.4543571}
     speed: 2
-    m_Value: {x: 0.51014614, y: 0.7836226, z: -5.168029}
+    m_Value: {x: 1.9669838, y: -0.28835368, z: 2.4543571}
   m_RenderMode: 0
   m_ValidateTrueMetals: 0
   m_SceneViewState:
@@ -469,13 +469,13 @@ MonoBehaviour:
       speed: 2
       m_Value: 0
   m_Rotation:
-    m_Target: {x: -0.092691466, y: -0.12418144, z: 0.009654805, w: -0.9878745}
+    m_Target: {x: -0.11447751, y: 0.28283513, z: -0.036097076, w: -0.9516282}
     speed: 2
-    m_Value: {x: -0.09269138, y: -0.12418132, z: 0.009654796, w: -0.98787355}
+    m_Value: {x: -0.11447751, y: 0.28283513, z: -0.036097076, w: -0.9516282}
   m_Size:
-    m_Target: 0.79359806
+    m_Target: 16.48412
     speed: 2
-    m_Value: 0.79359806
+    m_Value: 16.48412
   m_Ortho:
     m_Target: 0
     speed: 2
@@ -516,8 +516,8 @@ MonoBehaviour:
   m_PersistentViewDataDictionary: {fileID: 0}
   m_TreeViewState:
     scrollPos: {x: 0, y: 0}
-    m_SelectedIDs: e4070000
-    m_LastClickedID: 0
+    m_SelectedIDs: 5a280000
+    m_LastClickedID: 10330
     m_ExpandedIDs: 9efbffff0000000048280000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
@@ -580,18 +580,18 @@ MonoBehaviour:
     m_ShowAllHits: 0
     m_SearchArea: 0
     m_Folders:
-    - Assets/Scripts
+    - Assets/Prefabs
   m_ViewMode: 1
   m_StartGridSize: 88
   m_LastFolders:
-  - Assets/Scripts
+  - Assets/Prefabs
   m_LastFoldersGridSize: 88
   m_LastProjectPath: C:\Users\Owner\Documents\GitHub\CubeCross\CubeCross
   m_IsLocked: 0
   m_FolderTreeState:
     scrollPos: {x: 0, y: 0}
-    m_SelectedIDs: 9a270000
-    m_LastClickedID: 10138
+    m_SelectedIDs: 72270000
+    m_LastClickedID: 10098
     m_ExpandedIDs: 000000006c2700009627000000ca9a3bffffff7f
     m_RenameOverlay:
       m_UserAcceptedRename: 0
