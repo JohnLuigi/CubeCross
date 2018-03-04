@@ -99,6 +99,10 @@ public class CubeManager : MonoBehaviour {
 
     private string solution;
 
+    private Text flagStatusObject;
+    public bool flagStatus = false;     // this variable tracks whether the player is flagging cubes or deleting cubes
+    public string tempFlagText = "Deleting";
+
     //private bool hidden = false;
 
     //private SliderScript sliderScriptRef;
@@ -194,6 +198,10 @@ public class CubeManager : MonoBehaviour {
         for (int i = 0; i < hideIndices_Z.Length; i++)
             hideIndices_Z[i] = false;
 
+        // set the reference to the flag status text object
+        flagStatusObject = GameObject.Find("FlagStatusText").GetComponent<Text>();
+        flagStatusObject.text = tempFlagText;
+
 
 
 
@@ -247,8 +255,10 @@ public class CubeManager : MonoBehaviour {
         // a delay and continue from this first array of ray-hit cubes until they run out or the player lets go of the
         // left mouse button
         if (Input.GetMouseButton(0))
-        {            
-            LongCheckCubes(pressTime);            
+        {
+            // if we aren't set to flagging status, try to delete a cube on LMB click
+            if (!flagStatus)
+                LongCheckCubes(pressTime);            
             //Slider();
         }
 
@@ -257,7 +267,11 @@ public class CubeManager : MonoBehaviour {
         if(Input.GetMouseButtonUp(0))
         {
             mouseDown = false;
-            CheckCube(pressTime);
+            // if we aren't set to flagging status, try to delete a cube on LMB click
+            if (!flagStatus)
+                CheckCube(pressTime);
+            else
+                FlagCube();
             pressTime = 0.0f;
         }
 
@@ -272,6 +286,20 @@ public class CubeManager : MonoBehaviour {
                 deletedCubes[deletedCubes.Count - 1].SetActive(true);
                 deletedCubes.RemoveAt(deletedCubes.Count - 1);
             }            
+        }
+
+        // If the player presses the Shift key, change the status of the flagStatus variable to its opposite
+        // so it toggles between deleting cubes and flagging cubes
+        if(Input.GetKeyUp(KeyCode.LeftShift))
+        {
+            flagStatus = !flagStatus;
+
+            if(flagStatus)            
+                tempFlagText = "Marking";            
+            else            
+                tempFlagText = "Deleting";            
+
+            flagStatusObject.text = tempFlagText;
         }
 
         UpdatePressTime();
@@ -339,6 +367,78 @@ public class CubeManager : MonoBehaviour {
         //transform.localRotation = Quaternion.Euler(mainRotation);
     }
 */
+
+    // Flag a cube, changing its faces to the flagged version (at the moment making them red)
+    private void FlagCube()
+    {
+        RaycastHit hit;
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+
+        if(Physics.Raycast(ray, out hit, Mathf.Infinity))
+        {
+            // if we clicked a cube, change its color
+            if(hit.transform.gameObject.tag == "BlankCube" || hit.transform.gameObject.tag == "KeyCube")
+            {
+                CubeFacesScript faceScript = hit.transform.gameObject.GetComponent<CubeFacesScript>();
+
+                string oldFB = faceScript.frontBack;
+                string oldTB = faceScript.topBottom;
+                string oldLR = faceScript.leftRight;
+
+                string texture = "";
+
+                // if the cube is not curently flagged, flag it by setting to its flagged texture
+                if(!faceScript.flagged)
+                {
+                    // add the "_F" string to the faces and set them accordingly
+                    texture = oldFB + "_F";
+                    faceScript.SetFace("front", texture);
+                    faceScript.SetFace("back", texture);
+                    faceScript.frontBack = texture;
+
+                    texture = oldTB + "_F";
+                    faceScript.SetFace("top", texture);
+                    faceScript.SetFace("bottom", texture);
+                    faceScript.topBottom = texture;
+
+                    texture = oldLR + "_F";
+                    faceScript.SetFace("left", texture);
+                    faceScript.SetFace("right", texture);
+                    faceScript.leftRight = texture;
+
+                    // swap the value of flagged
+                    faceScript.flagged = !faceScript.flagged;
+                }
+                // if the cube is flagged, set it back to its original textures (remove the "_F" from each face)
+                else
+                {
+                    // remove the "_F" portion of the string, aka the last two characters, then set the new faces 
+                    texture = oldFB.Remove(oldFB.Length - 2);
+                    faceScript.SetFace("front", texture);
+                    faceScript.SetFace("back", texture);
+                    faceScript.frontBack = texture;
+
+                    texture = oldTB.Remove(oldTB.Length - 2);
+                    faceScript.SetFace("top", texture);
+                    faceScript.SetFace("bottom", texture);
+                    faceScript.topBottom = texture;
+
+                    texture = oldLR.Remove(oldLR.Length - 2);
+                    faceScript.SetFace("left", texture);
+                    faceScript.SetFace("right", texture);
+                    faceScript.leftRight = texture;
+
+                    // swap the value of flagged
+                    faceScript.flagged = !faceScript.flagged;
+                }
+            }
+
+
+        }
+    }
+
+
+
     // cast a ray at the location of the mouse click, and delete the one cube that is hit, if a cube is hit
     // this is only done when the mouse button is released, and thus can only delete one cube at a time
     private void CheckCube(float timePassed)
@@ -354,8 +454,13 @@ public class CubeManager : MonoBehaviour {
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         if(Physics.Raycast(ray, out hit, Mathf.Infinity))
         {
+            
             if(hit.transform.gameObject.tag == "KeyCube")
             {
+                // see if the cube is flagged, if it is, do nothing
+                bool thisFlag = hit.transform.gameObject.GetComponent<CubeFacesScript>().flagged;
+                if (thisFlag)
+                    return;
                 Debug.Log("This cube is part of the solution and needs to stay. PUNISH");
             }
             else if(hit.transform.gameObject.tag == "BlankCube")
@@ -365,6 +470,11 @@ public class CubeManager : MonoBehaviour {
                 {
                     return;
                 }
+
+                // see if the cube is flagged, if it is, do nothing
+                bool thisFlag = hit.transform.gameObject.GetComponent<CubeFacesScript>().flagged;
+                if (thisFlag)
+                    return;
 
                 // TODO
                 //make an animation for deleting a blank cube, play it here
@@ -419,6 +529,11 @@ public class CubeManager : MonoBehaviour {
                             // if the cube hit is part of the puzzle, punish the player for trying to delete it
                             if (closestCube.tag == "KeyCube")
                             {
+                                // see if the cube is flagged, if it is, do nothing
+                                bool thisFlag = hit.transform.gameObject.GetComponent<CubeFacesScript>().flagged;
+                                if (thisFlag)
+                                    return;
+
                                 Debug.Log("This cube is part of the solution and needs to stay. PUNISH");
                             }
                             // if the cube is not part of hte puzzle hide it
@@ -429,6 +544,11 @@ public class CubeManager : MonoBehaviour {
                                 {
                                     return;
                                 }
+
+                                // see if the cube is flagged, if it is, do nothing
+                                bool thisFlag = hit.transform.gameObject.GetComponent<CubeFacesScript>().flagged;
+                                if (thisFlag)
+                                    return;
 
                                 // TODO
                                 //make an animation for deleting a blank cube, play it here

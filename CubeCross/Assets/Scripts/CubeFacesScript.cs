@@ -19,6 +19,8 @@ public class CubeFacesScript : MonoBehaviour {
     public string topBottom;
     public string leftRight;
 
+    public bool flagged = false;
+
 
     // Initializing all this stuff in Awake() because this method is called immediately when the attached object is
     // instantiated in a different script
