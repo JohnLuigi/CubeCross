@@ -120,8 +120,10 @@ public class CubeManager : MonoBehaviour {
         warnText = GameObject.Find("WarnText").GetComponent<Text>();
         // initially don't have any text showing
         warnText.text = "";
+        
+        // add the puzzle reader/creation stuff here
 
-        if(GetPuzzleInfo("Assets/Puzzles/" + solution))
+        if(GetPuzzleInfo("Assets/StreamingAssets/" + solution))
         {
             // let the game carry out
             canProceed = true;
