@@ -103,6 +103,8 @@ public class CubeManager : MonoBehaviour {
     public bool flagStatus = false;     // this variable tracks whether the player is flagging cubes or deleting cubes
     public string tempFlagText = "Deleting";
 
+    private GameObject puzzleSelector;
+
     //private bool hidden = false;
 
     //private SliderScript sliderScriptRef;
@@ -111,6 +113,8 @@ public class CubeManager : MonoBehaviour {
     // Mostly used to set values that other scripts will need to access
     public void Awake()        
     {
+        puzzleSelector = GameObject.Find("PuzzleSelector");
+
         // string to use for selecting a puzzle
         //solution = "XSolution.txt";
         //solution = "6x6x6_Solution.txt";
@@ -228,8 +232,22 @@ public class CubeManager : MonoBehaviour {
         //managerReference.transform.rotation = transform.rotation;
     }
 
-	public void Update () {		
+	public void Update () {
 
+        // show/hide the menu when the escape key is pressed
+        if (Input.GetKeyUp(KeyCode.Escape))
+        {
+            // TODO
+            // move the menu, slide it, hide, whatever, do that here
+            puzzleSelector.SetActive(!puzzleSelector.activeSelf);
+        }
+
+        // if the puzzle selection menu is active, don't make the game interactive
+        if (puzzleSelector.activeSelf)
+        {
+            return;
+        }
+            
         // cube check/deletion block
         // if the player left clicks once, see if a cube is hit
 
@@ -240,7 +258,7 @@ public class CubeManager : MonoBehaviour {
 
 
         // if the RMB is being continuously held down, rotate the entire puzzle about the average center of itself
-        if(Input.GetMouseButton(1))
+        if (Input.GetMouseButton(1))
         {
             RotatePuzzle();
         }
@@ -303,6 +321,8 @@ public class CubeManager : MonoBehaviour {
 
             flagStatusObject.text = tempFlagText;
         }
+
+        
 
         UpdatePressTime();
 

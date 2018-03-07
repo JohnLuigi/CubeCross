@@ -36,6 +36,8 @@ public class SliderScript : MonoBehaviour {
     private float halfCubeDist_Y;
     private float halfCubeDist_Z;
 
+    private GameObject puzzleSelector;  // reference to the puzzle selection UI element
+
     //public bool isSliding = false;
     // TODO
     // update the uses of 8.5f as a starting distance for the sliders to be some function of
@@ -45,7 +47,8 @@ public class SliderScript : MonoBehaviour {
     // Use this for initialization
     void Start ()
     {
-        
+        puzzleSelector = GameObject.Find("PuzzleSelector");
+
         parentObject = GameObject.Find("GameManager");
         transform.parent = parentObject.transform;
 
@@ -134,6 +137,12 @@ public class SliderScript : MonoBehaviour {
     // Update is called once per frame
     void Update ()
     {
+        // if the puzzle selection menu is active, don't make the game interactive
+        if (puzzleSelector.activeSelf)
+        {
+            return;
+        }
+
         // update the location of the intersecting plane each frame so that its consistent with rotation
         movePlane = new Plane(axisReference2.transform.position, transform.position, axisReference.transform.position);
 
@@ -164,8 +173,14 @@ public class SliderScript : MonoBehaviour {
 
     private void OnMouseOver()
     {
+        // if the puzzle selection menu is active, don't make the game interactive
+        if (puzzleSelector.activeSelf)
+        {
+            return;
+        }
+
         // this prevents the slider from doing anything if another slider is in use
-        if(otherSlider.GetComponent<SliderScript>().sliding == true)
+        if (otherSlider.GetComponent<SliderScript>().sliding == true)
         {
             return;
         }

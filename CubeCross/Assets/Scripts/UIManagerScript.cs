@@ -2,16 +2,19 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
+using UnityEngine.UI;
 
-public class PuzzleReader : MonoBehaviour
-{
+public class UIManagerScript : MonoBehaviour {
 
+    public bool isMenuOn = true;
     public string folderPath;
+    public GameObject[] puzzleButtons;
+    public GameObject buttonPrefab;
+    private GameObject levelButtonHolder;
 
     // Use this for initialization
-    void Start()
-    {
-
+    void Start () {
+        levelButtonHolder = GameObject.Find("LevelButtonHolder");
         // Set the path to the folder that contains the puzzles
         folderPath = Application.streamingAssetsPath;
 
@@ -39,22 +42,39 @@ public class PuzzleReader : MonoBehaviour
         // so we don't try to use meta files for puzzle solutions.
         FileInfo[] fileInfo = info.GetFiles("*.txt");
 
-        foreach (FileInfo file in fileInfo)
-        {            
-            Debug.Log("There are " + fileInfo.Length + " puzzles available.");
-            Debug.Log(file.Name + "\n");
+        // set the size of the array that will contain the level names to be used to 
+        // create buttons for each level
+        puzzleButtons = new GameObject[fileInfo.Length];
 
+        GameObject newButton;
+        Vector3 startingPoint = levelButtonHolder.transform.position;
+
+        for(int i = 0; i < fileInfo.Length; i++)
+        {
             // TODO
             // create the UI elements here, or export these files or strings to the UI manager
+            newButton = Instantiate(buttonPrefab, levelButtonHolder.transform) as GameObject;
+
+            // set the starting point for th enext button to be one button's height below the next
+            // can modify this to have some spacing between the buttons
+            newButton.GetComponent<RectTransform>().localPosition -= 
+                new Vector3(0f, (i + 1) * buttonPrefab.GetComponent<RectTransform>().rect.height, 0f);
+
+
+            //TODO
+            // remove the ".txt" from the string that will be the puzzle name
+
+            newButton.transform.GetChild(0).GetComponent<Text>().text = fileInfo[i].Name;
+
+            puzzleButtons[i] = newButton;
+
         }
+    }
+	
+	// Update is called once per frame
+	void Update () {
 
+        
 
     }
-
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
-
 }
