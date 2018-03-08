@@ -308,9 +308,9 @@ public class CubeManager : MonoBehaviour {
             }            
         }
 
-        // If the player presses the Shift key, change the status of the flagStatus variable to its opposite
+        // If the player presses the Space key, change the status of the flagStatus variable to its opposite
         // so it toggles between deleting cubes and flagging cubes
-        if(Input.GetKeyUp(KeyCode.LeftShift))
+        if(Input.GetKeyUp(KeyCode.Space))
         {
             flagStatus = !flagStatus;
 

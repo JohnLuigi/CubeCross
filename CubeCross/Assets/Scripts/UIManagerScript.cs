@@ -14,7 +14,9 @@ public class UIManagerScript : MonoBehaviour {
 
     // Use this for initialization
     void Start () {
+        // set references to the objects to be used
         levelButtonHolder = GameObject.Find("LevelButtonHolder");
+
         // Set the path to the folder that contains the puzzles
         folderPath = Application.streamingAssetsPath;
 
@@ -48,6 +50,7 @@ public class UIManagerScript : MonoBehaviour {
 
         GameObject newButton;
         Vector3 startingPoint = levelButtonHolder.transform.position;
+        string tempPuzzleName;
 
         for(int i = 0; i < fileInfo.Length; i++)
         {
@@ -59,14 +62,17 @@ public class UIManagerScript : MonoBehaviour {
             // can modify this to have some spacing between the buttons
             newButton.GetComponent<RectTransform>().localPosition -= 
                 new Vector3(0f, (i + 1) * buttonPrefab.GetComponent<RectTransform>().rect.height, 0f);
-
-
-            //TODO
+            
             // remove the ".txt" from the string that will be the puzzle name
+            // The name of the puzzle that will appear on the button will be 4 units shorter than its
+            // current length, aka ".txt" will be removed
+            tempPuzzleName = fileInfo[i].Name.Remove(fileInfo[i].Name.Length - 4);
+            // Set the text on the button to be displayed
+            newButton.transform.GetChild(0).GetComponent<Text>().text = tempPuzzleName;
+            // Give an appropriate name to each puzzle to help see them in the editor
+            newButton.name = tempPuzzleName;
 
-            newButton.transform.GetChild(0).GetComponent<Text>().text = fileInfo[i].Name;
-
-            puzzleButtons[i] = newButton;
+            puzzleButtons[i] = newButton;   // add the new button to the list of puzzle buttons
 
         }
     }
