@@ -104,6 +104,7 @@ public class CubeManager : MonoBehaviour {
     public string tempFlagText = "Deleting";
 
     private GameObject puzzleSelector;
+    private bool puzzleInitialized = false; // start as false until the puzzle has actually been created
 
     //private bool hidden = false;
 
@@ -124,9 +125,9 @@ public class CubeManager : MonoBehaviour {
         warnText = GameObject.Find("WarnText").GetComponent<Text>();
         // initially don't have any text showing
         warnText.text = "";
-        
-        // add the puzzle reader/creation stuff here
 
+        // add the puzzle reader/creation stuff here
+        /*
         if(GetPuzzleInfo("Assets/StreamingAssets/" + solution))
         {
             // let the game carry out
@@ -140,7 +141,12 @@ public class CubeManager : MonoBehaviour {
 
         hideThreshold_X = puzzleSize_X + 1;
         hideThreshold_Z = puzzleSize_Z + 1;
+        */
 
+        // Set references to the X and Z sliders before they deactivate themselves so
+        // that they can be reactivated.
+        xSlider = GameObject.Find("XSlider");
+        zSlider = GameObject.Find("ZSlider");
     }
 
     // create the array of cubes that will make up the puzzle
@@ -155,6 +161,8 @@ public class CubeManager : MonoBehaviour {
         //Camera.main.transform.position = new Vector3(0f, 0f, ((float)puzzleSize * -1.0f) - 1.0f);
         Camera.main.transform.position = new Vector3(0f, 0f, (10f * -1.0f) - 1.0f);
         //************************************************************************************
+
+        /*
         if (canProceed)
         {
             CreateCubes();
@@ -207,7 +215,12 @@ public class CubeManager : MonoBehaviour {
         // set the reference to the flag status text object
         flagStatusObject = GameObject.Find("FlagStatusText").GetComponent<Text>();
         flagStatusObject.text = tempFlagText;
+        */
 
+        //////////////////////////////////////
+        /// END OF ORIGINAL START BLOCK///////
+        //////////////////////////////////////
+        
 
 
 
@@ -247,6 +260,10 @@ public class CubeManager : MonoBehaviour {
         {
             return;
         }
+
+        // don't do anything in Update() until the puzzle has been initialized
+        if (!puzzleInitialized)
+            return;
             
         // cube check/deletion block
         // if the player left clicks once, see if a cube is hit
@@ -301,7 +318,7 @@ public class CubeManager : MonoBehaviour {
         {
             // make the last deleted cube visible again
             // then remove it from the list of deleted cubes
-            if(deletedCubes.Count != 0)
+            if(deletedCubes.Count != 0 && deletedCubes[0] != null)
             {
                 deletedCubes[deletedCubes.Count - 1].SetActive(true);
                 deletedCubes.RemoveAt(deletedCubes.Count - 1);
@@ -1926,6 +1943,90 @@ public class CubeManager : MonoBehaviour {
 
         // save the format the two faces were set to
         faceScript.leftRight = tex;
+    }
+
+    // public method that can be called to create a puzzle upon clicking a puzzle button
+    public void InitializePuzzle(string puzzleName)
+    {
+        // try to get the puzzle information, if it works, the puzzle can be made
+        if (GetPuzzleInfo(Application.streamingAssetsPath + "/" + puzzleName + ".txt"))
+        {
+            // let the game carry out
+            canProceed = true;
+        }
+        else
+        {
+            // if there was a problem with the reading of the puzzleFile, let the player know
+            warnText.text = "There was an issue with\n your puzzle's format";
+        }
+
+        hideThreshold_X = puzzleSize_X + 1;
+        hideThreshold_Z = puzzleSize_Z + 1;
+
+        // clear out hte currently existing puzzle elements
+        if(cubeArray != null)
+        {
+            // destroy previous gameobjects if another puzzle is currently existing
+            foreach (GameObject go in cubeArray)
+                Destroy(go);
+        }
+
+        if (deletedCubes != null)
+        {
+            // destroy previously stored deleted cubes
+            foreach (GameObject go in deletedCubes)
+                Destroy(go);
+        }
+
+        CreateCubes();
+        puzzleBounds = new Bounds(cubeArray[0, 0, 0].transform.position, Vector3.zero);
+        UpdateBounds();
+
+        // reference for the edge of the puzzle for the XSlider
+        sliderReferenceX = new GameObject { name = "SliderReferenceX" };
+        sliderReferenceX.transform.position = new Vector3(-(puzzleSize_X / 2f), 0, (puzzleSize_Z / 2f) + 1f);
+        sliderReferenceX.transform.parent = this.transform;
+
+        xSlider.SetActive(true);
+        // initialize the X Slider
+        SliderScript xScript = xSlider.GetComponent<SliderScript>();
+        xScript.Initialize();
+
+        // reference for the edge of the puzzle for the ZSlider
+        sliderReferenceZ = new GameObject { name = "SliderReferenceZ" };
+        sliderReferenceZ.transform.position = new Vector3(-(puzzleSize_X / 2f) - 1, 0, (puzzleSize_Z / 2f));
+        sliderReferenceZ.transform.parent = this.transform;
+
+        zSlider.SetActive(true);
+        // initialize the Z Slider
+        SliderScript zScript = zSlider.GetComponent<SliderScript>();
+        zScript.Initialize();
+
+        // initialize each array to be visible
+        // this will be used to track which "layers" of the puzzle should be hidden
+        // TODO
+        // might have to make a version of this for the YSlider
+        hideIndices = new bool[puzzleSize];
+        for (int i = 0; i < hideIndices.Length; i++)
+        {
+            hideIndices[i] = false;
+        }
+
+        // initially set the x values all to false, meaning they are not to be hidden
+        hideIndices_X = new bool[puzzleSize_X];
+        for (int i = 0; i < hideIndices_X.Length; i++)
+            hideIndices_X[i] = false;
+
+        // initially set the z values all to false, meaning they are not to be hidden
+        hideIndices_Z = new bool[puzzleSize_Z];
+        for (int i = 0; i < hideIndices_Z.Length; i++)
+            hideIndices_Z[i] = false;
+
+        // set the reference to the flag status text object
+        flagStatusObject = GameObject.Find("FlagStatusText").GetComponent<Text>();
+        flagStatusObject.text = tempFlagText;
+
+        puzzleInitialized = true;
     }
 
 }

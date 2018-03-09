@@ -38,6 +38,8 @@ public class SliderScript : MonoBehaviour {
 
     private GameObject puzzleSelector;  // reference to the puzzle selection UI element
 
+    private bool puzzleInitialized = false;
+
     //public bool isSliding = false;
     // TODO
     // update the uses of 8.5f as a starting distance for the sliders to be some function of
@@ -49,6 +51,13 @@ public class SliderScript : MonoBehaviour {
     {
         puzzleSelector = GameObject.Find("PuzzleSelector");
 
+        // initially hide the slider until it is activated when the puzzle is created
+        gameObject.SetActive(false);
+
+
+        
+        
+/*
         parentObject = GameObject.Find("GameManager");
         transform.parent = parentObject.transform;
 
@@ -109,6 +118,12 @@ public class SliderScript : MonoBehaviour {
         startingDistance = transform.position - axisReference2.transform.position;
         // might need to swap the order of this subtraction
 
+        */
+
+        //////////////////////////////////////
+        /// END OF ORIGINAL START BLOCK///////
+        //////////////////////////////////////
+
         /*
         // point between the slider and the center of the cube that the cube cannot move any closer
         // for the xSlider, it will be along the x-axis, located at theshold-puzzleSize-0.5 units
@@ -131,7 +146,7 @@ public class SliderScript : MonoBehaviour {
         //TODO
         // see if closest distance is being stopped in this script
         closestDistance = 0.5f;
-        
+
     }
 
     // Update is called once per frame
@@ -142,6 +157,10 @@ public class SliderScript : MonoBehaviour {
         {
             return;
         }
+
+        // don't do anything until the puzzle has been initialized
+        if (!puzzleInitialized)
+            return;
 
         // update the location of the intersecting plane each frame so that its consistent with rotation
         movePlane = new Plane(axisReference2.transform.position, transform.position, axisReference.transform.position);
@@ -179,8 +198,15 @@ public class SliderScript : MonoBehaviour {
             return;
         }
 
+        // don't do anything until the puzzle has been initialized
+        if (!puzzleInitialized)
+            return;
+        // TODO
+        // take a look at this "otherSlider != null" check and see why it was necessary to make the game not
+        // call a null reference when mousing over the XSlider
+
         // this prevents the slider from doing anything if another slider is in use
-        if (otherSlider.GetComponent<SliderScript>().sliding == true)
+        if (otherSlider != null && otherSlider.GetComponent<SliderScript>().sliding == true)
         {
             return;
         }
@@ -306,5 +332,74 @@ public class SliderScript : MonoBehaviour {
     {
         unclicked = true;
         sliding = false;
+    }
+
+    // public version of the code that was originally part of the start method
+    public void Initialize()
+    {
+        puzzleSelector = GameObject.Find("PuzzleSelector");
+
+        parentObject = GameObject.Find("GameManager");
+        transform.parent = parentObject.transform;
+
+        parentManager = parentObject.GetComponent<CubeManager>();
+
+        //puzzSize = parentManager.puzzleSize;
+        //halfCubeDist = (puzzSize / 2f) - 0.5f;
+
+        halfCubeDist_X = (parentManager.puzzleSize_X / 2f);
+        halfCubeDist_Y = (parentManager.puzzleSize_Y / 2f);
+        halfCubeDist_Z = (parentManager.puzzleSize_Z / 2f);
+
+        // set the reference point to be used to define the plane that will contain the slider
+        // also set the starting position of the slider
+        if (gameObject.name == "XSlider")
+        {
+            transform.position = new Vector3(halfCubeDist_X + 2, 0, halfCubeDist_Z + 1);
+
+            // this reference is on the same edge of the cube as the X Slider, but with an increased y-value (high ref)
+            axisReference = new GameObject { name = "XSliderReference1" };
+            axisReference.transform.position = new Vector3(0, halfCubeDist_Y, halfCubeDist_Z + 1);
+            axisReference.transform.parent = parentObject.transform;
+
+            // this reference is on the same y-value as the slider, and same z-value (even ref)
+            axisReference2 = new GameObject { name = "XSliderReference2" };
+            axisReference2.transform.position = new Vector3(-halfCubeDist_X, 0, halfCubeDist_Z + 1);
+            axisReference2.transform.parent = parentObject.transform;
+
+            otherSlider = GameObject.Find("ZSlider");
+        }
+        else if (gameObject.name == "ZSlider")
+        {
+            transform.position = new Vector3(-halfCubeDist_X - 1, 0, -halfCubeDist_Z - 2);
+
+            // this reference is on the same edge of the cube as the Z Slider, but with an increased y-value (high ref)
+            axisReference = new GameObject { name = "ZSliderReference1" };
+            axisReference.transform.position = new Vector3(-halfCubeDist_X - 1, halfCubeDist_Y, 0);
+            axisReference.transform.parent = parentObject.transform;
+
+            // this reference is on the same y-value as the Z slider, and same x-value (even ref)
+            axisReference2 = new GameObject { name = "ZSliderReference2" };
+            axisReference2.transform.position = new Vector3(-halfCubeDist_X - 1, 0, halfCubeDist_Z);
+            axisReference2.transform.parent = parentObject.transform;
+
+            otherSlider = GameObject.Find("XSlider");
+        }
+
+
+        movePlane = new Plane(axisReference2.transform.position, transform.position, axisReference.transform.position);
+
+        // store a gameobject that is parented to the gameManager cube puzzle
+        originalLocation = new GameObject { name = "OriginalLocation" };
+        originalLocation.transform.position = transform.position;
+        originalLocation.transform.parent = parentObject.transform;
+
+        // record the original distance from the center of the puzzle + offset (axisReference2)
+        // this wil be the maximum distance the slider can be away from the puzzle
+        startingDistance = transform.position - axisReference2.transform.position;
+        // might need to swap the order of this subtraction
+
+        // now we can run the Update() method
+        puzzleInitialized = true;
     }
 }
