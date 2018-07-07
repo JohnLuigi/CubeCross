@@ -46,6 +46,12 @@ public class CubeManager : MonoBehaviour {
     public float maxDistance;
     private float smoothTime = 2.0f;    // time it will take to do the entire zoom
 
+    private float cameraDistanceMax = -50f;     // cariables to be used with the scroll wheel to zoom the camera
+    private float cameraDistanceMin = -2f;
+    private float cameraDistance = -11f;
+    private float scrollSpeed = 4.0f;
+
+
     private Vector3 velocity = Vector3.zero;    // velocity reference to be used by the smoothDamp function
                                                 // to determine how far away the camera should be
     private Bounds puzzleBounds;    
@@ -280,8 +286,19 @@ public class CubeManager : MonoBehaviour {
             RotatePuzzle();
         }
 
+        // Camera zoom block
+        // update cameraDistance based on how the scroll wheel is being used
+        cameraDistance += Input.GetAxis("Mouse ScrollWheel") * scrollSpeed;
+        cameraDistance = Mathf.Clamp(cameraDistance, cameraDistanceMax, cameraDistanceMin);
+
+        // set the camera's z value based on the updated cameraDistance
+        Camera.main.transform.position = new Vector3(Camera.main.transform.position.x, Camera.main.transform.position.y,
+            cameraDistance);
+
+
+
         // on the first frame that the mouse button is clicked, reset the press timer
-        if(Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButtonDown(0))
         {
             mouseDown = true;
             pressTime = 0.0f;
@@ -360,6 +377,8 @@ public class CubeManager : MonoBehaviour {
 
         //Debug.Log("Manager X: " + managerReference.transform.rotation.eulerAngles.x + ". Y: " 
         //    + managerReference.transform.rotation.eulerAngles.y + ". Z: " + managerReference.transform.rotation.eulerAngles.z);
+
+        
 
     }
 
