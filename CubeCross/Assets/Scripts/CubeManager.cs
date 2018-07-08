@@ -37,9 +37,14 @@ public class CubeManager : MonoBehaviour {
     public float rotateDelay = 0.2f;
 
     public float rotationXSens = 200.0f;        
-    public float rotationYSens = 200.0f;
+    private float rotationYSens = 5f;
     private float horizontalSpeed = 0.0f;
     private float verticalSpeed = 0.0f;
+    private float rotationZ = 0f;
+    //private float prevMouseX;
+    //private float prevMouseY;
+    //private float mouseXDelta;
+    //private float mouseYDelta;
 
     public float minZoom;               // camera control variables
     public float maxZoom;
@@ -168,6 +173,9 @@ public class CubeManager : MonoBehaviour {
         Camera.main.transform.position = new Vector3(0f, 0f, (10f * -1.0f) - 1.0f);
         //************************************************************************************
 
+        //prevMouseX = Input.mousePosition.x;
+        //prevMouseY = Input.mousePosition.y;
+
         /*
         if (canProceed)
         {
@@ -226,7 +234,7 @@ public class CubeManager : MonoBehaviour {
         //////////////////////////////////////
         /// END OF ORIGINAL START BLOCK///////
         //////////////////////////////////////
-        
+
 
 
 
@@ -251,7 +259,7 @@ public class CubeManager : MonoBehaviour {
         //managerReference.transform.rotation = transform.rotation;
     }
 
-	public void Update () {
+	public void Update () {        
 
         // show/hide the menu when the escape key is pressed
         if (Input.GetKeyUp(KeyCode.Escape))
@@ -371,14 +379,17 @@ public class CubeManager : MonoBehaviour {
         {
             HideCubes(zSlider);
         }
-        
+
+        // update the previous mouse position
+        //prevMouseX = Input.mousePosition.x;
+        //prevMouseY = Input.mousePosition.y;
 
         //Debug.Log("X: " + transform.eulerAngles.x + ". Y: " + transform.eulerAngles.y + ". Z: " + transform.eulerAngles.z);
 
         //Debug.Log("Manager X: " + managerReference.transform.rotation.eulerAngles.x + ". Y: " 
         //    + managerReference.transform.rotation.eulerAngles.y + ". Z: " + managerReference.transform.rotation.eulerAngles.z);
 
-        
+
 
     }
 
@@ -667,184 +678,44 @@ public class CubeManager : MonoBehaviour {
         if (rotateTime < rotateDelay)
             return;
 
+        // set the number of degrees the puzzle will attempt before rotating based on mouse movement
         horizontalSpeed = rotationXSens * Input.GetAxis("Mouse X");
         verticalSpeed = rotationYSens * Input.GetAxis("Mouse Y");
 
-        // will use this to track where the puzzle is being rotated, since we'll need special handling around 0 rotation
-        //float prevXRotation = transform.eulerAngles.x;
-        //float prevZRotation = transform.eulerAngles.z;
+        // update the amount that the vertical rotation will total to based on its original rotation
+        // (the original rotation started at 0)
+        rotationZ += verticalSpeed;
+        // clamp the total amount of rotation to be 90 more or 90 degrees less than zero
+        rotationZ = Mathf.Clamp(rotationZ, -90f, 90f);
 
-        // using the RotateAround method for X and Y axis rotation avoids a Gimbal lock (such as when
-        // Euler angles were modified previously     
+        // update the new Z axis rotation of the parent of the whole puzzle (attached to this script)
+        transform.localEulerAngles = new Vector3(transform.localEulerAngles.x, transform.localEulerAngles.y, 
+            rotationZ);
 
+        // freely rotate horizontally, there is no need to clamp horizontal rotation in this game
+        transform.RotateAround(Vector3.zero, Vector3.down, horizontalSpeed * Time.deltaTime);
+
+        //TODO TRY THIS OUT
         /*
-                // calculate the intended vertical rotation
-                // if it will be past the clamping points, do not perform the rotation
-                Vector3 center = puzzleBounds.center;
-                Vector3 axis = Vector3.right;
-                float angle = verticalSpeed * Time.deltaTime;
+        You can use quaternion function 
+        Quaternion.RotateTowards(Quaternion from, Quaternion to, float maxDegreesDelta) to restrict rotation like this:
 
-                Vector3 position = transform.position;  // the position of this object
-                Quaternion rotation = Quaternion.AngleAxis(angle, axis);    // get the desired rotation
-                Vector3 direction = position - center;  // find the current direction relative to the center
-                direction = rotation * direction;       // rotate the direction
-                Vector3 newPosition = transform.position;
-                newPosition =  center + direction;   // define the new position
-                // rotate the object to keep looking at the center
-                Quaternion newRotation = transform.rotation;
-                Quaternion finalRotation = transform.rotation;
-                finalRotation *= Quaternion.Inverse(newRotation) * rotation * newRotation;
+        Quaternion ClampRotationXByLookDirection(Quaternion curentRotation)
+        {
+            Vector3 lookDirectionX = Vector3.ProjectOnPlane(lookDirection, Vector3.right).normalized;
+            Quaternion lookRotation = Quaternion.LookRotation(lookDirectionX);
+            Quaternion towardsRotation = Quaternion.RotateTowards(lookRotation, curentRotation, lookDeltaX);
+            return towardsRotation;
+        }
 
-                // check the final rotation and see if it is within the desired bounds
-                if (prevXRotation >= 0 && prevXRotation < 90)
-                {
-                    if (finalRotation.eulerAngles.x > 90)
-                        return;
-                }
-                // check if the angle is within 270 and 360
-                else if (prevXRotation > 270 && prevXRotation < 360)
-                {
-                    if (finalRotation.eulerAngles.x < 270)
-                        return;
-
-                }
+        Quaternion ClampRotationYByLookDirection(Quaternion curentRotation)
+        {
+            Vector3 lookDirectionY = Vector3.ProjectOnPlane(lookDirection, Vector3.up).normalized;
+            Quaternion lookRotation = Quaternion.LookRotation(lookDirectionY);
+            Quaternion towardsRotation = Quaternion.RotateTowards(lookRotation, curentRotation, lookDeltaY);
+            return towardsRotation;
+        }
         */
-        /*
-                // check the z axis rotation
-                if (prevZRotation >= 0 && prevZRotation < 90)
-                {
-                    if (finalRotation.eulerAngles.z > 90)
-                        return;
-                }
-                // check if the angle is within 270 and 360
-                else if (prevZRotation > 270 && prevZRotation < 360)
-                {
-                    if (finalRotation.eulerAngles.z < 270)
-                        return;
-
-                }
-        */
-
-        //OLD LINE ***************************************************
-        //transform.RotateAround(puzzleBounds.center, Vector3.down, horizontalSpeed * Time.deltaTime);       // horizontal rotation
-
-        //Vector3 dir = puzzleBounds.center - Vector3.down;
-        //dir = Quaternion.Euler(horizontalSpeed * Time.deltaTime);
-        //mainRotation = Quaternion.Euler(horizontalSpeed * Time.deltaTime, 0, 0) * Vector3.down;
-
-        //managerReference.transform.RotateAround(puzzleBounds.center, Vector3.down, horizontalSpeed * Time.deltaTime);
-        //managerReference.transform.RotateAround(puzzleBounds.center, Vector3.right, verticalSpeed * Time.deltaTime);
-
-        transform.RotateAround(puzzleBounds.center, Vector3.down, horizontalSpeed * Time.deltaTime);
-        transform.RotateAround(puzzleBounds.center, Vector3.right, verticalSpeed * Time.deltaTime);
-        //Debug.Log("EulerX: " + transform.eulerAngles.x);
-
-        //if (transform.eulerAngles.x > 90)
-            //Debug.Log("more than 90");
-/*
-        transform.eulerAngles = new Vector3(ClampAngle(transform.eulerAngles.x, -90, 90), transform.eulerAngles.y,
-            transform.eulerAngles.z);
-*/
-
-
-       // float prevX = transform.eulerAngles.x;
-       // float prevY = transform.eulerAngles.y;
-      //  float prevZ = transform.eulerAngles.z;
-
-        
-        // make the vertical rotation
-        //transform.RotateAround(puzzleBounds.center, Vector3.right, verticalSpeed * Time.deltaTime);       // vertical rotation
-
-        //mainRotation = Quaternion.Euler(verticalSpeed * Time.deltaTime, 0, 0) * Vector3.right;
-        // check if the rotation is beyond the bounds of 90, 270, etc.
-
-        
-/*
-        // check the final rotation and see if it is within the desired bounds
-        if (prevX>= 0f && prevX <= 90f)
-        {
-            Debug.Log("lower quarter");
-            if (transform.eulerAngles.x > 90f)
-            {
-                Debug.Log("lower limit hit");
-                // can do an opposite rotation in order to cancel out the previous rotation
-                //transform.RotateAround(puzzleBounds.center, Vector3.right, -1.0f * verticalSpeed * Time.deltaTime);
-            }
-
-        }
-        // check if the angle is within 270 and 360
-        else if (prevXRotation >= 270f && prevXRotation < 359f)
-        {
-            if (transform.eulerAngles.x < 273.9f)
-            {
-                // can do an opposite rotation in order to cancel out the previous rotation
-                //transform.RotateAround(puzzleBounds.center, Vector3.right, -1.0f * verticalSpeed * Time.deltaTime);
-            }
-
-        }
-*/
-
-/*
-        // check the z axis rotation
-        if (prevZRotation >= 0 && prevZRotation < 90)
-        {
-            if (finalRotation.eulerAngles.z > 90)
-                return;
-        }
-        // check if the angle is within 270 and 360
-        else if (prevZRotation > 270 && prevZRotation < 360)
-        {
-            if (finalRotation.eulerAngles.z < 270)
-                return;
-
-        }
-
-          
-
-        /*
-                // the desired vertical angle will be verticalSpeed * Time.deltaTime
-                Vector3 desiredRot = new Vector3(transform.eulerAngles.x + (verticalSpeed * Time.deltaTime),
-                    transform.eulerAngles.y, transform.eulerAngles.z + (verticalSpeed * Time.deltaTime));
-
-                // see if the angle will be within bounds
-                // first check whether the previous angle was within 0 and 90
-                if(prevXRotation >= 0 && prevXRotation < 90)
-                {
-                    if (desiredRot.x > 90)
-                        desiredRot = new Vector3(89.9f, transform.eulerAngles.y, transform.eulerAngles.z);
-                }
-                // check if the angle is within 270 and 360
-                else if(prevXRotation > 270 && prevXRotation < 360)
-                {
-                    if (desiredRot.x < 270)
-                        desiredRot = new Vector3(270.1f, transform.eulerAngles.y, transform.eulerAngles.z);
-
-                }
-
-                // check the z axis rotation
-                if(prevZRotation >= 0 && prevZRotation < 90)
-                {
-                    if (desiredRot.z > 90)
-                        desiredRot = new Vector3(transform.eulerAngles.x, transform.eulerAngles.y, 89.9f);
-                }
-                // check if the angle is within 270 and 360
-                else if (prevZRotation > 270 && prevZRotation < 360)
-                {
-                    if (desiredRot.z < 270)
-                        desiredRot = new Vector3(transform.eulerAngles.x, transform.eulerAngles.y, 270.1f);
-
-                }
-
-                transform.rotation = Quaternion.Euler(desiredRot);
-        */
-        //else
-        //{
-
-        //}
-
-        // TODO
-        // update the look rotation so that the vertical rotation is always relative to the camera
-
     }
 
     // initialize the cube array
