@@ -99,11 +99,11 @@ public class CubeManager : MonoBehaviour {
     public int puzzleSize_Z;
 
     private Text warnText;
-    private bool canProceed = false;    // used to check if the input puzzle file worked, then display the puzzle
+    //private bool canProceed = false;    // used to check if the input puzzle file worked, then display the puzzle
 
     private int[,,] puzzleContentArray;
 
-    private string solution;
+    //private string solution;
 
     private Text flagStatusObject;
     public bool flagStatus = false;     // this variable tracks whether the player is flagging cubes or deleting cubes
@@ -126,7 +126,7 @@ public class CubeManager : MonoBehaviour {
         //solution = "XSolution.txt";
         //solution = "6x6x6_Solution.txt";
         //solution = "2x4x2_Solution.txt";
-        solution = "2x4x1_Solution.txt";
+        //solution = "2x4x1_Solution.txt";
 
         warnText = GameObject.Find("WarnText").GetComponent<Text>();
         // initially don't have any text showing
@@ -1971,7 +1971,7 @@ public class CubeManager : MonoBehaviour {
         if (GetPuzzleInfo(Application.streamingAssetsPath + "/" + puzzleName + ".txt"))
         {
             // let the game carry out
-            canProceed = true;
+            //canProceed = true;
         }
         else
         {

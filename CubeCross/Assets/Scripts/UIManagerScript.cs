@@ -12,6 +12,9 @@ public class UIManagerScript : MonoBehaviour {
     public GameObject buttonPrefab;
     private GameObject levelButtonHolder;
 
+    private GameObject facesHelpGroup;
+    private GameObject helpText;
+
     // Use this for initialization
     void Start () {
         // set references to the objects to be used
@@ -19,6 +22,14 @@ public class UIManagerScript : MonoBehaviour {
 
         // Set the path to the folder that contains the puzzles
         folderPath = Application.streamingAssetsPath;
+
+        // set the reference to the parent object that is holding all the help images/text
+        facesHelpGroup = GameObject.Find("FacesHelpGroup");
+        facesHelpGroup.SetActive(false);
+
+        //set the reference to the help text that is visible
+        // initially hide it, havingthe controls/help open
+        helpText = GameObject.Find("HelpText");
 
         // TODO
         // Make this work for android/web
@@ -80,7 +91,12 @@ public class UIManagerScript : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 
-        
-
+        // if the player presses the h key, toggle the visibility of the help screen
+        if (Input.GetKeyUp("h"))
+        {
+            facesHelpGroup.SetActive(!facesHelpGroup.activeSelf);
+            helpText.SetActive(!helpText.activeSelf);
+        }
+            
     }
 }
