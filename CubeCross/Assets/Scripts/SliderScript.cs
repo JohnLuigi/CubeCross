@@ -358,7 +358,7 @@ public class SliderScript : MonoBehaviour {
             // set the position of the sliders in relation to the main cube body
             transform.position = new Vector3(halfCubeDist_X + 2, 0, halfCubeDist_Z + 1);
             // fix the rotation when the sliders are moved to the positions in relation to the main cube body
-            transform.localEulerAngles = new Vector3(transform.localEulerAngles.x, -45f, transform.localEulerAngles.z);
+            //transform.localEulerAngles = new Vector3(transform.localEulerAngles.x, -45f, transform.localEulerAngles.z);
 
             // this reference is on the same edge of the cube as the X Slider, but with an increased y-value (high ref)
             axisReference = new GameObject { name = "XSliderReference1" };
@@ -377,7 +377,7 @@ public class SliderScript : MonoBehaviour {
             // set the position of the sliders in relation to the main cube body
             transform.position = new Vector3(-halfCubeDist_X - 1, 0, -halfCubeDist_Z - 2);
             // fix the rotation when the sliders are moved to the positions in relation to the main cube body
-            transform.localEulerAngles = new Vector3(transform.localEulerAngles.x, -45f, transform.localEulerAngles.z);
+            //transform.localEulerAngles = new Vector3(transform.localEulerAngles.x, -45f, transform.localEulerAngles.z);
 
             // this reference is on the same edge of the cube as the Z Slider, but with an increased y-value (high ref)
             axisReference = new GameObject { name = "ZSliderReference1" };
@@ -404,6 +404,8 @@ public class SliderScript : MonoBehaviour {
         // this wil be the maximum distance the slider can be away from the puzzle
         startingDistance = transform.position - axisReference2.transform.position;
         // might need to swap the order of this subtraction
+
+
 
         // now we can run the Update() method
         puzzleInitialized = true;

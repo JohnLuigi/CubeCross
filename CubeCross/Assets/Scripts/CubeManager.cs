@@ -35,16 +35,14 @@ public class CubeManager : MonoBehaviour {
 
     private float rotateTime;                   // rotation variables
     public float rotateDelay = 0.2f;
-
-    public float rotationXSens = 200.0f;        
-    private float rotationYSens = 5f;
-    private float horizontalSpeed = 0.0f;
-    private float verticalSpeed = 0.0f;
-    private float rotationZ = 0f;
-    //private float prevMouseX;
-    //private float prevMouseY;
-    //private float mouseXDelta;
-    //private float mouseYDelta;
+    private float rotSpeed = 6.0f;              // This value will be multiplied by the amount the mouse moved
+                                                // to determine how many degrees the puzzle will be rotated.
+    private float rotationZ = 0f;               // This will track how many degrees the puzzle has been rotated from 
+                                                // its starting rotation of 0 degrees.
+    private float horizontalRot;                // This will be the number of degrees to rotate horizontally in a cycle.
+    private float verticalRot;                  // This will be the number of degrees to rotate vertically in a cycle.
+    private Vector3 vertRotAxis;                // This custom axis will always be aligned to point to the right of the camera's
+                                                // point of view, the puzzle being rotated along it towards/away from the camera.
 
     public float minZoom;               // camera control variables
     public float maxZoom;
@@ -114,7 +112,7 @@ public class CubeManager : MonoBehaviour {
     public bool flagStatus = false;     // this variable tracks whether the player is flagging cubes or deleting cubes
     public string tempFlagText = "Deleting";
 
-    private GameObject puzzleSelector;
+    public GameObject puzzleSelector;
     private bool puzzleInitialized = false; // start as false until the puzzle has actually been created
 
     //private bool hidden = false;
@@ -675,47 +673,34 @@ public class CubeManager : MonoBehaviour {
     // rotate this gameObject to also affect all the cubes that are a child of it
     private void RotatePuzzle()
     {
+        // If enough time has not passed since an action was taken, do not attempt to rotate the puzzle.
         if (rotateTime < rotateDelay)
             return;
+        
+        // Define an axis that is centered on the transform that this script is attached to (the parent of the puzzle)
+        // but pointing to the right (1,0,0) of the direction that the camera is facing.
+        // This axis will always face to the right of the camera, so an object rotated along it will always turn
+        // towards or away from the camera, vertically.
+        vertRotAxis = transform.InverseTransformDirection(Camera.main.transform.TransformDirection(Vector3.right)).normalized;
 
-        // set the number of degrees the puzzle will attempt before rotating based on mouse movement
-        horizontalSpeed = rotationXSens * Input.GetAxis("Mouse X");
-        verticalSpeed = rotationYSens * Input.GetAxis("Mouse Y");
+        // Set the number of degrees the puzzle will attempt before rotating based on mouse movement        
+        horizontalRot = Input.GetAxis("Mouse X") * -rotSpeed;   // rotSpeed was set to 1.0f 
+        verticalRot = Input.GetAxis("Mouse Y") * rotSpeed;
 
-        // update the amount that the vertical rotation will total to based on its original rotation
-        // (the original rotation started at 0)
-        rotationZ += verticalSpeed;
-        // clamp the total amount of rotation to be 90 more or 90 degrees less than zero
-        rotationZ = Mathf.Clamp(rotationZ, -90f, 90f);
+        // Add the "z rotation" to the variable tracking the number of degrees the puzzle has rotated away and towards
+        // the camera, having started at 0 degrees.
+        rotationZ += verticalRot;
 
-        // update the new Z axis rotation of the parent of the whole puzzle (attached to this script)
-        transform.localEulerAngles = new Vector3(transform.localEulerAngles.x, transform.localEulerAngles.y, 
-            rotationZ);
-
-        // freely rotate horizontally, there is no need to clamp horizontal rotation in this game
-        transform.RotateAround(Vector3.zero, Vector3.down, horizontalSpeed * Time.deltaTime);
-
-        //TODO TRY THIS OUT
-        /*
-        You can use quaternion function 
-        Quaternion.RotateTowards(Quaternion from, Quaternion to, float maxDegreesDelta) to restrict rotation like this:
-
-        Quaternion ClampRotationXByLookDirection(Quaternion curentRotation)
-        {
-            Vector3 lookDirectionX = Vector3.ProjectOnPlane(lookDirection, Vector3.right).normalized;
-            Quaternion lookRotation = Quaternion.LookRotation(lookDirectionX);
-            Quaternion towardsRotation = Quaternion.RotateTowards(lookRotation, curentRotation, lookDeltaX);
-            return towardsRotation;
+        // If the proposed change in degrees away or towards the camera is within a +90 or -90 from the starting point (0)
+        // then allow the rotation to take place, otherwise, do not rotate vertically
+        if (rotationZ <= 90f && rotationZ >= -90f)
+        { 
+            transform.Rotate(vertRotAxis, verticalRot);
         }
 
-        Quaternion ClampRotationYByLookDirection(Quaternion curentRotation)
-        {
-            Vector3 lookDirectionY = Vector3.ProjectOnPlane(lookDirection, Vector3.up).normalized;
-            Quaternion lookRotation = Quaternion.LookRotation(lookDirectionY);
-            Quaternion towardsRotation = Quaternion.RotateTowards(lookRotation, curentRotation, lookDeltaY);
-            return towardsRotation;
-        }
-        */
+        // Rotate the puzzle around the Y axis horizontally, there is no clamping of this rotation.
+        transform.Rotate(Vector3.up, horizontalRot);
+        
     }
 
     // initialize the cube array
@@ -1868,7 +1853,9 @@ public class CubeManager : MonoBehaviour {
                 Destroy(go);
         }
 
-        CreateCubes();
+        transform.eulerAngles = new Vector3(0f, 0f, 0f);
+        rotationZ = 0f;
+        CreateCubes();        
         puzzleBounds = new Bounds(cubeArray[0, 0, 0].transform.position, Vector3.zero);
         UpdateBounds();
 
