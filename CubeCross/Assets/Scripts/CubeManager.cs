@@ -41,15 +41,15 @@ public class CubeManager : MonoBehaviour {
                                                 // its starting rotation of 0 degrees.
     private float horizontalRot;                // This will be the number of degrees to rotate horizontally in a cycle.
     private float verticalRot;                  // This will be the number of degrees to rotate vertically in a cycle.
-    private Vector3 vertRotAxis;                // This custom axis will always be aligned to point to the right of the camera's
-                                                // point of view, the puzzle being rotated along it towards/away from the camera.
+    private Vector3 vertRotAxis;        // This custom axis will always be aligned to point to the right of the camera's
+                                        // point of view, the puzzle being rotated along it towards/away from the camera.
 
     public float minZoom;               // camera control variables
     public float maxZoom;
     public float maxDistance;
     private float smoothTime = 2.0f;    // time it will take to do the entire zoom
 
-    private float cameraDistanceMax = -50f;     // cariables to be used with the scroll wheel to zoom the camera
+    private float cameraDistanceMax = -50f;     // variables to be used with the scroll wheel to zoom the camera
     private float cameraDistanceMin = -2f;
     private float cameraDistance = -11f;
     private float scrollSpeed = 4.0f;
@@ -114,6 +114,7 @@ public class CubeManager : MonoBehaviour {
 
     public GameObject puzzleSelector;
     private bool puzzleInitialized = false; // start as false until the puzzle has actually been created
+    public bool buildingPuzzle = false;     // determines if a puzzle is being built, if so, don't engage in the normal actions
 
     //private bool hidden = false;
 
@@ -1838,7 +1839,7 @@ public class CubeManager : MonoBehaviour {
         hideThreshold_X = puzzleSize_X + 1;
         hideThreshold_Z = puzzleSize_Z + 1;
 
-        // clear out hte currently existing puzzle elements
+        // clear out the currently existing puzzle elements
         if(cubeArray != null)
         {
             // destroy previous gameobjects if another puzzle is currently existing
@@ -1855,6 +1856,7 @@ public class CubeManager : MonoBehaviour {
 
         transform.eulerAngles = new Vector3(0f, 0f, 0f);
         rotationZ = 0f;
+        // This is where the puzzle is formed in-game
         CreateCubes();        
         puzzleBounds = new Bounds(cubeArray[0, 0, 0].transform.position, Vector3.zero);
         UpdateBounds();
