@@ -15,10 +15,14 @@ public class UIManagerScript : MonoBehaviour {
     private GameObject facesHelpGroup;
     private GameObject helpText;
 
+    private GameObject buildingManager;
+
     // Use this for initialization
     void Start () {
         // set references to the objects to be used
         levelButtonHolder = GameObject.Find("LevelButtonHolder");
+
+        buildingManager = GameObject.Find("BuildingManager");
 
         // Set the path to the folder that contains the puzzles
         folderPath = Application.streamingAssetsPath;
@@ -98,5 +102,11 @@ public class UIManagerScript : MonoBehaviour {
             helpText.SetActive(!helpText.activeSelf);
         }
             
+    }
+
+    // Make the buildingManager change from active to inactice, or vice versa
+    public void ToggleBuildMode()
+    {
+        buildingManager.SetActive(!buildingManager.activeSelf);
     }
 }

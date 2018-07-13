@@ -13,6 +13,7 @@ public class ButtonScript : MonoBehaviour {
 
         // reference to the cubeManager in order to run methods from the manager
         cubeMgr = GameObject.Find("GameManager").GetComponent<CubeManager>();
+                
 
         // get the name of the puzzle to load from the text object attached to the button
         puzzleName = transform.GetChild(0).GetComponent<Text>().text;
@@ -34,6 +35,7 @@ public class ButtonScript : MonoBehaviour {
         cubeMgr.InitializePuzzle(puzzleName);
         // hide the puzzle selection menu after clicking the level button
         cubeMgr.puzzleSelector.SetActive(!cubeMgr.puzzleSelector.activeSelf);
+
     }
 
 

@@ -116,6 +116,12 @@ public class CubeManager : MonoBehaviour {
     private bool puzzleInitialized = false; // start as false until the puzzle has actually been created
     public bool buildingPuzzle = false;     // determines if a puzzle is being built, if so, don't engage in the normal actions
 
+    private float newPuzzleDelay = 1f;  // This will track the amount of time that has passed and will be used
+                                        // to make the puzzle non-interactive for one second upon loading (to avoid
+                                        // cubes being deleted the instant the puzzle-loading button is clicked.    
+
+    private GameObject buildingManager;    // Reference to the object that will manage building new puzzles
+    private GameObject buildButton;
     //private bool hidden = false;
 
     //private SliderScript sliderScriptRef;
@@ -125,6 +131,9 @@ public class CubeManager : MonoBehaviour {
     public void Awake()        
     {
         puzzleSelector = GameObject.Find("PuzzleSelector");
+        buildingManager = GameObject.Find("BuildingManager");
+        buildButton = GameObject.Find("BuildButton");
+
 
         // string to use for selecting a puzzle
         //solution = "XSolution.txt";
@@ -266,6 +275,7 @@ public class CubeManager : MonoBehaviour {
             // TODO
             // move the menu, slide it, hide, whatever, do that here
             puzzleSelector.SetActive(!puzzleSelector.activeSelf);
+            buildButton.SetActive(!buildButton.activeSelf);
         }
 
         // if the puzzle selection menu is active, don't make the game interactive
@@ -275,8 +285,14 @@ public class CubeManager : MonoBehaviour {
         }
 
         // don't do anything in Update() until the puzzle has been initialized
-        if (!puzzleInitialized)
+        if (puzzleInitialized == false)
             return;
+        // if the puzzle was initialized, delay usage until a set amount of time has passed
+        else if (puzzleInitialized == true && newPuzzleDelay > 0f)
+        {
+            newPuzzleDelay -= Time.deltaTime;
+            return;
+        }
             
         // cube check/deletion block
         // if the player left clicks once, see if a cube is hit
@@ -1905,6 +1921,11 @@ public class CubeManager : MonoBehaviour {
         flagStatusObject = GameObject.Find("FlagStatusText").GetComponent<Text>();
         flagStatusObject.text = tempFlagText;
 
+        // disable the building manager object so it doesn't interfere with cube deletion/marking in puzzle mode
+        buildingManager.SetActive(false);
+
+        // set the timer to start back at one second and flag that the puzzle was initiated
+        newPuzzleDelay = 1f;
         puzzleInitialized = true;
     }
 

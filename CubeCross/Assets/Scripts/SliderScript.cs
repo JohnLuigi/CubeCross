@@ -162,7 +162,7 @@ public class SliderScript : MonoBehaviour {
         if (!puzzleInitialized)
             return;
 
-        // update the location of the intersecting plane each frame so that its consistent with rotation
+        // update the location of the intersecting plane each frame so that it's consistent with rotation
         movePlane = new Plane(axisReference2.transform.position, transform.position, axisReference.transform.position);
 
         if(Input.GetMouseButtonUp(0))
@@ -351,12 +351,16 @@ public class SliderScript : MonoBehaviour {
         halfCubeDist_Y = (parentManager.puzzleSize_Y / 2f);
         halfCubeDist_Z = (parentManager.puzzleSize_Z / 2f);
 
+        // The length of the box collider (set to encapsulate the entire model),
+        // to be used to set the exact position the sliders will rest from the puzzle.
+        float colliderXDist = this.GetComponent<BoxCollider>().size.x / 2f;
+
         // set the reference point to be used to define the plane that will contain the slider
         // also set the starting position of the slider
         if (gameObject.name == "XSlider")
         {
             // set the position of the sliders in relation to the main cube body
-            transform.position = new Vector3(halfCubeDist_X + 2, 0, halfCubeDist_Z + 1);
+            transform.position = new Vector3(halfCubeDist_X + 1 + colliderXDist, 0, halfCubeDist_Z + 1);
             // fix the rotation when the sliders are moved to the positions in relation to the main cube body
             //transform.localEulerAngles = new Vector3(transform.localEulerAngles.x, -45f, transform.localEulerAngles.z);
 
@@ -375,7 +379,7 @@ public class SliderScript : MonoBehaviour {
         else if (gameObject.name == "ZSlider")
         {
             // set the position of the sliders in relation to the main cube body
-            transform.position = new Vector3(-halfCubeDist_X - 1, 0, -halfCubeDist_Z - 2);
+            transform.position = new Vector3(-halfCubeDist_X - 1, 0, -halfCubeDist_Z -1 - colliderXDist);
             // fix the rotation when the sliders are moved to the positions in relation to the main cube body
             //transform.localEulerAngles = new Vector3(transform.localEulerAngles.x, -45f, transform.localEulerAngles.z);
 
