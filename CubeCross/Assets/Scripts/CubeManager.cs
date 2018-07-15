@@ -57,7 +57,7 @@ public class CubeManager : MonoBehaviour {
 
     private Vector3 velocity = Vector3.zero;    // velocity reference to be used by the smoothDamp function
                                                 // to determine how far away the camera should be
-    private Bounds puzzleBounds;    
+    public Bounds puzzleBounds;    
     private RaycastHit[] hits;                       // an array that holds the cubes hit when holding LMB
     private List<GameObject> deletedCubes = new List<GameObject>();    // list of the deleted cubes, can be used to "undo" deletions
     private bool[] hideIndices;
@@ -116,12 +116,22 @@ public class CubeManager : MonoBehaviour {
     private bool puzzleInitialized = false; // start as false until the puzzle has actually been created
     public bool buildingPuzzle = false;     // determines if a puzzle is being built, if so, don't engage in the normal actions
 
-    private float newPuzzleDelay = 1f;  // This will track the amount of time that has passed and will be used
-                                        // to make the puzzle non-interactive for one second upon loading (to avoid
-                                        // cubes being deleted the instant the puzzle-loading button is clicked.    
+    // This will track the amount of time that has passed and will be used
+    // to make the puzzle non-interactive for one second upon loading (to avoid
+    // cubes being deleted the instant the puzzle-loading button is clicked.
+    private float originalPuzzleDelayValue = 0.5f;
+    private float newPuzzleDelay;    
 
     private GameObject buildingManager;    // Reference to the object that will manage building new puzzles
     private GameObject buildButton;
+
+    // These variables will track the size of the box that will drawn around the cubes, used to indicate
+    // where the rest of the puzzle is while parts are hidden by the sliders.
+    public int xBoundSize;          
+    public int yBoundSize;
+    public int zBoundSize;
+    LineManager lineManager;
+
     //private bool hidden = false;
 
     //private SliderScript sliderScriptRef;
@@ -133,6 +143,10 @@ public class CubeManager : MonoBehaviour {
         puzzleSelector = GameObject.Find("PuzzleSelector");
         buildingManager = GameObject.Find("BuildingManager");
         buildButton = GameObject.Find("BuildButton");
+        lineManager = GameObject.Find("Game Line Renderer").GetComponent<LineManager>();
+
+        // Set the delay tracker to be the starting amount
+        newPuzzleDelay = originalPuzzleDelayValue;
 
 
         // string to use for selecting a puzzle
@@ -291,6 +305,7 @@ public class CubeManager : MonoBehaviour {
         else if (puzzleInitialized == true && newPuzzleDelay > 0f)
         {
             newPuzzleDelay -= Time.deltaTime;
+            buildButton.SetActive(false);
             return;
         }
             
@@ -1164,6 +1179,101 @@ public class CubeManager : MonoBehaviour {
                 }                    
             }
         }
+
+        // Method that will track the furthest distance between the remaining cubes in the puzzle
+        // cubeArray's dimensions are [puzzleSize_Z, puzzleSize_Y, puzzleSize_X]
+        // Initially set the index for each max/min to be a number that will never exist in the game e.g. 10,000
+        // Set the first appearing active cube to be both the minimum and maximum index (in case only
+        // one cube is left in a specific dimension, we want that to be included).
+        
+        int xMaxIndex = 10000;
+        int xMinIndex = 10000;
+        
+        int yMaxIndex = 10000;
+        int yMinIndex = 10000;
+        
+        int zMaxIndex = 10000;
+        int zMinIndex = 10000;
+
+        Vector3 xMaxPos;
+        Vector3 xMinPos;
+        Vector3 yMaxPos;
+        Vector3 yMinPos;
+        Vector3 zMaxPos;
+        Vector3 zMinPos;
+
+        // z dimension
+        for (int i = 0; i < cubeArray.GetLength(0); i++)
+        {
+            // y dimension
+            for (int j = 0; j < cubeArray.GetLength(1); j++)
+            {
+                // X dimension
+                for (int k = 0; k < cubeArray.GetLength(2); k++)
+                {
+                    // if the cube being checked is active, compare it to the rest of its row
+                    if(cubeArray[i, j, k].activeSelf)
+                    {
+                        // First, see if any other cube has been set as a max or min, if not
+                        // set this one to be both
+                        if(xMaxIndex == 10000 || xMinIndex == 10000)
+                        {
+                            // Set the indices for the new min, max and their positions to be used later to draw
+                            // a bounding box.
+                            xMaxIndex = k;
+                            xMinIndex = k;
+                            xMaxPos = cubeArray[i, j, k].transform.position;
+                            xMinPos = cubeArray[i, j, k].transform.position;
+                        }
+
+                        if (k > xMaxIndex)
+                            xMaxIndex = k;
+                        if (k < xMinIndex)
+                            xMinIndex = k;
+
+                        // Y DIMENSION CHECK
+                        if (yMaxIndex == 10000 || yMinIndex == 10000)
+                        {
+                            // Set the indices for the new min, max and their positions to be used later to draw
+                            // a bounding box.
+                            yMaxIndex = j;
+                            yMinIndex = j;
+                            yMaxPos = cubeArray[i, j, k].transform.position;
+                            yMinPos = cubeArray[i, j, k].transform.position;
+                        }
+
+                        if (j > yMaxIndex)
+                            yMaxIndex = j;
+                        if (j < yMinIndex)
+                            yMinIndex = j;
+
+                        // Z DIMENSION CHECK
+                        if (zMaxIndex == 10000 || zMinIndex == 10000)
+                        {
+                            // Set the indices for the new min, max and their positions to be used later to draw
+                            // a bounding box.
+                            zMaxIndex = i;
+                            zMinIndex = i;
+                            zMaxPos = cubeArray[i, j, k].transform.position;
+                            zMinPos = cubeArray[i, j, k].transform.position;
+                        }
+
+                        if (i > zMaxIndex)
+                            zMaxIndex = i;
+                        if (i < zMinIndex)
+                            zMinIndex = i;
+                    }
+                }
+            }
+        }
+
+        // Now that the max and min indexes have been found, set the necessary coordinates to be used 
+        // to draw the bounding box.
+        xBoundSize = xMaxIndex - xMinIndex;
+        yBoundSize = yMaxIndex - yMinIndex;
+        zBoundSize = zMaxIndex - zMinIndex;
+
+        lineManager.UpdateLineBounds();
     }
 
     // this moves the camera to keep it centered on the puzzle and in view, even while spinning it around
@@ -1925,8 +2035,26 @@ public class CubeManager : MonoBehaviour {
         buildingManager.SetActive(false);
 
         // set the timer to start back at one second and flag that the puzzle was initiated
-        newPuzzleDelay = 1f;
+        newPuzzleDelay = originalPuzzleDelayValue;
         puzzleInitialized = true;
+    }
+
+    // This will handle drawing the bounding box for the cubes in the puzzle
+    // The ones incldued here are defined in the regular unity namespace so they are still drawn in the editor
+    void OnDrawGizmos()
+    {
+        /*
+        UnityEngine.Gizmos.color = Color.red;
+        //Debug.Log(puzzleBounds.size);
+        UnityEngine.Gizmos.matrix = transform.localToWorldMatrix;
+        UnityEngine.Gizmos.DrawWireCube(puzzleBounds.center, new Vector3(
+            puzzleBounds.size.x + 0.9f,
+            puzzleBounds.size.y + 0.9f,
+            puzzleBounds.size.z + 0.9f));
+        */
+
+        //UnityEngine.Gizmos.matrix = transform.localToWorldMatrix;
+        //Gizmos.DrawBox(puzzleBounds.center, puzzleBounds.size + new Vector3(0.9f, 0.9f, 0.9f), Color.red);
     }
 
 }
