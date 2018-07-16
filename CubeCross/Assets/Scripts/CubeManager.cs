@@ -1465,14 +1465,14 @@ public class CubeManager : MonoBehaviour {
         if (inSlider.name == "XSlider")
         {
             sliderFromEdgeVector = inSlider.transform.position - sliderReferenceX.transform.position;
-            
+
         }
         else if (inSlider.name == "ZSlider")
         {
             sliderFromEdgeVector = inSlider.transform.position - sliderReferenceZ.transform.position;
         }
 
-        //Material tempMat;
+        Material tempMat;
         Color tempColor;
 
         // the hiding threshold will be some number of units away from the puzzleSize
@@ -1483,7 +1483,7 @@ public class CubeManager : MonoBehaviour {
         // hide threshold is temporarily 8f;
         //float hideThreshold = 8f;
 
-        
+
 
         // The opacity to set the cubes to when they are "hidden." The value ranged from 0 to 1.
         fadeAmount = 0.1f;
@@ -1570,7 +1570,7 @@ public class CubeManager : MonoBehaviour {
 
             }
 
-            if(inSlider.name == "XSlider")
+            if (inSlider.name == "XSlider")
             {
                 // now that each layer has been determined whether it should be shown or not, update layers as necessary
                 for (int layer = 0; layer < hideIndices_X.Length; layer++)
@@ -1588,11 +1588,17 @@ public class CubeManager : MonoBehaviour {
                         {
                             for (int j = 0; j < cubeArray.GetLength(1); j++)
                             {
+                                // disable the cubes entirely when hidden
+                                cubeArray[i, j, layer].SetActive(false);
+
+                                // old method of reducing transparency to 0.1 and disabling the cubes' colliders
+                                /*
                                 tempColor = cubeArray[i, j, layer].GetComponent<Renderer>().material.color;
                                 tempColor.a = fadeAmount;
 
                                 cubeArray[i, j, layer].GetComponent<Renderer>().material.color = tempColor;
                                 SetCollider(cubeArray[i, j, layer], false);
+                                */
 
 
                             }
@@ -1608,100 +1614,123 @@ public class CubeManager : MonoBehaviour {
                             {
                                 if (inSlider.name == "XSlider")
                                 {
-                                    tempColor = cubeArray[i, j, layer].GetComponent<Renderer>().material.color;
+                                    // reenable the cubes entirely when set to be shown
+                                    cubeArray[i, j, layer].SetActive(true);
+
+                                    // old method of resetting transparency to 1 and enabling the cubes' colliders
+                                    /*
+                                        tempColor = cubeArray[i, j, layer].GetComponent<Renderer>().material.color;
+                                        tempColor.a = 1f;
+
+                                        cubeArray[i, j, layer].GetComponent<Renderer>().material.color = tempColor;
+                                        SetCollider(cubeArray[i, j, layer], true);
+                                    }
+                                    */
+
+                                }
+                            }
+                        }
+                    } // end of hide/show loop
+                }
+
+
+                // TODO
+                // CHANGE FOR Z
+                if (inSlider.name == "ZSlider")
+                {
+                    // now that each layer has been determined whether it should be shown or not, update layers as necessary
+                    for (int layer = 0; layer < hideIndices_Z.Length; layer++)
+                    {
+                        // TODO
+                        // change the index of layer according to the X or Z or Y slider
+                        // if the layer has to be hidden
+
+                        // TODO
+                        // this might only work if the dimensions of the puzzle are always equal, rectangular
+                        // puzzles might need tweaking here
+                        if (hideIndices_Z[layer] == true)
+                        {
+                            for (int j = 0; j < cubeArray.GetLength(1); j++)
+                            {
+                                for (int k = 0; k < cubeArray.GetLength(2); k++)
+                                {
+                                    // disable the cubes entirely when hidden
+                                    cubeArray[layer, j, k].SetActive(false);
+
+                                    // old method of reducing transparency to 0.1 and disabling the cubes' colliders
+                                    /*
+                                    tempColor = cubeArray[layer, j, k].GetComponent<Renderer>().material.color;
+                                    tempColor.a = fadeAmount;
+
+                                    cubeArray[layer, j, k].GetComponent<Renderer>().material.color = tempColor;
+                                    SetCollider(cubeArray[layer, j, k], false);
+                                    */
+                                }
+                            }
+
+                        }
+
+                        // if the layer has to be shown
+                        else if (hideIndices_Z[layer] == false)
+                        {
+                            for (int j = 0; j < cubeArray.GetLength(1); j++)
+                            {
+                                for (int k = 0; k < cubeArray.GetLength(2); k++)
+                                {
+                                    // set cubes to be shown as active
+                                    cubeArray[layer, j, k].SetActive(true);
+
+                                    // old method of returning transparency to 1 and enabling the cubes' colliders
+                                    /*
+                                    tempColor = cubeArray[layer, j, k].GetComponent<Renderer>().material.color;
                                     tempColor.a = 1f;
 
-                                    cubeArray[i, j, layer].GetComponent<Renderer>().material.color = tempColor;
-                                    SetCollider(cubeArray[i, j, layer], true);
+                                    cubeArray[layer, j, k].GetComponent<Renderer>().material.color = tempColor;
+                                    SetCollider(cubeArray[layer, j, k], true);
+                                    */
                                 }
-
                             }
                         }
-                    }
-                } // end of hide/show loop
-            }
-            
+                    } // end of hide/show loop
+                }
 
-            // TODO
-            // CHANGE FOR Z
-            if(inSlider.name == "ZSlider")
+
+
+
+            } // end of magcompare
+
+            // Ensure that all the layrs are visible when the sliders are further than the threshold from the puzzle.
+            // Such as when the puzzle is created and the sliders haven't been moved at all.
+            if (inSlider.name == "XSlider")
             {
-                // now that each layer has been determined whether it should be shown or not, update layers as necessary
-                for (int layer = 0; layer < hideIndices_Z.Length; layer++)
+                // if we are further than the threshold, make the final index of the layers to hide false
+                if (sliderFromEdgeVector.magnitude > hideThreshold_X)
                 {
-                    // TODO
-                    // change the index of layer according to the X or Z or Y slider
-                    // if the layer has to be hidden
-
-                    // TODO
-                    // this might only work if the dimensions of the puzzle are always equal, rectangular
-                    // puzzles might need tweaking here
-                    if (hideIndices_Z[layer] == true)
+                    for (int i = 0; i < hideIndices_X.Length; i++)
                     {
-                        for (int j = 0; j < cubeArray.GetLength(1); j++)
-                        {
-                            for (int k = 0; k < cubeArray.GetLength(2); k++)
-                            {
-                                tempColor = cubeArray[layer, j, k].GetComponent<Renderer>().material.color;
-                                tempColor.a = fadeAmount;
-
-                                cubeArray[layer, j, k].GetComponent<Renderer>().material.color = tempColor;
-                                SetCollider(cubeArray[layer, j, k], false);
-                            }
-                        }
+                        hideIndices_X[i] = false;
                     }
-
-                    // if the layer has to be shown
-                    else if (hideIndices_Z[layer] == false)
-                    {
-                        for (int j = 0; j < cubeArray.GetLength(1); j++)
-                        {
-                            for (int k = 0; k < cubeArray.GetLength(2); k++)
-                            {
-                                tempColor = cubeArray[layer, j, k].GetComponent<Renderer>().material.color;
-                                tempColor.a = 1f;
-
-                                cubeArray[layer, j, k].GetComponent<Renderer>().material.color = tempColor;
-                                SetCollider(cubeArray[layer, j, k], true);
-                            }
-                        }
-                    }
-                } // end of hide/show loop
-            }
-
-            
-
-
-        } // end of magcompare
-        if (inSlider.name == "XSlider")
-        {
-            // if we are further than the threshold, make the final index of the layers to hide false
-            if (sliderFromEdgeVector.magnitude > hideThreshold_X)
-            {
-                for (int i = 0; i < hideIndices_X.Length; i++)
-                {
-                    hideIndices_X[i] = false;
                 }
             }
-        }
-        if (inSlider.name == "ZSlider")
-        {
-            // if we are further than the threshold, make the final index of the layers to hide false
-            if (sliderFromEdgeVector.magnitude > hideThreshold_Z)
+            if (inSlider.name == "ZSlider")
             {
-                for (int i = 0; i < hideIndices_Z.Length; i++)
+                // if we are further than the threshold, make the final index of the layers to hide false
+                if (sliderFromEdgeVector.magnitude > hideThreshold_Z)
                 {
-                    hideIndices_Z[i] = false;
+                    for (int i = 0; i < hideIndices_Z.Length; i++)
+                    {
+                        hideIndices_Z[i] = false;
+                    }
                 }
             }
-        }
 
+        }
     }
 
     // public method to make all the cubes visible again
     public void ShowAllCubes()
     {
-        for(int i = 0; i < hideIndices_X.Length;i++)
+        for (int i = 0; i < hideIndices_X.Length; i++)
         {
             hideIndices_X[i] = false;
         }
@@ -1711,7 +1740,8 @@ public class CubeManager : MonoBehaviour {
             hideIndices_Z[i] = false;
         }
 
-        Color tempColor;
+        // old value used to set the transparency of cubes
+        //Color tempColor;
 
         for (int i = 0; i < cubeArray.GetLength(0); i++)
         {
@@ -1719,14 +1749,32 @@ public class CubeManager : MonoBehaviour {
             {
                 for (int k = 0; k < cubeArray.GetLength(2); k++)
                 {
+                    // make all the cubes visible
+                    cubeArray[i, j, k].SetActive(true);
+
+                    // old method of making all the cubes have their transparency set back to 100%
+                    /*
                     tempColor = cubeArray[i, j, k].GetComponent<Renderer>().material.color;
                     tempColor.a = 1f;
 
                     cubeArray[i, j, k].GetComponent<Renderer>().material.color = tempColor;
                     SetCollider(cubeArray[i, j, k], true);
+                    */
+
                 }
             }
+            
         }
+
+        // TODO
+        // Make it so this doesn't have to be run after resetting all cubes
+        // re-hide each cube that was supposed to be deleted
+        foreach (GameObject cube in deletedCubes)
+        {
+            cube.SetActive(false);
+        }
+
+
     }
 
     // this method will be called to enable or disable a collider for a cube
