@@ -232,6 +232,8 @@ public class SliderScript : MonoBehaviour {
                     transform.position = originalLocation.transform.position;
                     // make all cubes visible again
                     parentManager.ShowAllCubes();
+                    // reset the zLayerToHide
+                    parentManager.zLayerToHide = -1;
                     return;
                 }
             }

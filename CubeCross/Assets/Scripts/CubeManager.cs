@@ -132,6 +132,8 @@ public class CubeManager : MonoBehaviour {
     public int zBoundSize;
     LineManager lineManager;
 
+    public int zLayerToHide;
+
     //private bool hidden = false;
 
     //private SliderScript sliderScriptRef;
@@ -408,6 +410,28 @@ public class CubeManager : MonoBehaviour {
         else if(zSlider.GetComponent<SliderScript>().sliding == true)
         {
             HideCubes(zSlider);
+        }
+
+        Debug.Log(zLayerToHide + "\n" +
+        cubeArray.GetLength(0) + "\n" +
+        cubeArray.GetLength(1) + "\n" +
+        cubeArray.GetLength(2) );
+        // reduce zlayertohide by one
+        if (Input.GetKeyUp(KeyCode.LeftBracket))
+        {
+            zLayerToHide++;
+            zLayerToHide = Mathf.Clamp(zLayerToHide, -1, puzzleSize_Z - 1);
+            TestLayerHiding(true, zLayerToHide);
+        }
+
+        // reduce zlayertohide by one
+        if (Input.GetKeyUp(KeyCode.RightBracket))
+        {
+            TestLayerHiding(false, zLayerToHide);
+            zLayerToHide--;
+            zLayerToHide = Mathf.Clamp(zLayerToHide, -1, puzzleSize_Z -1);
+            
+            
         }
 
         // update the previous mouse position
@@ -1472,8 +1496,8 @@ public class CubeManager : MonoBehaviour {
             sliderFromEdgeVector = inSlider.transform.position - sliderReferenceZ.transform.position;
         }
 
-        Material tempMat;
-        Color tempColor;
+        //Material tempMat;
+        //Color tempColor;
 
         // the hiding threshold will be some number of units away from the puzzleSize
         // since the reference + puzzleSize is the entire width of the puzzle, so PuzzleSize number of 
@@ -1518,6 +1542,8 @@ public class CubeManager : MonoBehaviour {
             {
                 index = Mathf.CeilToInt(inSlider.transform.position.z) + 1;
                 index = Math.Abs(index);
+
+                Debug.Log("ZSlider index at: " + index);
             }
 
             // change the values of the hideIndices less than the index to be 
@@ -2031,7 +2057,10 @@ public class CubeManager : MonoBehaviour {
         transform.eulerAngles = new Vector3(0f, 0f, 0f);
         rotationZ = 0f;
         // This is where the puzzle is formed in-game
-        CreateCubes();        
+        CreateCubes();
+        // default hte zLayer to hide to be at the maximum layer
+        zLayerToHide = -1;
+
         puzzleBounds = new Bounds(cubeArray[0, 0, 0].transform.position, Vector3.zero);
         UpdateBounds();
 
@@ -2103,6 +2132,27 @@ public class CubeManager : MonoBehaviour {
 
         //UnityEngine.Gizmos.matrix = transform.localToWorldMatrix;
         //Gizmos.DrawBox(puzzleBounds.center, puzzleBounds.size + new Vector3(0.9f, 0.9f, 0.9f), Color.red);
+    }
+
+    // hide the cubes in layer inputLayer
+    public void TestLayerHiding(bool hideValue, int inputLayer)
+    {
+        // cubeArray dimenions are [z,y,x]
+        // aka [0,1,2]
+        // don't do anything if the layer to hide is outside of the layer count (aka, don't hide anything)
+        if (inputLayer > -1 && inputLayer < puzzleSize_Z)
+        {
+            for (int i = 0; i < cubeArray.GetLength(1); i++)
+            {
+                for (int j = 0; j < cubeArray.GetLength(2); j++)
+                {
+                    if(hideValue == true)
+                        cubeArray[inputLayer, i, j].SetActive(false);
+                    else if(hideValue == false)
+                        cubeArray[inputLayer, i, j].SetActive(true);
+                }
+            }
+        }
     }
 
 }
