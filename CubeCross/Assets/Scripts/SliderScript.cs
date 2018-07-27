@@ -29,9 +29,11 @@ public class SliderScript : MonoBehaviour {
     private float closestDistance;
 
     private GameObject otherSlider;
-// private int puzzSize;
 
-//private float halfCubeDist;
+    public int distanceInt; // This value will be read by the cube manager to determine how far it is from the puzzle
+    // private int puzzSize;
+
+    //private float halfCubeDist;
     private float halfCubeDist_X;
     private float halfCubeDist_Y;
     private float halfCubeDist_Z;
@@ -234,6 +236,8 @@ public class SliderScript : MonoBehaviour {
                     parentManager.ShowAllCubes();
                     // reset the zLayerToHide
                     parentManager.zLayerToHide = -1;
+                    parentManager.zSliderUnitsMoved = 0;
+                    parentManager.zLayerTracker = 0;
                     return;
                 }
             }
@@ -300,6 +304,11 @@ public class SliderScript : MonoBehaviour {
 
                     // clamp the movement to not go past the starting distance from the cube
                     Vector3 currentDistance = transform.position - axisReference2.transform.position;
+
+                    // get the distance between the two points
+                    float distanceRounded = Vector3.Distance(transform.position, axisReference2.transform.position);
+                    distanceInt = Mathf.FloorToInt(distanceRounded);
+                    //Debug.Log(distanceInt);
 
                     // change the comparisons based on the slider (since the Z axis values are going to be dealing with negatives)
                     bool compDist = (currentDistance.magnitude > startingDistance.magnitude);

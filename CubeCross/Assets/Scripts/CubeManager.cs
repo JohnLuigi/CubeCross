@@ -91,6 +91,7 @@ public class CubeManager : MonoBehaviour {
 
     private GameObject sliderReferenceZ;
     private GameObject zSlider;
+    private int zDistInt;
 
     public float fadeAmount;
     public float threshValue = 8f;
@@ -133,6 +134,9 @@ public class CubeManager : MonoBehaviour {
     LineManager lineManager;
 
     public int zLayerToHide;
+    public float zSliderUnitsMoved;
+    public Vector3 zSliderPosition;
+    public int zLayerTracker;
 
     //private bool hidden = false;
 
@@ -409,14 +413,28 @@ public class CubeManager : MonoBehaviour {
         }
         else if(zSlider.GetComponent<SliderScript>().sliding == true)
         {
-            HideCubes(zSlider);
-        }
+            //HideCubes(zSlider);
 
-        Debug.Log(zLayerToHide + "\n" +
-        cubeArray.GetLength(0) + "\n" +
-        cubeArray.GetLength(1) + "\n" +
-        cubeArray.GetLength(2) );
-        // reduce zlayertohide by one
+            int layerMovement = UpdateHiddenLayers(zSlider);
+            // If the movement was towards the cube
+            if (layerMovement == 1)
+            {
+                zLayerToHide++;
+                zLayerToHide = Mathf.Clamp(zLayerToHide, -1, puzzleSize_Z - 1);
+                TestLayerHiding(true, zLayerToHide);
+            }
+            // If the movement was away from the cube
+            else if (layerMovement == -1)
+            {
+                TestLayerHiding(false, zLayerToHide);
+                zLayerToHide--;
+                zLayerToHide = Mathf.Clamp(zLayerToHide, -1, puzzleSize_Z - 1);
+            }
+        }
+        
+        // increase zlayertohide by one
+        // if puzzle untouched, hide one layer
+        // This simulates moving TOWARDS the puzzle
         if (Input.GetKeyUp(KeyCode.LeftBracket))
         {
             zLayerToHide++;
@@ -425,14 +443,39 @@ public class CubeManager : MonoBehaviour {
         }
 
         // reduce zlayertohide by one
+        // if puzzle is touched, show one layer
+        // This simulates moving AWAY from the puzzle
         if (Input.GetKeyUp(KeyCode.RightBracket))
         {
             TestLayerHiding(false, zLayerToHide);
             zLayerToHide--;
             zLayerToHide = Mathf.Clamp(zLayerToHide, -1, puzzleSize_Z -1);
-            
-            
         }
+
+        // TODO
+        // This is hiding layers from the wrong end, "reverse" it
+
+        
+        
+
+
+        /*
+        // testing new zSlider hiding method
+        int oldZLayer = zLayerToHide;
+        int newZLayer = UpdateHiddenLayers(zSlider);
+        // if the slider moved away from the puzzle, reduce the hidden layers by one
+        if(oldZLayer < zLayerToHide)
+        {
+            TestLayerHiding(false, zLayerToHide);
+        }
+        else if(oldZLayer > zLayerToHide)
+        {
+            TestLayerHiding(true, zLayerToHide);
+        }
+        */
+
+        // replace left and right bracket with (if tracking number increased or decreased by one)
+       
 
         // update the previous mouse position
         //prevMouseX = Input.mousePosition.x;
@@ -1543,7 +1586,7 @@ public class CubeManager : MonoBehaviour {
                 index = Mathf.CeilToInt(inSlider.transform.position.z) + 1;
                 index = Math.Abs(index);
 
-                Debug.Log("ZSlider index at: " + index);
+                //Debug.Log("ZSlider index at: " + index);
             }
 
             // change the values of the hideIndices less than the index to be 
@@ -2058,7 +2101,7 @@ public class CubeManager : MonoBehaviour {
         rotationZ = 0f;
         // This is where the puzzle is formed in-game
         CreateCubes();
-        // default hte zLayer to hide to be at the maximum layer
+        // default the zLayer to hide to be at the maximum layer
         zLayerToHide = -1;
 
         puzzleBounds = new Bounds(cubeArray[0, 0, 0].transform.position, Vector3.zero);
@@ -2083,6 +2126,12 @@ public class CubeManager : MonoBehaviour {
         // initialize the Z Slider
         SliderScript zScript = zSlider.GetComponent<SliderScript>();
         zScript.Initialize();
+        
+        zSliderUnitsMoved = 0;
+        zLayerTracker = 0;
+        // the starting position of the slider, to be tracked on how much it has moved
+        // Gets reset every time a new puzzle is loaded in
+        zSliderPosition = zSlider.transform.position;
 
         // initialize each array to be visible
         // this will be used to track which "layers" of the puzzle should be hidden
@@ -2137,7 +2186,7 @@ public class CubeManager : MonoBehaviour {
     // hide the cubes in layer inputLayer
     public void TestLayerHiding(bool hideValue, int inputLayer)
     {
-        // cubeArray dimenions are [z,y,x]
+        // cubeArray dimensions are [z,y,x]
         // aka [0,1,2]
         // don't do anything if the layer to hide is outside of the layer count (aka, don't hide anything)
         if (inputLayer > -1 && inputLayer < puzzleSize_Z)
@@ -2153,6 +2202,75 @@ public class CubeManager : MonoBehaviour {
                 }
             }
         }
+    }
+
+    // method that will run every frame checking the distance between the slider and its axis reference
+    // If the slider movement was towards from the puzzle, we add to the total movement made
+    // If the slider movement was away the puzzle, we subtract the total movement made
+    public int UpdateHiddenLayers(GameObject slider)
+    {
+        int returnValue = 0;
+
+        // get the distance between the two points
+        if (slider.name == "ZSlider")
+        {
+            // Integer to return. 1 is towards the cube, -1 if away, 0 if no change
+
+
+            // TODO
+            // track the distance the ZSlider has moved from the start
+            // if it has moved +1, +2, -1, -2, etc. update the layer to be hidden
+            Vector3 oldPosition = zSliderPosition;
+            Vector3 newPosition = slider.transform.position;
+
+            // Need to see if the movement was away or towards the cube center
+            // Old distance from the zSliderReference
+            float oldDistFromRef = Vector3.Distance(oldPosition, sliderReferenceZ.transform.position);
+            float newDistFromRef = Vector3.Distance(newPosition, sliderReferenceZ.transform.position);
+
+            // If the slider moved towards the cube
+            if (oldDistFromRef > newDistFromRef)
+            {
+                // see how much the slider moved this frame from its last position
+                zSliderUnitsMoved += Vector3.Distance(newPosition, oldPosition);
+            }
+            // If the slider from away from the cube
+            else if (newDistFromRef > oldDistFromRef)
+            {
+                // see how much the slider moved this frame from its last position
+                zSliderUnitsMoved -= Vector3.Distance(newPosition, oldPosition);
+            }
+
+            // if there has been an increase of one or negative one entire unit in total movement
+            // return a 1 or one unit towards the cube, or a -1 which is one unit away from the cube
+            // e.g. if zSliderUnitsMoved is 0.9, it hasn't yet moved an entire block away from the puzzle, 
+            // so we won't return a value that will increase/decrease the layers to hide
+            // The frame that hits 1.0000001 or whatever distance > 1, we set the puzzle to hide
+            // one layer more than what is currently being hidden.
+            // The reverse happens for movement away from the cube so at -1.000001 units away, we show a layer
+            if (Mathf.FloorToInt(zSliderUnitsMoved) > zLayerTracker)
+            {
+                // if we have moved one unit, return a value of one and reset the distance moved
+                returnValue = 1;
+                zSliderUnitsMoved = 0;
+                zLayerTracker = 0;
+            }
+            else if (Mathf.FloorToInt(zSliderUnitsMoved) < zLayerTracker)
+            {
+                // If we have moved away from the puzzle one unit, return a value of -1
+                // and reset the distances moved
+                returnValue = -1;
+                zSliderUnitsMoved = 0;
+                zLayerTracker = 0;
+            }
+
+            // reset hte slider position tracker to what it is after the movement of the frame
+            zSliderPosition = slider.transform.position;
+
+        }// end of if "zSlider" 
+
+        return returnValue;
+
     }
 
 }
