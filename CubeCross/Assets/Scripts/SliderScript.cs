@@ -8,7 +8,7 @@ public class SliderScript : MonoBehaviour {
     private GameObject parentObject;
     private CubeManager parentManager;
 
-    private Vector3 startingDistance;
+    private Vector3 startingPoint;
     private GameObject axisReference;       // objects used to help define the plane the slider will move along
     private GameObject axisReference2;  // reference 2 will be at the same y-value as the center of the puzzle
     //public Vector3 yReference;
@@ -28,7 +28,7 @@ public class SliderScript : MonoBehaviour {
 
     private float closestDistance;
 
-    private GameObject otherSlider;
+    public GameObject otherSlider;
 
     public int distanceInt; // This value will be read by the cube manager to determine how far it is from the puzzle
     // private int puzzSize;
@@ -41,6 +41,10 @@ public class SliderScript : MonoBehaviour {
     private GameObject puzzleSelector;  // reference to the puzzle selection UI element
 
     private bool puzzleInitialized = false;
+
+    // Distance trackers to see what direction the slider is moving in relation to the cube
+    private float oldDist;
+    private float newDist;
 
     //public bool isSliding = false;
     // TODO
@@ -56,71 +60,73 @@ public class SliderScript : MonoBehaviour {
         // initially hide the slider until it is activated when the puzzle is created
         gameObject.SetActive(false);
 
-
-        
-        
-/*
-        parentObject = GameObject.Find("GameManager");
-        transform.parent = parentObject.transform;
-
-        parentManager = parentObject.GetComponent<CubeManager>();
-
-    //puzzSize = parentManager.puzzleSize;
-    //halfCubeDist = (puzzSize / 2f) - 0.5f;
-
-        halfCubeDist_X = (parentManager.puzzleSize_X / 2f);
-        halfCubeDist_Y = (parentManager.puzzleSize_Y / 2f);
-        halfCubeDist_Z = (parentManager.puzzleSize_Z / 2f);
-
-        // set the reference point to be used to define the plane that will contain the slider
-        // also set the starting position of the slider
-        if (gameObject.name == "XSlider")
+        if (name == "XSlider" && otherSlider == null)
         {
-            transform.position = new Vector3(halfCubeDist_X + 2, 0, halfCubeDist_Z + 1);
-
-            // this reference is on the same edge of the cube as the X Slider, but with an increased y-value (high ref)
-            axisReference = new GameObject { name = "XSliderReference1"};
-            axisReference.transform.position = new Vector3(0, halfCubeDist_Y, halfCubeDist_Z + 1);
-            axisReference.transform.parent = parentObject.transform;
-
-            // this reference is on the same y-value as the slider, and same z-value (even ref)
-            axisReference2 = new GameObject { name = "XSliderReference2" };
-            axisReference2.transform.position = new Vector3(-halfCubeDist_X, 0, halfCubeDist_Z + 1);
-            axisReference2.transform.parent = parentObject.transform;
-
             otherSlider = GameObject.Find("ZSlider");
         }
-        else if(gameObject.name == "ZSlider")
-        {
-            transform.position = new Vector3(-halfCubeDist_X - 1, 0, -halfCubeDist_Z - 2);
 
-            // this reference is on the same edge of the cube as the Z Slider, but with an increased y-value (high ref)
-            axisReference = new GameObject { name = "ZSliderReference1" };
-            axisReference.transform.position = new Vector3(-halfCubeDist_X - 1, halfCubeDist_Y, 0);
-            axisReference.transform.parent = parentObject.transform;
+        /*
+                parentObject = GameObject.Find("GameManager");
+                transform.parent = parentObject.transform;
 
-            // this reference is on the same y-value as the Z slider, and same x-value (even ref)
-            axisReference2 = new GameObject { name = "ZSliderReference2" };
-            axisReference2.transform.position = new Vector3(-halfCubeDist_X - 1, 0, halfCubeDist_Z);
-            axisReference2.transform.parent = parentObject.transform;
+                parentManager = parentObject.GetComponent<CubeManager>();
 
-            otherSlider = GameObject.Find("XSlider");
-        }
-        
+            //puzzSize = parentManager.puzzleSize;
+            //halfCubeDist = (puzzSize / 2f) - 0.5f;
 
-        movePlane = new Plane(axisReference2.transform.position, transform.position, axisReference.transform.position);
+                halfCubeDist_X = (parentManager.puzzleSize_X / 2f);
+                halfCubeDist_Y = (parentManager.puzzleSize_Y / 2f);
+                halfCubeDist_Z = (parentManager.puzzleSize_Z / 2f);
 
-        // store a gameobject that is parented to the gameManager cube puzzle
-        originalLocation = new GameObject { name = "OriginalLocation"};
-        originalLocation.transform.position = transform.position;
-        originalLocation.transform.parent = parentObject.transform;
+                // set the reference point to be used to define the plane that will contain the slider
+                // also set the starting position of the slider
+                if (gameObject.name == "XSlider")
+                {
+                    transform.position = new Vector3(halfCubeDist_X + 2, 0, halfCubeDist_Z + 1);
 
-        // record the original distance from the center of the puzzle + offset (axisReference2)
-        // this wil be the maximum distance the slider can be away from the puzzle
-        startingDistance = transform.position - axisReference2.transform.position;
-        // might need to swap the order of this subtraction
+                    // this reference is on the same edge of the cube as the X Slider, but with an increased y-value (high ref)
+                    axisReference = new GameObject { name = "XSliderReference1"};
+                    axisReference.transform.position = new Vector3(0, halfCubeDist_Y, halfCubeDist_Z + 1);
+                    axisReference.transform.parent = parentObject.transform;
 
-        */
+                    // this reference is on the same y-value as the slider, and same z-value (even ref)
+                    axisReference2 = new GameObject { name = "XSliderReference2" };
+                    axisReference2.transform.position = new Vector3(-halfCubeDist_X, 0, halfCubeDist_Z + 1);
+                    axisReference2.transform.parent = parentObject.transform;
+
+                    otherSlider = GameObject.Find("ZSlider");
+                }
+                else if(gameObject.name == "ZSlider")
+                {
+                    transform.position = new Vector3(-halfCubeDist_X - 1, 0, -halfCubeDist_Z - 2);
+
+                    // this reference is on the same edge of the cube as the Z Slider, but with an increased y-value (high ref)
+                    axisReference = new GameObject { name = "ZSliderReference1" };
+                    axisReference.transform.position = new Vector3(-halfCubeDist_X - 1, halfCubeDist_Y, 0);
+                    axisReference.transform.parent = parentObject.transform;
+
+                    // this reference is on the same y-value as the Z slider, and same x-value (even ref)
+                    axisReference2 = new GameObject { name = "ZSliderReference2" };
+                    axisReference2.transform.position = new Vector3(-halfCubeDist_X - 1, 0, halfCubeDist_Z);
+                    axisReference2.transform.parent = parentObject.transform;
+
+                    otherSlider = GameObject.Find("XSlider");
+                }
+
+
+                movePlane = new Plane(axisReference2.transform.position, transform.position, axisReference.transform.position);
+
+                // store a gameobject that is parented to the gameManager cube puzzle
+                originalLocation = new GameObject { name = "OriginalLocation"};
+                originalLocation.transform.position = transform.position;
+                originalLocation.transform.parent = parentObject.transform;
+
+                // record the original distance from the center of the puzzle + offset (axisReference2)
+                // this wil be the maximum distance the slider can be away from the puzzle
+                startingPoint = transform.position - axisReference2.transform.position;
+                // might need to swap the order of this subtraction
+
+                */
 
         //////////////////////////////////////
         /// END OF ORIGINAL START BLOCK///////
@@ -208,9 +214,11 @@ public class SliderScript : MonoBehaviour {
         // call a null reference when mousing over the XSlider
 
         // this prevents the slider from doing anything if another slider is in use
-        if (otherSlider != null && otherSlider.GetComponent<SliderScript>().sliding == true)
-        {
-            return;
+        //if (otherSlider != null && otherSlider.GetComponent<SliderScript>().sliding == true)
+        //{
+        if (otherSlider != null)
+        {            
+            //return;
         }
 
         // make sure the slider has a parent, in this case the GameManager
@@ -238,8 +246,18 @@ public class SliderScript : MonoBehaviour {
                     parentManager.zLayerToHide = -1;
                     parentManager.zSliderUnitsMoved = 0;
                     parentManager.zLayerTracker = 0;
+                    otherSlider.SetActive(true);
                     return;
                 }
+            }
+
+            // Hide the other slider as soon as the left mouse button is clicked
+            if(Input.GetMouseButtonDown(0))
+            {
+                if (name == "XSlider" && otherSlider == null)
+                    otherSlider = GameObject.Find("ZSlider");
+
+                otherSlider.SetActive(false);
             }
 
             // if the left mouse button is held over the slider controller
@@ -265,6 +283,7 @@ public class SliderScript : MonoBehaviour {
                 }
                 else
                 {
+                    
                     // vector between the last two mouse clicks on the plane
                     Vector3 travelDirection = pointOnPlane - oldPoint;
 
@@ -278,14 +297,37 @@ public class SliderScript : MonoBehaviour {
                     // The closer the angles are, the closer their value will be to 1
                     // Opposite vectors will be -1 and orthogonal vectors will be 0
 
-                    float step = travelDirection.magnitude;
+                    float step = Vector3.Distance(pointOnPlane, oldPoint);
+                    //Debug.Log(step);
                     float modifier = 1.0f;
+
+                    // Block to determine the direction the slider was moved in (towards or away from cube)
+                    // Get the new distance of the sldier from the puzzle
+                    newDist = Vector3.Distance(transform.position, axisReference2.transform.position);
+
+                    
+                    // If the slider moved away from the puzzle
+                    if(newDist > oldDist)
+                    {
+                        Debug.Log("moving towards the puzzle");
+                        step *= modifier;
+                    }
+                    // If the slider moved towards the puzzle
+                    else if (newDist < oldDist)
+                    {
+                        Debug.Log("moving away from the puzzle");
+                        step *= -modifier;
+                    }
+                    
+
+                    /* 
                     // if the directions are in the same direction
                     // MOVE TOWARDS THE CUBES
                     if(1.0f - cosAngle <= 0.0009 )
                     {
                         //cosAngle is practically 1, so it is towards the cube
                         step *= -modifier;
+                        Debug.Log("moving towards the puzzle");
                     }
                     // if the directions are away from each other
                     // MOVE AWAY FROM THE CUBES
@@ -293,13 +335,25 @@ public class SliderScript : MonoBehaviour {
                     {
                         // cosAngle is practically -1, so it is away from the cube
                         step *= modifier;
+                        Debug.Log("moving away from the puzzle");
                     }
+                    */
 
-                    // if moving towards the center of the puzzle
-                    //if(travelNormalized)
-                    // if moving away from the puzzle                    
-                    transform.position = Vector3.MoveTowards(transform.position, axisReference2.transform.position,
-                    step);
+                    // Move the slider towards the puzzle (actually towards the reference on the X-Z plane)
+                    // Based on the value of step, move towards or away from the puzzle
+                    //transform.position = Vector3.MoveTowards(transform.position, axisReference2.transform.position,
+                    //step);
+
+                    // translate the object along thee z-axis 
+                    if(name == "ZSlider")
+                    {
+                        transform.Translate(0, 0, step, parentObject.transform);
+                    }
+                    else if (name == "XSlider")
+                    {
+                        transform.Translate(step, 0, 0, parentObject.transform);
+                    }
+                    
                     
 
                     // clamp the movement to not go past the starting distance from the cube
@@ -310,22 +364,29 @@ public class SliderScript : MonoBehaviour {
                     distanceInt = Mathf.FloorToInt(distanceRounded);
                     //Debug.Log(distanceInt);
 
+                    // TODO
+                    // replace currentDistance with newDistance
                     // change the comparisons based on the slider (since the Z axis values are going to be dealing with negatives)
-                    bool compDist = (currentDistance.magnitude > startingDistance.magnitude);
+                    bool compDist = (currentDistance.magnitude > startingPoint.magnitude);
 
                     bool compClose = (currentDistance.magnitude < closestDistance);
 
                     if (compDist)
                     {
+                        /*
                         transform.position = Vector3.MoveTowards(transform.position, axisReference2.transform.position,
                     -step);
+                    */
+                        transform.position = originalLocation.transform.position;
                         //Debug.Log("too far");
                         //return;
                     }
                     else if(compClose)
-                    {
+                    {/*
                         transform.position = Vector3.MoveTowards(transform.position, axisReference2.transform.position,
                     -step);
+                    */
+                        transform.position = axisReference2.transform.position;
                         //Debug.Log("too close");
                         //return;
                     }
@@ -334,6 +395,9 @@ public class SliderScript : MonoBehaviour {
 
                     // save the point after translating the slider
                     oldPoint = pointOnPlane;
+
+                    // Update the old distance after the slider has moved
+                    oldDist = Vector3.Distance(transform.position, axisReference2.transform.position);
                 }
             }
         }
@@ -417,10 +481,11 @@ public class SliderScript : MonoBehaviour {
 
         // record the original distance from the center of the puzzle + offset (axisReference2)
         // this wil be the maximum distance the slider can be away from the puzzle
-        startingDistance = transform.position - axisReference2.transform.position;
+        startingPoint = transform.position - axisReference2.transform.position;
         // might need to swap the order of this subtraction
 
-
+        // This variable will be used to compare what direction the slider moved since the last frame
+        oldDist = Vector3.Distance(transform.position, axisReference2.transform.position);
 
         // now we can run the Update() method
         puzzleInitialized = true;
