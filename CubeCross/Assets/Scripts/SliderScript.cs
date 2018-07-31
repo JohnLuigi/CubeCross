@@ -173,31 +173,103 @@ public class SliderScript : MonoBehaviour {
         // update the location of the intersecting plane each frame so that it's consistent with rotation
         movePlane = new Plane(axisReference2.transform.position, transform.position, axisReference.transform.position);
 
-        if(Input.GetMouseButtonUp(0))
+        // if the left mouse button is held over the slider controller
+        if (Input.GetMouseButton(0))
+        {
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            float newDistance;
+            if (movePlane.Raycast(ray, out newDistance))
+            {
+                //Vector3 pointOnPlane = ray.origin + (ray.direction * newDistance);
+                pointOnPlane = ray.GetPoint(newDistance);
+            }
+
+            // the first movement, where the oldPoint is undefined
+            if (unclicked)
+            {
+                // just save the location hit, since it's the first time the slider is hit it can't move until
+                // it is dragged
+                oldPoint = pointOnPlane;
+                unclicked = false;
+            }
+            else
+            {
+                // TODO
+                // Make this distance possibly be equal to the mouse position - slider position
+                // so that it doesn't get a weird offset sometimes
+
+                // Set the position of the slider to equal the point where the mouse
+                // intersects the plane along the respective side of the cube.
+                transform.position = pointOnPlane;
+
+                // Eliminate any vertical (y-axis) movement in relation to the cube.
+                // This forces it to only move towards or away from the cube.
+                transform.localPosition = 
+                    new Vector3(transform.localPosition.x, 0f, transform.localPosition.z);
+
+
+                // clamp the movement to not go past the starting distance from the cube
+                Vector3 currentDistance = transform.position - axisReference2.transform.position;
+
+                // get the distance between the two points
+                float distanceRounded = Vector3.Distance(transform.position, axisReference2.transform.position);
+                distanceInt = Mathf.FloorToInt(distanceRounded);
+                //Debug.Log(distanceInt);
+
+                // TODO
+                // replace currentDistance with newDistance
+                // change the comparisons based on the slider (since the Z axis values are going to be 
+                // dealing with negatives)
+
+                // TODO
+                // Handle the edge cases of the sliders and when they are at maximum and minimum sliding
+                // positions in relation to the cube
+                bool compDist = (currentDistance.magnitude > startingPoint.magnitude);
+
+                bool compClose = (currentDistance.magnitude < closestDistance);
+
+                if (compDist)
+                {
+                    /*
+                    transform.position = Vector3.MoveTowards(transform.position, axisReference2.transform.position,
+                -step);
+                */
+                    transform.position = originalLocation.transform.position;
+                    //Debug.Log("too far");
+                    //return;
+                }
+                else if (compClose)
+                {/*
+                        transform.position = Vector3.MoveTowards(transform.position, axisReference2.transform.position,
+                    -step);
+                    */
+                    transform.position = axisReference2.transform.position;
+                    //Debug.Log("too close");
+                    //return;
+                }
+
+                // clamp the movement to not go too close to the center of the puzzle
+
+                // save the point after translating the slider
+                oldPoint = pointOnPlane;
+
+                // Update the old distance after the slider has moved
+                oldDist = Vector3.Distance(transform.position, axisReference2.transform.position);
+            }
+        }// end of if GetMouseButton(0) aka LMB is being held down
+
+        if (Input.GetMouseButtonUp(0))
         {
             unclicked = true;
+
+            sliding = false;
         }
 
         timeTracker += Time.deltaTime;
-/*
-        if(Input.GetMouseButton(0))
-        {
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            RaycastHit hit;
-            if(Physics.Raycast(ray, out hit, Mathf.Infinity))
-            {
-                if(hit.transform.gameObject.tag == "Slider")
-                {
-                    // we've hit the slider, now lets find its location on the plane
-                }
-            }
-        }
-*/
     }
 
     // make the distance to travel be the same as the mouse horizontal traversal distance from the
     // last frame
-
     private void OnMouseOver()
     {
         // if the puzzle selection menu is active, don't make the game interactive
@@ -257,157 +329,23 @@ public class SliderScript : MonoBehaviour {
                 if (name == "XSlider" && otherSlider == null)
                     otherSlider = GameObject.Find("ZSlider");
 
+                sliding = true;
+
                 otherSlider.SetActive(false);
             }
 
-            // if the left mouse button is held over the slider controller
-            if(Input.GetMouseButton(0))
-            {
-                sliding = true;
-
-                Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-                float newDistance;
-                if (movePlane.Raycast(ray, out newDistance))
-                {
-                    //Vector3 pointOnPlane = ray.origin + (ray.direction * newDistance);
-                    pointOnPlane = ray.GetPoint(newDistance);
-                }
-
-                // the first movement, where the oldPoint is undefined
-                if(unclicked)
-                {
-                    // just save the location hit, since it's the first time the slider is hit it can't move until
-                    // it is dragged
-                    oldPoint = pointOnPlane;
-                    unclicked = false;
-                }
-                else
-                {
-                    
-                    // vector between the last two mouse clicks on the plane
-                    Vector3 travelDirection = pointOnPlane - oldPoint;
-
-                    // vector between mouse and center of puzzle + offset (axisReference2)
-                    Vector3 mouseDirection = pointOnPlane - axisReference2.transform.position;
-
-                    // find the angle between the direction the mouse moved in and the direction of the last drag on
-                    // the plane
-                    float cosAngle = Vector3.Dot(mouseDirection.normalized, travelDirection.normalized);
-
-                    // The closer the angles are, the closer their value will be to 1
-                    // Opposite vectors will be -1 and orthogonal vectors will be 0
-
-                    float step = Vector3.Distance(pointOnPlane, oldPoint);
-                    //Debug.Log(step);
-                    float modifier = 1.0f;
-
-                    // Block to determine the direction the slider was moved in (towards or away from cube)
-                    // Get the new distance of the sldier from the puzzle
-                    newDist = Vector3.Distance(transform.position, axisReference2.transform.position);
-
-                    
-                    // If the slider moved away from the puzzle
-                    if(newDist > oldDist)
-                    {
-                        Debug.Log("moving towards the puzzle");
-                        step *= modifier;
-                    }
-                    // If the slider moved towards the puzzle
-                    else if (newDist < oldDist)
-                    {
-                        Debug.Log("moving away from the puzzle");
-                        step *= -modifier;
-                    }
-                    
-
-                    /* 
-                    // if the directions are in the same direction
-                    // MOVE TOWARDS THE CUBES
-                    if(1.0f - cosAngle <= 0.0009 )
-                    {
-                        //cosAngle is practically 1, so it is towards the cube
-                        step *= -modifier;
-                        Debug.Log("moving towards the puzzle");
-                    }
-                    // if the directions are away from each other
-                    // MOVE AWAY FROM THE CUBES
-                    else if(1.0 - cosAngle >= 1.99)
-                    {
-                        // cosAngle is practically -1, so it is away from the cube
-                        step *= modifier;
-                        Debug.Log("moving away from the puzzle");
-                    }
-                    */
-
-                    // Move the slider towards the puzzle (actually towards the reference on the X-Z plane)
-                    // Based on the value of step, move towards or away from the puzzle
-                    //transform.position = Vector3.MoveTowards(transform.position, axisReference2.transform.position,
-                    //step);
-
-                    // translate the object along thee z-axis 
-                    if(name == "ZSlider")
-                    {
-                        transform.Translate(0, 0, step, parentObject.transform);
-                    }
-                    else if (name == "XSlider")
-                    {
-                        transform.Translate(step, 0, 0, parentObject.transform);
-                    }
-                    
-                    
-
-                    // clamp the movement to not go past the starting distance from the cube
-                    Vector3 currentDistance = transform.position - axisReference2.transform.position;
-
-                    // get the distance between the two points
-                    float distanceRounded = Vector3.Distance(transform.position, axisReference2.transform.position);
-                    distanceInt = Mathf.FloorToInt(distanceRounded);
-                    //Debug.Log(distanceInt);
-
-                    // TODO
-                    // replace currentDistance with newDistance
-                    // change the comparisons based on the slider (since the Z axis values are going to be dealing with negatives)
-                    bool compDist = (currentDistance.magnitude > startingPoint.magnitude);
-
-                    bool compClose = (currentDistance.magnitude < closestDistance);
-
-                    if (compDist)
-                    {
-                        /*
-                        transform.position = Vector3.MoveTowards(transform.position, axisReference2.transform.position,
-                    -step);
-                    */
-                        transform.position = originalLocation.transform.position;
-                        //Debug.Log("too far");
-                        //return;
-                    }
-                    else if(compClose)
-                    {/*
-                        transform.position = Vector3.MoveTowards(transform.position, axisReference2.transform.position,
-                    -step);
-                    */
-                        transform.position = axisReference2.transform.position;
-                        //Debug.Log("too close");
-                        //return;
-                    }
-
-                    // clamp the movement to not go too close to the center of the puzzle
-
-                    // save the point after translating the slider
-                    oldPoint = pointOnPlane;
-
-                    // Update the old distance after the slider has moved
-                    oldDist = Vector3.Distance(transform.position, axisReference2.transform.position);
-                }
-            }
+            
+            
         }
     }
 
+    /*
     private void OnMouseExit()
     {
         unclicked = true;
         sliding = false;
     }
+    */
 
     // public version of the code that was originally part of the start method
     public void Initialize()
@@ -490,4 +428,15 @@ public class SliderScript : MonoBehaviour {
         // now we can run the Update() method
         puzzleInitialized = true;
     }
+
+    /*
+    public void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawSphere(pointOnPlane + new Vector3(-2,0,0), 0.5f);
+
+        Gizmos.color = Color.red;
+        Gizmos.DrawSphere(oldPoint + new Vector3(-2, 0, 0), 0.5f);
+    }
+    */
 }
