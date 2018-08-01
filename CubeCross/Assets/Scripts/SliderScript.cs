@@ -314,11 +314,21 @@ public class SliderScript : MonoBehaviour {
                     transform.position = originalLocation.transform.position;
                     // make all cubes visible again
                     parentManager.ShowAllCubes();
-                    // reset the zLayerToHide
+
+                    // reset the zSlider attributes in the game manager
                     parentManager.zLayerToHide = -1;
                     parentManager.zSliderUnitsMoved = 0;
                     parentManager.zLayerTracker = 0;
+
+                    // make the other slider visible/interative again
                     otherSlider.SetActive(true);
+
+                    // reset the xSlider attributes in the game manager
+                    parentManager.xLayerToHide = parentManager.puzzleSize_X;
+                    parentManager.xSliderUnitsMoved = 0;
+                    parentManager.xLayerTracker = 0;
+
+
                     return;
                 }
             }

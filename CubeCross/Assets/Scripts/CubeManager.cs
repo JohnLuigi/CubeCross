@@ -133,6 +133,11 @@ public class CubeManager : MonoBehaviour {
     public int zBoundSize;
     LineManager lineManager;
 
+    public int xLayerToHide;
+    public float xSliderUnitsMoved;
+    public Vector3 xSliderPosition;
+    public int xLayerTracker;
+
     public int zLayerToHide;
     public float zSliderUnitsMoved;
     public Vector3 zSliderPosition;
@@ -400,16 +405,28 @@ public class CubeManager : MonoBehaviour {
             flagStatusObject.text = tempFlagText;
         }
 
-        
-
         UpdatePressTime();
 
-        //HideCubes(xSlider);
-        //HideCubes(zSlider);
-
+        // Slider update handling block
         if(xSlider.GetComponent<SliderScript>().sliding == true)
         {
-            HideCubes(xSlider);
+            //HideCubes(xSlider);
+
+            int layerMovement = UpdateHiddenLayers(xSlider);
+            // If the xSlider movement was towards the cube
+            if (layerMovement == -1)
+            {
+                xLayerToHide--;
+                xLayerToHide = Mathf.Clamp(xLayerToHide, 0, puzzleSize_X);
+                XLayerHiding(true, xLayerToHide);
+            }
+            // If the xSlider movement was away from the cube
+            else if (layerMovement == 1)
+            {                
+                XLayerHiding(false, xLayerToHide);
+                xLayerToHide++;
+                xLayerToHide = Mathf.Clamp(xLayerToHide, 0, puzzleSize_X);
+            }
         }
         else if(zSlider.GetComponent<SliderScript>().sliding == true)
         {
@@ -2101,8 +2118,11 @@ public class CubeManager : MonoBehaviour {
         rotationZ = 0f;
         // This is where the puzzle is formed in-game
         CreateCubes();
-        // default the zLayer to hide to be at the maximum layer
+        // Default the zLayer to hide to be at the "maximum" layer so that moving towards (+)
+        // the puzzle adds up to zero (start counting before the layers)
         zLayerToHide = -1;
+        // default the xLayer to hide to be at the maximum layer
+        xLayerToHide = puzzleSize_X;
 
         puzzleBounds = new Bounds(cubeArray[0, 0, 0].transform.position, Vector3.zero);
         UpdateBounds();
@@ -2116,6 +2136,10 @@ public class CubeManager : MonoBehaviour {
         // initialize the X Slider
         SliderScript xScript = xSlider.GetComponent<SliderScript>();
         xScript.Initialize();
+
+        xSliderUnitsMoved = 0;
+        xLayerTracker = 0;
+        xSliderPosition = xSlider.transform.position;
 
         // reference for the edge of the puzzle for the ZSlider
         sliderReferenceZ = new GameObject { name = "SliderReferenceZ" };
@@ -2195,10 +2219,43 @@ public class CubeManager : MonoBehaviour {
             {
                 for (int j = 0; j < cubeArray.GetLength(2); j++)
                 {
+                    /*
                     if(hideValue == true)
                         cubeArray[inputLayer, i, j].SetActive(false);
                     else if(hideValue == false)
                         cubeArray[inputLayer, i, j].SetActive(true);
+                    */
+                    // 
+                    cubeArray[inputLayer, i, j].SetActive(!hideValue);
+                }
+            }
+        }
+    }
+
+    // Version of the layer hiding for the xSlider
+    public void XLayerHiding(bool hideValue, int inputLayer)
+    {
+        // cubeArray dimensions are [z,y,x]
+        // aka [0,1,2]
+        // don't do anything if the layer to hide is outside of the layer count (aka, don't hide anything)
+        if (inputLayer > -1 && inputLayer < puzzleSize_X)
+        {
+            for (int i = 0; i < cubeArray.GetLength(0); i++)
+            {
+                for (int j = 0; j < cubeArray.GetLength(1); j++)
+                {
+                    /*
+                    if(hideValue == true)
+                        cubeArray[inputLayer, i, j].SetActive(false);
+                    else if(hideValue == false)
+                        cubeArray[inputLayer, i, j].SetActive(true);
+                    */
+                    //
+
+                    // if the hideValue is true, then it means the cube is to be hidden
+                    // so set the active parameter of the cube to be false
+                    // Vice-versa for cubes to not be shown
+                    cubeArray[i, j, inputLayer].SetActive(!hideValue);
                 }
             }
         }
@@ -2211,8 +2268,57 @@ public class CubeManager : MonoBehaviour {
     {
         int returnValue = 0;
 
+        // Get the change in distance of the slider from the cube since the last frame.
+        if(slider.name == "XSlider")
+        {
+            // The two positions to be compared
+            Vector3 oldPosition = xSliderPosition;
+            Vector3 newPosition = slider.transform.position;
+
+            // Find the distances of each of these positions from the x axis of the center
+            // of the cube (this object).
+            float oldDistFromRef = Vector3.Distance(oldPosition, sliderReferenceX.transform.position);
+            float newDistFromRef = Vector3.Distance(newPosition, sliderReferenceX.transform.position);
+
+            // If the slider moved towards the cube
+            if (oldDistFromRef > newDistFromRef)
+            {
+                // see how much the slider moved this frame from its last position
+                xSliderUnitsMoved -= Vector3.Distance(newPosition, oldPosition);
+            }
+            // If the slider from away from the cube
+            else if (newDistFromRef > oldDistFromRef)
+            {
+                // see how much the slider moved this frame from its last position
+                xSliderUnitsMoved += Vector3.Distance(newPosition, oldPosition);
+            }
+
+            // If the slider has moved a certain interval of units, update how many layers
+            // are to be shown/hidden based on this interval.
+            if (Mathf.FloorToInt(xSliderUnitsMoved) > 1.5)
+            {
+                // If we have moved xSlider one unit away from hte cubes, return a value of one and
+                // reset the distance moved.
+                returnValue = 1;
+                xSliderUnitsMoved = 0;
+                xLayerTracker = 0;
+            }
+            else if (Mathf.FloorToInt(xSliderUnitsMoved) < -1.5)
+            {
+                // If we have moved the xSlider towards the puzzle one unit, return a value of -1
+                // and reset the distances moved
+                returnValue = -1;
+                xSliderUnitsMoved = 0;
+                xLayerTracker = 0;
+            }
+
+            // reset the slider position tracker to what it is after the movement of the frame
+            xSliderPosition = slider.transform.position;
+
+        }// end of if slider name == XSlider
+
         // get the distance between the two points
-        if (slider.name == "ZSlider")
+        else if (slider.name == "ZSlider")
         {
             // Integer to return. 1 is towards the cube, -1 if away, 0 if no change
 
@@ -2264,7 +2370,7 @@ public class CubeManager : MonoBehaviour {
                 zLayerTracker = 0;
             }
 
-            // reset hte slider position tracker to what it is after the movement of the frame
+            // reset the slider position tracker to what it is after the movement of the frame
             zSliderPosition = slider.transform.position;
 
         }// end of if "zSlider" 
