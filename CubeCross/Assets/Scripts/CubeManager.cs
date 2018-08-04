@@ -427,6 +427,10 @@ public class CubeManager : MonoBehaviour {
                 xLayerToHide++;
                 xLayerToHide = Mathf.Clamp(xLayerToHide, 0, puzzleSize_X);
             }
+
+            // After updating layers to be shown/hidden, see if the slider needs to be
+            // clamped within its maximum and minimum distances.
+            //xSlider.GetComponent<SliderScript>().CheckDistance();
         }
         else if(zSlider.GetComponent<SliderScript>().sliding == true)
         {
@@ -438,15 +442,19 @@ public class CubeManager : MonoBehaviour {
             {
                 zLayerToHide++;
                 zLayerToHide = Mathf.Clamp(zLayerToHide, -1, puzzleSize_Z - 1);
-                TestLayerHiding(true, zLayerToHide);
+                ZLayerHiding(true, zLayerToHide);
             }
             // If the movement was away from the cube
             else if (layerMovement == -1)
             {
-                TestLayerHiding(false, zLayerToHide);
+                ZLayerHiding(false, zLayerToHide);
                 zLayerToHide--;
                 zLayerToHide = Mathf.Clamp(zLayerToHide, -1, puzzleSize_Z - 1);
             }
+
+            // After updating layers to be shown/hidden, see if the slider needs to be
+            // clamped within its maximum and minimum distances.
+            //zSlider.GetComponent<SliderScript>().CheckDistance();
         }
         
         // increase zlayertohide by one
@@ -456,7 +464,7 @@ public class CubeManager : MonoBehaviour {
         {
             zLayerToHide++;
             zLayerToHide = Mathf.Clamp(zLayerToHide, -1, puzzleSize_Z - 1);
-            TestLayerHiding(true, zLayerToHide);
+            ZLayerHiding(true, zLayerToHide);
         }
 
         // reduce zlayertohide by one
@@ -464,7 +472,7 @@ public class CubeManager : MonoBehaviour {
         // This simulates moving AWAY from the puzzle
         if (Input.GetKeyUp(KeyCode.RightBracket))
         {
-            TestLayerHiding(false, zLayerToHide);
+            ZLayerHiding(false, zLayerToHide);
             zLayerToHide--;
             zLayerToHide = Mathf.Clamp(zLayerToHide, -1, puzzleSize_Z -1);
         }
@@ -2208,7 +2216,7 @@ public class CubeManager : MonoBehaviour {
     }
 
     // hide the cubes in layer inputLayer
-    public void TestLayerHiding(bool hideValue, int inputLayer)
+    public void ZLayerHiding(bool hideValue, int inputLayer)
     {
         // cubeArray dimensions are [z,y,x]
         // aka [0,1,2]

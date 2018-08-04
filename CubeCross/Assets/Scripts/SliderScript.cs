@@ -46,6 +46,10 @@ public class SliderScript : MonoBehaviour {
     private float oldDist;
     private float newDist;
 
+    private float startXDist;
+    private float startYDist;
+    private float startZDist;
+
     //public bool isSliding = false;
     // TODO
     // update the uses of 8.5f as a starting distance for the sliders to be some function of
@@ -160,6 +164,8 @@ public class SliderScript : MonoBehaviour {
     // Update is called once per frame
     void Update ()
     {
+        Debug.Log(name + " is at localPos" + transform.localPosition);
+
         // if the puzzle selection menu is active, don't make the game interactive
         if (puzzleSelector.activeSelf)
         {
@@ -207,6 +213,10 @@ public class SliderScript : MonoBehaviour {
                 transform.localPosition = 
                     new Vector3(transform.localPosition.x, 0f, transform.localPosition.z);
 
+                //CheckDistance();
+
+
+
 
                 // clamp the movement to not go past the starting distance from the cube
                 Vector3 currentDistance = transform.position - axisReference2.transform.position;
@@ -224,30 +234,32 @@ public class SliderScript : MonoBehaviour {
                 // TODO
                 // Handle the edge cases of the sliders and when they are at maximum and minimum sliding
                 // positions in relation to the cube
+                
                 bool compDist = (currentDistance.magnitude > startingPoint.magnitude);
 
                 bool compClose = (currentDistance.magnitude < closestDistance);
 
                 if (compDist)
                 {
-                    /*
-                    transform.position = Vector3.MoveTowards(transform.position, axisReference2.transform.position,
-                -step);
-                */
+                    
+                //    transform.position = Vector3.MoveTowards(transform.position, axisReference2.transform.position,
+                //-step);
+                
+                
                     transform.position = originalLocation.transform.position;
                     //Debug.Log("too far");
                     //return;
                 }
                 else if (compClose)
-                {/*
-                        transform.position = Vector3.MoveTowards(transform.position, axisReference2.transform.position,
-                    -step);
-                    */
+                {
+                    //    transform.position = Vector3.MoveTowards(transform.position, axisReference2.transform.position,
+                    //-step);
+                    
                     transform.position = axisReference2.transform.position;
                     //Debug.Log("too close");
                     //return;
                 }
-
+                
                 // clamp the movement to not go too close to the center of the puzzle
 
                 // save the point after translating the slider
@@ -435,9 +447,63 @@ public class SliderScript : MonoBehaviour {
         // This variable will be used to compare what direction the slider moved since the last frame
         oldDist = Vector3.Distance(transform.position, axisReference2.transform.position);
 
+        // Set the distances in each dimension from the parent object (center of the puzzle).
+        // These values will be used to see if the sliders have reached the limits of their
+        // distances from the puzzle center.
+        startXDist = transform.localPosition.x;
+        startYDist = transform.localPosition.y;
+        startZDist = transform.localPosition.z;
+
         // now we can run the Update() method
         puzzleInitialized = true;
     }
+
+    // See if the slider is too close or too far from the puzzle
+    // If so, set the position of the slider accordingly.
+    public void CheckDistance()
+    {
+        // Disance of the center of the slider to the one end of its box collider
+        // aka half the width of the slider itself.
+        float colliderXDist = this.GetComponent<BoxCollider>().size.x / 2f;
+
+        if (name.Equals("XSlider"))
+        {
+            // If the slider moved too far away from the puzzle (on the +X axis)
+            // reset the position to its starting point.
+            if (transform.localPosition.x > startXDist)
+                transform.position = originalLocation.transform.position;
+
+            // If the slider is too close to the center, set it to be 0 on the X Axis
+            else if ((transform.localPosition.x - colliderXDist) < 0)
+            {
+                transform.localPosition =
+                    new Vector3(0f, transform.localPosition.y, transform.localPosition.z);
+            }
+
+        } // End of XSlider block
+
+        else if (this.name.Equals("ZSlider"))
+        {
+            // If the slider has moved too far away from the puzzle (-Z axis),
+            // reset the position to the starting point.
+            if (transform.localPosition.z < startZDist)
+                transform.position = originalLocation.transform.position;
+            // If the slider is too close to the center, set it to be 0 on the Z Axis
+            else if ((transform.localPosition.z + colliderXDist) > 0f)
+            {
+                Debug.Log("hit the min distance");
+                transform.position =
+                    new Vector3(transform.position.x, transform.position.y, 0f);
+            }
+                
+        }// End of ZSlider block
+    }
+
+    public void ClampSlider()
+    {
+
+    }
+
 
     /*
     public void OnDrawGizmosSelected()
