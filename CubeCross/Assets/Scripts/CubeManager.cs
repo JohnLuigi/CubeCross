@@ -2303,7 +2303,7 @@ public class CubeManager : MonoBehaviour {
 
             // If the slider has moved a certain interval of units, update how many layers
             // are to be shown/hidden based on this interval.
-            if (Mathf.FloorToInt(xSliderUnitsMoved) > 1.5)
+            if (xSliderUnitsMoved > 1f)
             {
                 // If we have moved xSlider one unit away from hte cubes, return a value of one and
                 // reset the distance moved.
@@ -2311,7 +2311,7 @@ public class CubeManager : MonoBehaviour {
                 xSliderUnitsMoved = 0;
                 xLayerTracker = 0;
             }
-            else if (Mathf.FloorToInt(xSliderUnitsMoved) < -1.5)
+            else if (xSliderUnitsMoved < -1f)
             {
                 // If we have moved the xSlider towards the puzzle one unit, return a value of -1
                 // and reset the distances moved
@@ -2362,14 +2362,14 @@ public class CubeManager : MonoBehaviour {
             // The frame that hits 1.0000001 or whatever distance > 1, we set the puzzle to hide
             // one layer more than what is currently being hidden.
             // The reverse happens for movement away from the cube so at -1.000001 units away, we show a layer
-            if (Mathf.FloorToInt(zSliderUnitsMoved) > 1.5)
+            if (zSliderUnitsMoved > 1f)
             {
                 // if we have moved one unit, return a value of one and reset the distance moved
                 returnValue = 1;
                 zSliderUnitsMoved = 0;
                 zLayerTracker = 0;
             }
-            else if (Mathf.FloorToInt(zSliderUnitsMoved) < -1.5)
+            else if (zSliderUnitsMoved < -1f)
             {
                 // If we have moved away from the puzzle one unit, return a value of -1
                 // and reset the distances moved
