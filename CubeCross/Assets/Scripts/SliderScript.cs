@@ -16,8 +16,6 @@ public class SliderScript : MonoBehaviour {
     private GameObject originalLocation;
 
     private Vector3 pointOnPlane;
-    private Vector3 oldPoint;   // distance to be used to see how far the slider was dragged along a plane in a frame
-    private float distanceToTravel;
     private bool unclicked = true;
 
     private float clickTime = 0f;
@@ -26,14 +24,12 @@ public class SliderScript : MonoBehaviour {
 
     public bool sliding = false;   // use this to make sure cube deletion doesn't occur while using the sliders
 
-    private float closestDistance;
+    //private float closestDistance;
 
     public GameObject otherSlider;
 
     public int distanceInt; // This value will be read by the cube manager to determine how far it is from the puzzle
-    // private int puzzSize;
-
-    //private float halfCubeDist;
+    
     private float halfCubeDist_X;
     private float halfCubeDist_Y;
     private float halfCubeDist_Z;
@@ -41,18 +37,7 @@ public class SliderScript : MonoBehaviour {
     private GameObject puzzleSelector;  // reference to the puzzle selection UI element
 
     private bool puzzleInitialized = false;
-
-    // Distance trackers to see what direction the slider is moving in relation to the cube
-    private float oldDist;
-    private float newDist;
-
-    private float startXDist;
-    private float startYDist;
-    private float startZDist;
-
-    private bool minHit;
-
-    //public bool isSliding = false;
+    
     // TODO
     // update the uses of 8.5f as a starting distance for the sliders to be some function of
     // the respective dimension of the puzzle
@@ -69,105 +54,16 @@ public class SliderScript : MonoBehaviour {
         if (name == "XSlider" && otherSlider == null)
         {
             otherSlider = GameObject.Find("ZSlider");
-        }
-
-        // As a default, the minimum distance has not been hit yet.
-        minHit = false;
-
-
-        /*
-                parentObject = GameObject.Find("GameManager");
-                transform.parent = parentObject.transform;
-
-                parentManager = parentObject.GetComponent<CubeManager>();
-
-            //puzzSize = parentManager.puzzleSize;
-            //halfCubeDist = (puzzSize / 2f) - 0.5f;
-
-                halfCubeDist_X = (parentManager.puzzleSize_X / 2f);
-                halfCubeDist_Y = (parentManager.puzzleSize_Y / 2f);
-                halfCubeDist_Z = (parentManager.puzzleSize_Z / 2f);
-
-                // set the reference point to be used to define the plane that will contain the slider
-                // also set the starting position of the slider
-                if (gameObject.name == "XSlider")
-                {
-                    transform.position = new Vector3(halfCubeDist_X + 2, 0, halfCubeDist_Z + 1);
-
-                    // this reference is on the same edge of the cube as the X Slider, but with an increased y-value (high ref)
-                    axisReference = new GameObject { name = "XSliderReference1"};
-                    axisReference.transform.position = new Vector3(0, halfCubeDist_Y, halfCubeDist_Z + 1);
-                    axisReference.transform.parent = parentObject.transform;
-
-                    // this reference is on the same y-value as the slider, and same z-value (even ref)
-                    axisReference2 = new GameObject { name = "XSliderReference2" };
-                    axisReference2.transform.position = new Vector3(-halfCubeDist_X, 0, halfCubeDist_Z + 1);
-                    axisReference2.transform.parent = parentObject.transform;
-
-                    otherSlider = GameObject.Find("ZSlider");
-                }
-                else if(gameObject.name == "ZSlider")
-                {
-                    transform.position = new Vector3(-halfCubeDist_X - 1, 0, -halfCubeDist_Z - 2);
-
-                    // this reference is on the same edge of the cube as the Z Slider, but with an increased y-value (high ref)
-                    axisReference = new GameObject { name = "ZSliderReference1" };
-                    axisReference.transform.position = new Vector3(-halfCubeDist_X - 1, halfCubeDist_Y, 0);
-                    axisReference.transform.parent = parentObject.transform;
-
-                    // this reference is on the same y-value as the Z slider, and same x-value (even ref)
-                    axisReference2 = new GameObject { name = "ZSliderReference2" };
-                    axisReference2.transform.position = new Vector3(-halfCubeDist_X - 1, 0, halfCubeDist_Z);
-                    axisReference2.transform.parent = parentObject.transform;
-
-                    otherSlider = GameObject.Find("XSlider");
-                }
-
-
-                movePlane = new Plane(axisReference2.transform.position, transform.position, axisReference.transform.position);
-
-                // store a gameobject that is parented to the gameManager cube puzzle
-                originalLocation = new GameObject { name = "OriginalLocation"};
-                originalLocation.transform.position = transform.position;
-                originalLocation.transform.parent = parentObject.transform;
-
-                // record the original distance from the center of the puzzle + offset (axisReference2)
-                // this wil be the maximum distance the slider can be away from the puzzle
-                startingPoint = transform.position - axisReference2.transform.position;
-                // might need to swap the order of this subtraction
-
-                */
-
-        //////////////////////////////////////
-        /// END OF ORIGINAL START BLOCK///////
-        //////////////////////////////////////
-
-        /*
-        // point between the slider and the center of the cube that the cube cannot move any closer
-        // for the xSlider, it will be along the x-axis, located at theshold-puzzleSize-0.5 units
-        float tempThresh = parentObject.GetComponent<CubeManager>().hideThreshold_X;
-        float tempSize = parentObject.GetComponent<CubeManager>().puzzleSize_X;
-        closestDistance = (tempThresh - tempSize) - 1f;
-
-        closestDistance = 1f;
-        
-        // if this is the ZSlider, set these values according to the z-values in the parent object
-        if(gameObject.name == "ZSlider")
-        {
-            tempThresh = parentObject.GetComponent<CubeManager>().hideThreshold_Z;
-            tempSize = parentObject.GetComponent<CubeManager>().puzzleSize_Z;
-            closestDistance = (-tempThresh + tempSize) + 1f;
-
-            closestDistance = -1f;
-        }
-        */
-        //TODO
-        // see if closest distance is being stopped in this script
-        
+        }        
 
     }
     //TODO
     // Make the other slider reappear when the slider being used is returned to its starting position
+
+    //TODO
+    // Sliders working mostly as intended, but while dragging them they do weird stuff.
+    // Sometimes they fly far off into the distance
+    // When dragging, they sometimes don't move as many units as they should
 
     // Update is called once per frame
     void Update ()
@@ -198,12 +94,10 @@ public class SliderScript : MonoBehaviour {
                 pointOnPlane = ray.GetPoint(newDistance);
             }
 
-            // the first movement, where the oldPoint is undefined
+            // The first movement where the slider hasn't been interacted with
             if (unclicked)
             {
-                // just save the location hit, since it's the first time the slider is hit it can't move until
-                // it is dragged
-                oldPoint = pointOnPlane;
+                // Set the slider to have been clicked.
                 unclicked = false;
             }
             else
@@ -213,13 +107,15 @@ public class SliderScript : MonoBehaviour {
                 // is located in comparison to the function's attached transform.
                 Vector3 pointRelative = parentObject.transform.InverseTransformPoint(pointOnPlane);
 
-                float maxDistance = startingPoint.magnitude;
+                Debug.Log("Slider is " + pointRelative.x + "Units away from the puzzle");
+
+                float maxDistance = startingPoint.magnitude - halfCubeDist_X;
 
                 // If the ZSlider is being used and 
                 // if the mouse point is not behind or at the puzzle center OR
                 // if the mouse point is too far behind the puzzle center (further than the starting point)
                 // don't move the slider.
-                if (name.Equals("ZSlider") && pointRelative.z >= 0f || pointRelative.z <= -maxDistance)
+                if (name.Equals("ZSlider") && pointRelative.z >= 0f || pointRelative.z < -maxDistance)
                     return;
 
                 // If the XSlider is being used and 
@@ -227,7 +123,7 @@ public class SliderScript : MonoBehaviour {
                 // if the mouse point is too far to the right of the puzzle center
                 // (further than the starting point)
                 // don't move the slider.
-                if (name.Equals("XSlider") && pointRelative.x <= 0f || pointRelative.x >= maxDistance)
+                if (name.Equals("XSlider") && pointRelative.x <= 0f || pointRelative.x > maxDistance)
                     return;
 
                 // TODO
@@ -244,11 +140,6 @@ public class SliderScript : MonoBehaviour {
                 transform.localPosition = 
                     new Vector3(transform.localPosition.x, 0f, transform.localPosition.z);
 
-                // save the point after translating the slider
-                oldPoint = pointOnPlane;
-
-                // Update the old distance after the slider has moved
-                oldDist = Vector3.Distance(transform.position, axisReference2.transform.position);
             }
         }// end of if GetMouseButton(0) aka LMB is being held down
 
@@ -257,6 +148,12 @@ public class SliderScript : MonoBehaviour {
             unclicked = true;
 
             sliding = false;
+        }
+
+        if(Input.GetKeyUp("r"))
+        {
+            ResetSliders();
+            return;
         }
 
 
@@ -305,25 +202,7 @@ public class SliderScript : MonoBehaviour {
                 // if the last click was also on the cube
                 if(timeSinceLastClick <= doubleClickDelay && timeSinceLastClick != 0f)
                 {
-                    //reset the position of the slider
-                    transform.position = originalLocation.transform.position;
-                    // make all cubes visible again
-                    parentManager.ShowAllCubes();
-
-                    // reset the zSlider attributes in the game manager
-                    parentManager.zLayerToHide = -1;
-                    parentManager.zSliderUnitsMoved = 0;
-                    parentManager.zLayerTracker = 0;
-
-                    // make the other slider visible/interative again
-                    otherSlider.SetActive(true);
-
-                    // reset the xSlider attributes in the game manager
-                    parentManager.xLayerToHide = parentManager.puzzleSize_X;
-                    parentManager.xSliderUnitsMoved = 0;
-                    parentManager.xLayerTracker = 0;
-
-
+                    ResetSliders();
                     return;
                 }
             }
@@ -426,22 +305,46 @@ public class SliderScript : MonoBehaviour {
         startingPoint = transform.position - axisReference2.transform.position;
         // might need to swap the order of this subtraction
 
-        // This variable will be used to compare what direction the slider moved since the last frame
-        oldDist = Vector3.Distance(transform.position, axisReference2.transform.position);
-
-        // Set the distances in each dimension from the parent object (center of the puzzle).
-        // These values will be used to see if the sliders have reached the limits of their
-        // distances from the puzzle center.
-        startXDist = transform.localPosition.x;
-        startYDist = transform.localPosition.y;
-        startZDist = transform.localPosition.z;
-
         // Set the closest possible position to be equal to the half of the width of the sliders
-        closestDistance = colliderXDist;
+        //closestDistance = colliderXDist;
 
         // now we can run the Update() method
         puzzleInitialized = true;
+
+        Debug.Log("Starting Magnitude is: "+ startingPoint.magnitude);
     }
+
+    public void ResetSliders()
+    {
+        //reset the position of the slider
+        transform.position = originalLocation.transform.position;
+        // make all cubes visible again
+        parentManager.ShowAllCubes();
+
+        // reset the zSlider attributes in the game manager
+        parentManager.zLayerToHide = -1;
+        parentManager.zSliderUnitsMoved = 0;
+        parentManager.zLayerTracker = 0;
+
+        // make the other slider visible/interative again
+        otherSlider.SetActive(true);
+
+        // reset the xSlider attributes in the game manager
+        parentManager.xLayerToHide = parentManager.puzzleSize_X;
+        parentManager.xSliderUnitsMoved = 0;
+        parentManager.xLayerTracker = 0;
+
+        //TODO
+        // Figure out where to reset the time tracker
+        // Reset the time tracker so it doesn't count to infinity
+        //timeTracker = 0f;
+
+        
+    }
+
+    //TODO
+    // When hiding and showing layers, deleted cubes are re-shown. Make sure deleted cubes stay
+    // deleted while hiding/showing layers.
 
     /*
     public void OnDrawGizmosSelected()
