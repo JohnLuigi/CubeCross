@@ -21,7 +21,6 @@ public class CubeFacesScript : MonoBehaviour {
 
     public bool flagged = false;
 
-
     // Initializing all this stuff in Awake() because this method is called immediately when the attached object is
     // instantiated in a different script
     // The Start() method will only run after the parent's Start() method is comeplete
@@ -41,6 +40,7 @@ public class CubeFacesScript : MonoBehaviour {
         // division units
         // In this case we are using 128x128 cubes from a 1024x1024 texture atlas
         div = 120f / 1440f;
+
     }
 
     // Use this for initialization
@@ -142,6 +142,10 @@ public class CubeFacesScript : MonoBehaviour {
                 UVs[13] = faceVerts[3];
                 break;
 
+            case "":
+                // An empty face was input, do nothing.
+                break;
+
             default:
                 Debug.Log("You tried to use an invalid side.");
                 break;
@@ -151,10 +155,48 @@ public class CubeFacesScript : MonoBehaviour {
     }
 
     
-
+    // Outputs the corresponding 4 vertices on the texture for the input string
     public Vector2[] FaceStringToVertices(string input)
     {
-        
+        Vector2[] output;
+        // If the input string is a specific color/text, do that instead of the mathematical
+        // version of setting the texture coordinates.
+        if (input.Equals("LightGray"))
+        {
+            output = new Vector2[]
+            {
+                new Vector2(0f * div, 1f * div),
+                new Vector2(1f * div, 1f * div),
+                new Vector2(0f * div, 0f * div),
+                new Vector2(1f * div, 0f * div)
+            };
+
+            return output;
+        }
+        else if(input.Equals("DarkGray"))
+        {
+            output = new Vector2[]
+            {
+                new Vector2(1f * div, 1f * div),
+                new Vector2(2f * div, 1f * div),
+                new Vector2(1f * div, 0f * div),
+                new Vector2(2f * div, 0f * div)
+            };
+
+            return output;
+        }
+        else if(input.Equals("Red"))
+        {
+            output = new Vector2[]
+            {
+                new Vector2(7f * div, 1f * div),
+                new Vector2(8f * div, 1f * div),
+                new Vector2(7f * div, 0f * div),
+                new Vector2(8f * div, 0f * div)
+            };
+
+            return output;
+        }
 
         string[] textureInfo = input.Split('_');
 
@@ -243,12 +285,13 @@ public class CubeFacesScript : MonoBehaviour {
         float yTop = (divisions - number) * div;
         float yBottom = (divisions - number - 1) * div;
 
-        Vector2[] output = new Vector2[]
+        //TODO see if taking out that comma on the 4th vector is okay
+        output = new Vector2[]
         {
             new Vector2(xLeft, yTop),
             new Vector2(xRight, yTop),
             new Vector2(xLeft, yBottom),
-            new Vector2(xRight, yBottom),
+            new Vector2(xRight, yBottom)
         };
 
         return output;

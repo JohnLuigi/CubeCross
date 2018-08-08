@@ -338,6 +338,7 @@ public class SliderScript : MonoBehaviour {
         // Figure out where to reset the time tracker
         // Reset the time tracker so it doesn't count to infinity
         //timeTracker = 0f;
+         
 
         
     }

@@ -207,6 +207,16 @@ Prefab:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 64108179727959114, guid: 62fc91e8459321343955fd120dbc8d92,
+        type: 2}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 65797844141336544, guid: 62fc91e8459321343955fd120dbc8d92,
+        type: 2}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 62fc91e8459321343955fd120dbc8d92, type: 2}
   m_IsPrefabAsset: 0
@@ -2169,6 +2179,13 @@ MonoBehaviour:
   rotateDelay: 0.2
   fullBuildCube: {fileID: 1006730939609724, guid: 62fc91e8459321343955fd120dbc8d92,
     type: 2}
+  lightGrayFaceCoords: []
+  darkGrayFaceCoords: []
+  redFaceCoords: []
+  colorWasChanged: 0
+  cubeHoveringOver: {fileID: 0}
+  lastFace: 
+  cubeCount: 0
 --- !u!4 &1446230620
 Transform:
   m_ObjectHideFlags: 0

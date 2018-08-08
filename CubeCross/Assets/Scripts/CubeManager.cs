@@ -2237,6 +2237,12 @@ public class CubeManager : MonoBehaviour {
                     cubeArray[inputLayer, i, j].SetActive(!hideValue);
                 }
             }
+
+            // Make sure all deleted cubes are not visible after updating layers
+            foreach (GameObject cube in deletedCubes)
+            {
+                cube.SetActive(false);
+            }
         }
     }
 
@@ -2265,6 +2271,12 @@ public class CubeManager : MonoBehaviour {
                     // Vice-versa for cubes to not be shown
                     cubeArray[i, j, inputLayer].SetActive(!hideValue);
                 }
+            }
+
+            // Make sure all deleted cubes are not visible after updating layers
+            foreach (GameObject cube in deletedCubes)
+            {
+                cube.SetActive(false);
             }
         }
     }
