@@ -143,6 +143,9 @@ public class CubeManager : MonoBehaviour {
     public Vector3 zSliderPosition;
     public int zLayerTracker;
 
+    private SliderScript xSliderScript;
+    private SliderScript zSliderScript;
+
     //private bool hidden = false;
 
     //private SliderScript sliderScriptRef;
@@ -412,7 +415,12 @@ public class CubeManager : MonoBehaviour {
         {
             //HideCubes(xSlider);
 
-            int layerMovement = UpdateHiddenLayers(xSlider);
+            // old slider checker
+            //int layerMovement = UpdateHiddenLayers(xSlider);
+
+            int layerMovement = CheckSliderPositions(xSlider);
+
+
             // If the xSlider movement was towards the cube
             if (layerMovement == -1)
             {
@@ -436,7 +444,11 @@ public class CubeManager : MonoBehaviour {
         {
             //HideCubes(zSlider);
 
-            int layerMovement = UpdateHiddenLayers(zSlider);
+            // Old Slider movement tracker
+            //int layerMovement = UpdateHiddenLayers(zSlider);
+
+            int layerMovement = CheckSliderPositions(zSlider);
+
             // If the movement was towards the cube
             if (layerMovement == 1)
             {
@@ -2142,10 +2154,14 @@ public class CubeManager : MonoBehaviour {
 
         xSlider.SetActive(true);
         // initialize the X Slider
-        SliderScript xScript = xSlider.GetComponent<SliderScript>();
-        xScript.Initialize();
+        xSliderScript = xSlider.GetComponent<SliderScript>();
+        xSliderScript.Initialize();
 
         xSliderUnitsMoved = 0;
+        // This value is initially the maximum layer to be shown. It is equal to the number of cubes in the
+        // puzzle in the X-Axis -1. I'm making it -1 so that the player first has to move the slider
+        // one unit until layers start being hidden.
+        // The X slider starts at halfCubeDist_X + 1 + colliderXDist
         xLayerTracker = 0;
         xSliderPosition = xSlider.transform.position;
 
@@ -2156,8 +2172,8 @@ public class CubeManager : MonoBehaviour {
 
         zSlider.SetActive(true);
         // initialize the Z Slider
-        SliderScript zScript = zSlider.GetComponent<SliderScript>();
-        zScript.Initialize();
+        zSliderScript = zSlider.GetComponent<SliderScript>();
+        zSliderScript.Initialize();
         
         zSliderUnitsMoved = 0;
         zLayerTracker = 0;
@@ -2398,5 +2414,106 @@ public class CubeManager : MonoBehaviour {
         return returnValue;
 
     }
+
+    // Method that updates whether the slider has hit a new position to show/hide layers.
+    public int CheckSliderPositions(GameObject slider)
+    {
+        int outputValue = 0;
+
+        if (slider.name == "XSlider")
+        {
+            // Get the last position it was at, rounded up one unit to hit whole integers.
+            Vector3 oldRelPos = this.transform.InverseTransformPoint(xSliderPosition);
+            // Round the distance of the slider from the center of the cube up one
+            // to get the next largest whole unit distance.
+            int oldDistance = Mathf.CeilToInt(oldRelPos.x);
+
+            // Get the new relative position of the input slider from the parent object (this script is
+            // attached to it).
+            Vector3 newRelPos = this.transform.InverseTransformPoint(slider.transform.position);
+            //Get the new position the slider is at, rounded up one unity to hit whole integers.
+            int newDistance = Mathf.CeilToInt(newRelPos.x);
+
+            /*
+            // Don't alter any layers unless the slider has moved more than one unit from
+            // its starting position.
+            if (newRelPos.x > Mathf.Floor(xSliderScript.originalLocation.transform.position.x - 1f))
+            {
+                // Update the tracker for the last slider position to the current position for future use.
+                xSliderPosition = slider.transform.position;
+                return 0;
+            }     
+            */
+
+            // If the new position is a set number of units higher than the last position,
+            // say that the slider has moved one unit closer to or further from the puzzle,
+            // which will correspond to a layer being hidden or shown.
+
+            // If the sldier moved AWAY FROM the cubes
+            if(newDistance > oldDistance)
+            {
+                outputValue = 1;
+            }
+            // If the slider moved TOWARDS the cubes
+            else if(newDistance < oldDistance)
+            {
+                outputValue = -1;
+            }
+
+            // Update the tracker for the last slider position to the current position for future use.
+            xSliderPosition = slider.transform.position;
+        }
+
+        else if (slider.name == "ZSlider")
+        {
+            // Get the last position it was at, rounded up one unit to hit whole integers.
+            Vector3 oldRelPos = this.transform.InverseTransformPoint(zSliderPosition);
+            // Round the distance of the slider from the center of the cube up one
+            // to get the next largest whole unit distance.
+            int oldDistance = Mathf.CeilToInt(oldRelPos.z);
+
+            // Get the new relative position of the input slider from the parent object (this script is
+            // attached to it).
+            Vector3 newRelPos = this.transform.InverseTransformPoint(slider.transform.position);
+            //Get the new position the slider is at, rounded up one unity to hit whole integers.
+            int newDistance = Mathf.CeilToInt(newRelPos.z);
+
+            // If the new position is a set number of units higher than the last position,
+            // say that the slider has moved one unit closer to or further from the puzzle,
+            // which will correspond to a layer being hidden or shown.
+
+            /*
+            // Don't alter any layers unless the slider has moved more than one unit from
+            // its starting position.
+            if (newRelPos.z < Mathf.Floor(zSliderScript.originalLocation.transform.position.z + 1f))
+            {
+                // Update the tracker for the last slider position to the current position for future use.
+                zSliderPosition = slider.transform.position;
+                return 0;
+            }
+            */
+
+            // These comparisons are reversed because the distances are measured on the 
+            // -Z axis.
+            // If the sldier moved AWAY FROM the cubes
+            if (newDistance < oldDistance)
+            {
+                outputValue = -1;
+            }
+            // If the slider moved TOWARDS the cubes
+            else if (newDistance > oldDistance)
+            {
+                outputValue = 1;
+            }
+
+            // Update the tracker for the last slider position to the current position for future use.
+            zSliderPosition = slider.transform.position;
+        }
+
+
+            return outputValue;
+    }
+
+
 
 }

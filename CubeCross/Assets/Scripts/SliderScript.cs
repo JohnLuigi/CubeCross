@@ -13,7 +13,7 @@ public class SliderScript : MonoBehaviour {
     private GameObject axisReference2;  // reference 2 will be at the same y-value as the center of the puzzle
     //public Vector3 yReference;
     private Plane movePlane;
-    private GameObject originalLocation;
+    public GameObject originalLocation;
 
     private Vector3 pointOnPlane;
     private bool unclicked = true;
@@ -37,6 +37,10 @@ public class SliderScript : MonoBehaviour {
     private GameObject puzzleSelector;  // reference to the puzzle selection UI element
 
     private bool puzzleInitialized = false;
+
+    // This value will store the Z distance for the x slider to always be at,
+    // or the X distance for the Z slider to always be at.
+    private float axisDistance;
     
     // TODO
     // update the uses of 8.5f as a starting distance for the sliders to be some function of
@@ -54,7 +58,7 @@ public class SliderScript : MonoBehaviour {
         if (name == "XSlider" && otherSlider == null)
         {
             otherSlider = GameObject.Find("ZSlider");
-        }        
+        }
 
     }
     //TODO
@@ -81,7 +85,8 @@ public class SliderScript : MonoBehaviour {
             return;
 
         // update the location of the intersecting plane each frame so that it's consistent with rotation
-        movePlane = new Plane(axisReference2.transform.position, transform.position, axisReference.transform.position);
+        movePlane = new Plane(axisReference2.transform.position, originalLocation.transform.position,
+            axisReference.transform.position);
 
         // if the left mouse button is held over the slider controller
         if (Input.GetMouseButton(0) && sliding == true)
@@ -107,7 +112,7 @@ public class SliderScript : MonoBehaviour {
                 // is located in comparison to the function's attached transform.
                 Vector3 pointRelative = parentObject.transform.InverseTransformPoint(pointOnPlane);
 
-                Debug.Log("Slider is " + pointRelative.x + "Units away from the puzzle");
+                //Debug.Log("Slider is " + pointRelative.x + "Units away from the puzzle");
 
                 float maxDistance = startingPoint.magnitude - halfCubeDist_X;
 
@@ -129,17 +134,33 @@ public class SliderScript : MonoBehaviour {
                 // TODO
                 // Make this distance possibly be equal to the mouse position - slider position
                 // so that it doesn't get a weird offset sometimes
-                Vector3 prevPosition = transform.position;
+                //Vector3 prevPosition = transform.position;
 
                 // Set the position of the slider to equal the point where the mouse
                 // intersects the plane along the respective side of the cube.
-                transform.position = pointOnPlane;
 
+                //Old method
+                //transform.position = pointOnPlane;
+
+                /*
+                if (name.Equals("XSlider"))
+                    transform.position = new Vector3(pointOnPlane.x, 0f, axisDistance);
+                if (name.Equals("ZSlider"))
+                    transform.position = new Vector3(axisDistance, 0f, pointOnPlane.z);
+                */
+                if (name.Equals("XSlider"))
+                    transform.localPosition = new Vector3(pointRelative.x, 0f, axisDistance);
+                if (name.Equals("ZSlider"))
+                    transform.localPosition = new Vector3(axisDistance, 0f, pointRelative.z);
+
+                //Debug.Log(transform.position);
+
+                /*
                 // Eliminate any vertical (y-axis) movement in relation to the cube.
                 // This forces it to only move towards or away from the cube.
                 transform.localPosition = 
                     new Vector3(transform.localPosition.x, 0f, transform.localPosition.z);
-
+                */
             }
         }// end of if GetMouseButton(0) aka LMB is being held down
 
@@ -270,6 +291,9 @@ public class SliderScript : MonoBehaviour {
             axisReference2.transform.position = new Vector3(-halfCubeDist_X, 0, halfCubeDist_Z + 1);
             axisReference2.transform.parent = parentObject.transform;
 
+            // The Z-axis distance the x slider will always remain from the center
+            axisDistance = halfCubeDist_Z + 1;
+
             otherSlider = GameObject.Find("ZSlider");
         }
         else if (gameObject.name == "ZSlider")
@@ -288,6 +312,9 @@ public class SliderScript : MonoBehaviour {
             axisReference2 = new GameObject { name = "ZSliderReference2" };
             axisReference2.transform.position = new Vector3(-halfCubeDist_X - 1, 0, halfCubeDist_Z);
             axisReference2.transform.parent = parentObject.transform;
+
+            // The X-axis distance the z slider will always remain from the center
+            axisDistance = -halfCubeDist_X - 1;
 
             otherSlider = GameObject.Find("XSlider");
         }
@@ -311,7 +338,14 @@ public class SliderScript : MonoBehaviour {
         // now we can run the Update() method
         puzzleInitialized = true;
 
+        /*
+        Debug.Log(name);
         Debug.Log("Starting Magnitude is: "+ startingPoint.magnitude);
+
+        Debug.Log(axisReference2.transform.position);
+        Debug.Log(axisReference.transform.position);
+        Debug.Log(originalLocation.transform.position);
+        */
     }
 
     public void ResetSliders()
@@ -357,4 +391,22 @@ public class SliderScript : MonoBehaviour {
         Gizmos.DrawSphere(oldPoint + new Vector3(-2, 0, 0), 0.5f);
     }
     */
+
+    /*
+    public void OnDrawGizmos()
+    {
+        if (!puzzleInitialized)
+            return;
+        Gizmos.color = Color.blue;
+        Gizmos.DrawLine(axisReference2.transform.position, originalLocation.transform.position);
+        Gizmos.DrawLine(originalLocation.transform.position, axisReference.transform.position);
+        Gizmos.DrawLine(axisReference.transform.position, axisReference2.transform.position);
+    
+
+
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawSphere(pointOnPlane, 1);
+    }
+    */
+
 }
