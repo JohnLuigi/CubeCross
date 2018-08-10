@@ -115,12 +115,17 @@ public class SliderScript : MonoBehaviour {
                 //Debug.Log("Slider is " + pointRelative.x + "Units away from the puzzle");
 
                 float maxDistance = startingPoint.magnitude - halfCubeDist_X;
+                if (name.Equals("ZSlider"))
+                {
+                    maxDistance = startingPoint.magnitude - halfCubeDist_Z;
+                    Debug.Log("Max Z Distance is: " + maxDistance);
+                }
 
                 // If the ZSlider is being used and 
                 // if the mouse point is not behind or at the puzzle center OR
                 // if the mouse point is too far behind the puzzle center (further than the starting point)
                 // don't move the slider.
-                if (name.Equals("ZSlider") && pointRelative.z >= 0f || pointRelative.z < -maxDistance)
+                    if (name.Equals("ZSlider") && pointRelative.z >= 0f || pointRelative.z < -maxDistance)
                     return;
 
                 // If the XSlider is being used and 
@@ -299,7 +304,7 @@ public class SliderScript : MonoBehaviour {
         else if (gameObject.name == "ZSlider")
         {
             // set the position of the sliders in relation to the main cube body
-            transform.position = new Vector3(-halfCubeDist_X - 1, 0, -halfCubeDist_Z -1 - colliderXDist);
+            transform.position = new Vector3(-halfCubeDist_X - 1, 0, -halfCubeDist_Z - 1 - colliderXDist);
             // fix the rotation when the sliders are moved to the positions in relation to the main cube body
             //transform.localEulerAngles = new Vector3(transform.localEulerAngles.x, -45f, transform.localEulerAngles.z);
 

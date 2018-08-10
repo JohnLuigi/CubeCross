@@ -146,6 +146,9 @@ public class CubeManager : MonoBehaviour {
     private SliderScript xSliderScript;
     private SliderScript zSliderScript;
 
+    private int maxVisibleXLayer;
+    private int maxVisibleZLayer;
+
     //private bool hidden = false;
 
     //private SliderScript sliderScriptRef;
@@ -413,37 +416,47 @@ public class CubeManager : MonoBehaviour {
         // Slider update handling block
         if(xSlider.GetComponent<SliderScript>().sliding == true)
         {
+            //Debug.Log(maxVisibleXLayer);
+            MasterLayerHider(xSlider);
             //HideCubes(xSlider);
+
 
             // old slider checker
             //int layerMovement = UpdateHiddenLayers(xSlider);
 
+            /*
             int layerMovement = CheckSliderPositions(xSlider);
 
+            // Let the layerMovement be equal to the difference in layers from the last frame layer
+            // difference.
 
             // If the xSlider movement was towards the cube
-            if (layerMovement == -1)
+            if (layerMovement < 0)
             {
-                xLayerToHide--;
+                // adding a negative value here
+                xLayerToHide += layerMovement;
                 xLayerToHide = Mathf.Clamp(xLayerToHide, 0, puzzleSize_X);
                 XLayerHiding(true, xLayerToHide);
             }
             // If the xSlider movement was away from the cube
-            else if (layerMovement == 1)
+            else if (layerMovement > 0)
             {                
                 XLayerHiding(false, xLayerToHide);
-                xLayerToHide++;
+                xLayerToHide += layerMovement;
                 xLayerToHide = Mathf.Clamp(xLayerToHide, 0, puzzleSize_X);
             }
 
             // After updating layers to be shown/hidden, see if the slider needs to be
             // clamped within its maximum and minimum distances.
             //xSlider.GetComponent<SliderScript>().CheckDistance();
+            */
         }
         else if(zSlider.GetComponent<SliderScript>().sliding == true)
         {
             //HideCubes(zSlider);
+            MasterLayerHider(zSlider);
 
+            /*
             // Old Slider movement tracker
             //int layerMovement = UpdateHiddenLayers(zSlider);
 
@@ -467,6 +480,7 @@ public class CubeManager : MonoBehaviour {
             // After updating layers to be shown/hidden, see if the slider needs to be
             // clamped within its maximum and minimum distances.
             //zSlider.GetComponent<SliderScript>().CheckDistance();
+            */
         }
         
         // increase zlayertohide by one
@@ -1560,8 +1574,8 @@ public class CubeManager : MonoBehaviour {
     // At specific distances, hide the corresponding 
     private void HideCubes(GameObject inSlider)
     {
-        // the furthest point from the slider is half the size of the puzzle, minus 0.5 (due to width of the cubes)
-        // in the opposide direction of the center
+        // the furthest point from the slider is half the size of the puzzle, minus 0.5
+        //(due to width of the cubes) in the opposide direction of the center
 
         Vector3 sliderFromEdgeVector = Vector3.zero;
         // TODO 
@@ -2144,6 +2158,11 @@ public class CubeManager : MonoBehaviour {
         // default the xLayer to hide to be at the maximum layer
         xLayerToHide = puzzleSize_X;
 
+        // Start the puzzle with the maximum respective layers being shown (all layers closer to the center
+        // than this layer are also shown).
+        maxVisibleXLayer = puzzleSize_X - 1;
+        maxVisibleZLayer = 0;   // Z Starts at 0 because the furthest index in the -z direction is 0
+
         puzzleBounds = new Bounds(cubeArray[0, 0, 0].transform.position, Vector3.zero);
         UpdateBounds();
 
@@ -2164,6 +2183,9 @@ public class CubeManager : MonoBehaviour {
         // The X slider starts at halfCubeDist_X + 1 + colliderXDist
         xLayerTracker = 0;
         xSliderPosition = xSlider.transform.position;
+        //Debug.Log("Initial slider XPosition is " + xSliderPosition.x);
+        //Debug.Log("Initial relative slider XPosition is " +
+        //   transform.InverseTransformPoint(xSliderPosition).x);
 
         // reference for the edge of the puzzle for the ZSlider
         sliderReferenceZ = new GameObject { name = "SliderReferenceZ" };
@@ -2231,7 +2253,8 @@ public class CubeManager : MonoBehaviour {
         //Gizmos.DrawBox(puzzleBounds.center, puzzleBounds.size + new Vector3(0.9f, 0.9f, 0.9f), Color.red);
     }
 
-    // hide the cubes in layer inputLayer
+    // Show/Hide the cubes in layer inputLayer
+    // Input true to hide layers, input false to show layers
     public void ZLayerHiding(bool hideValue, int inputLayer)
     {
         // cubeArray dimensions are [z,y,x]
@@ -2263,6 +2286,7 @@ public class CubeManager : MonoBehaviour {
     }
 
     // Version of the layer hiding for the xSlider
+    // Input true to hide layers, input false to show layers
     public void XLayerHiding(bool hideValue, int inputLayer)
     {
         // cubeArray dimensions are [z,y,x]
@@ -2416,6 +2440,9 @@ public class CubeManager : MonoBehaviour {
     }
 
     // Method that updates whether the slider has hit a new position to show/hide layers.
+    // This function will provide the difference in units from its last frame position.
+    // It returns the difference in units, if it returns 0, the slider hasn't moved to the next
+    // position required to hide a layer.
     public int CheckSliderPositions(GameObject slider)
     {
         int outputValue = 0;
@@ -2452,12 +2479,14 @@ public class CubeManager : MonoBehaviour {
             // If the sldier moved AWAY FROM the cubes
             if(newDistance > oldDistance)
             {
-                outputValue = 1;
+                outputValue = newDistance - oldDistance;
+                //outputValue = 1;
             }
             // If the slider moved TOWARDS the cubes
             else if(newDistance < oldDistance)
             {
-                outputValue = -1;
+                outputValue = newDistance - oldDistance;
+                //outputValue = -1;
             }
 
             // Update the tracker for the last slider position to the current position for future use.
@@ -2512,6 +2541,127 @@ public class CubeManager : MonoBehaviour {
 
 
             return outputValue;
+    }
+
+    // Give a slider and the highest layer that should be shown
+    // Use XLayerHiding to hide all layers greater than the input layer for xSlider.
+    // Use ZLayerHiding to hide all layers greater than the input layer for zSlider.
+    public void MasterLayerHider(GameObject slider)
+    {
+        if(slider.name.Equals("XSlider"))
+        {
+
+            // Get the last position it was at, rounded up one unit to hit whole integers.
+            Vector3 oldRelativePosition = this.transform.InverseTransformPoint(xSliderPosition);
+            // Round the distance of the slider from the center of the cube up one
+            // to get the next largest whole unit distance.
+            int oldPosition = Mathf.CeilToInt(oldRelativePosition.x);
+
+            // Get the new relative position of the input slider from the parent object (this script is
+            // attached to it).
+            Vector3 currentRelativePosition = this.transform.InverseTransformPoint(slider.transform.position);
+
+            //Get the new position the slider is at, rounded up one unit to hit whole integers.
+            int currentPosition = Mathf.CeilToInt(currentRelativePosition.x);
+
+            // Record the change in whole units from last frame to the new frame
+            // This is necessary if the slider is moved very quickly.
+            int layerChange = currentPosition - oldPosition;
+
+            int newMaxLayer = maxVisibleXLayer + layerChange;
+            newMaxLayer = Mathf.Clamp(newMaxLayer, 0, puzzleSize_X - 1);
+
+            // Compare the current layer position to the stored position
+            // If it is greater than the stored position, show the layers that are
+            // between these two positions.
+            if (maxVisibleXLayer < newMaxLayer)
+            {
+                HideOrShowLayers(false, maxVisibleXLayer, newMaxLayer, "XSlider");
+                // After showing necessary layers, store the new max visible layer reached.
+                maxVisibleXLayer = newMaxLayer;
+            }
+
+            // If it is less than the stored position, hide the layers that are 
+            // between these two positions.
+            if (maxVisibleXLayer > newMaxLayer)
+            {
+                HideOrShowLayers(true, newMaxLayer, maxVisibleXLayer, "XSlider");
+                // After showing necessary layers, store the new max visible layer reached.
+                maxVisibleXLayer = newMaxLayer;
+            }
+
+            // Update the tracker for the last slider position to the current position for future use.
+            xSliderPosition = slider.transform.position;
+
+        }
+
+        else if (slider.name.Equals("ZSlider"))
+        {
+
+            // Get the last position it was at, rounded up one unit to hit whole integers.
+            Vector3 oldRelativePosition = this.transform.InverseTransformPoint(zSliderPosition);
+            // Round the distance of the slider from the center of the cube up one
+            // to get the next largest whole unit distance.
+            int oldPosition = Mathf.CeilToInt(oldRelativePosition.z);
+
+            // Get the new relative position of the input slider from the parent object (this script is
+            // attached to it).
+            Vector3 currentRelativePosition = this.transform.InverseTransformPoint(slider.transform.position);
+
+            //Get the new position the slider is at, rounded up one unit to hit whole integers.
+            int currentPosition = Mathf.CeilToInt(currentRelativePosition.z);
+
+            // Record the change in whole units from last frame to the new frame
+            // This is necessary if the slider is moved very quickly.
+            int layerChange = currentPosition - oldPosition;            
+
+            int newMaxLayer = maxVisibleZLayer + layerChange;
+            newMaxLayer = Mathf.Clamp(newMaxLayer, 0, puzzleSize_Z - 1);
+
+            // Compare the current layer position to the stored position
+            // If it is greater than the stored position, hide the layers that are
+            // between these two positions.
+            if (maxVisibleZLayer < newMaxLayer)
+            {
+                HideOrShowLayers(true, maxVisibleZLayer, newMaxLayer, "ZSlider");
+                // After showing necessary layers, store the new max visible layer reached.
+                maxVisibleZLayer = newMaxLayer;
+            }
+
+            // If it is less than the stored position, show the layers that are 
+            // between these two positions.
+            if (maxVisibleZLayer > newMaxLayer)
+            {
+                HideOrShowLayers(false, newMaxLayer, maxVisibleZLayer, "ZSlider");
+                // After showing necessary layers, store the new max visible layer reached.
+                maxVisibleZLayer = newMaxLayer;
+            }
+
+            // Update the tracker for the last slider position to the current position for future use.
+            zSliderPosition = slider.transform.position;
+
+        }
+    }
+
+    // This allows multiple layers to be hidden or shown, from the input min and max layers, inclusive.
+    // If true is input, layers are hidden. If false is input, layers are shown.
+    public void HideOrShowLayers(bool action, int minLayer, int maxLayer, string slider)
+    {
+        if(slider.Equals("XSlider"))
+        {
+            for (int i = minLayer + 1; i <= maxLayer; i++)
+            {
+                XLayerHiding(action, i);
+            }
+        }
+        else if (slider.Equals("ZSlider"))
+        {
+            for (int i = minLayer; i < maxLayer; i++)
+            {
+                ZLayerHiding(action, i);
+            }
+        }
+
     }
 
 

@@ -222,8 +222,6 @@ public class BuilderScript : MonoBehaviour {
                 // Set the color change tracker to true since a color on some cube was altered, 
                 // and thus needs to be undone if no cube is being hovered over in the future (else below).
                 colorWasChanged = true;
-
-                Debug.Log("color was changed.");
             }
         } // end of raycast hit block
 
