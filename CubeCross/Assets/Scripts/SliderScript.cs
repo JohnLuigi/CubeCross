@@ -97,6 +97,7 @@ public class SliderScript : MonoBehaviour {
             {
                 //Vector3 pointOnPlane = ray.origin + (ray.direction * newDistance);
                 pointOnPlane = ray.GetPoint(newDistance);
+                otherSlider.SetActive(false);
             }
 
             // The first movement where the slider hasn't been interacted with
@@ -115,26 +116,45 @@ public class SliderScript : MonoBehaviour {
                 //Debug.Log("Slider is " + pointRelative.x + "Units away from the puzzle");
 
                 float maxDistance = startingPoint.magnitude - halfCubeDist_X;
+                float minDistance = -halfCubeDist_X;
                 if (name.Equals("ZSlider"))
                 {
                     maxDistance = startingPoint.magnitude - halfCubeDist_Z;
-                    Debug.Log("Max Z Distance is: " + maxDistance);
+
+                    minDistance = halfCubeDist_Z;
                 }
 
                 // If the ZSlider is being used and 
                 // if the mouse point is not behind or at the puzzle center OR
                 // if the mouse point is too far behind the puzzle center (further than the starting point)
                 // don't move the slider.
-                    if (name.Equals("ZSlider") && pointRelative.z >= 0f || pointRelative.z < -maxDistance)
+                if (name.Equals("ZSlider") && pointRelative.z >= minDistance)
+                {
                     return;
+                }                   
+
+                // if we have hit the limit for the maxDistance, reset the sliders
+                if (name.Equals("ZSlider") && pointRelative.z < -maxDistance)
+                {
+                    ResetSliders();
+                    return;
+                }
 
                 // If the XSlider is being used and 
                 // if the mouse point is not to the left or at the puzzle center OR
                 // if the mouse point is too far to the right of the puzzle center
                 // (further than the starting point)
                 // don't move the slider.
-                if (name.Equals("XSlider") && pointRelative.x <= 0f || pointRelative.x > maxDistance)
+                if (name.Equals("XSlider") && pointRelative.x <= minDistance)
+                {                    
                     return;
+                }
+                // If we hit the limit for maxDistance, reset the sliders
+                if(name.Equals("XSlider") && pointRelative.x > maxDistance)
+                {
+                    ResetSliders();
+                    return;
+                }
 
                 // TODO
                 // Make this distance possibly be equal to the mouse position - slider position
@@ -371,7 +391,7 @@ public class SliderScript : MonoBehaviour {
         // reset the xSlider attributes in the game manager
         parentManager.xLayerToHide = parentManager.puzzleSize_X;
         parentManager.xSliderUnitsMoved = 0;
-        parentManager.xLayerTracker = 0;
+        parentManager.xLayerTracker = 0;        
 
         //TODO
         // Figure out where to reset the time tracker
