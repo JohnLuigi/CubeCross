@@ -298,7 +298,9 @@ public class CubeManager : MonoBehaviour {
         //managerReference.transform.rotation = transform.rotation;
     }
 
-	public void Update () {        
+	public void Update () {
+
+        Debug.Log(maxVisibleZLayer);
 
         // show/hide the menu when the escape key is pressed
         if (Input.GetKeyUp(KeyCode.Escape))
@@ -2602,14 +2604,14 @@ public class CubeManager : MonoBehaviour {
             Vector3 oldRelativePosition = this.transform.InverseTransformPoint(zSliderPosition);
             // Round the distance of the slider from the center of the cube up one
             // to get the next largest whole unit distance.
-            int oldPosition = Mathf.CeilToInt(oldRelativePosition.z);
+            int oldPosition = Mathf.FloorToInt(oldRelativePosition.z);
 
             // Get the new relative position of the input slider from the parent object (this script is
             // attached to it).
             Vector3 currentRelativePosition = this.transform.InverseTransformPoint(slider.transform.position);
 
             //Get the new position the slider is at, rounded up one unit to hit whole integers.
-            int currentPosition = Mathf.CeilToInt(currentRelativePosition.z);
+            int currentPosition = Mathf.FloorToInt(currentRelativePosition.z);
 
             // Record the change in whole units from last frame to the new frame
             // This is necessary if the slider is moved very quickly.
