@@ -1670,7 +1670,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 100000, guid: dee4a1ec85e2d4741b183bfcc3e791dc, type: 3}
       propertyPath: m_TagString
-      value: Slider
+      value: XSlider
       objectReference: {fileID: 0}
     - target: {fileID: 9500000, guid: dee4a1ec85e2d4741b183bfcc3e791dc, type: 3}
       propertyPath: m_Enabled
@@ -1708,8 +1708,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9fe77067584de2748805a51edfafc009, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  originalLocation: {fileID: 0}
   sliding: 0
-  otherSlider: {fileID: 0}
+  otherSlider: {fileID: 1290028240}
   distanceInt: 0
 --- !u!65 &1240479058
 BoxCollider:
@@ -1942,7 +1943,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 100000, guid: dee4a1ec85e2d4741b183bfcc3e791dc, type: 3}
       propertyPath: m_TagString
-      value: Slider
+      value: ZSlider
       objectReference: {fileID: 0}
     - target: {fileID: 9500000, guid: dee4a1ec85e2d4741b183bfcc3e791dc, type: 3}
       propertyPath: m_Enabled
@@ -1980,8 +1981,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9fe77067584de2748805a51edfafc009, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  originalLocation: {fileID: 0}
   sliding: 0
-  otherSlider: {fileID: 0}
+  otherSlider: {fileID: 1240479056}
   distanceInt: 0
 --- !u!65 &1290028242
 BoxCollider:

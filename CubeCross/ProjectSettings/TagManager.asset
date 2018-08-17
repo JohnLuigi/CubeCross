@@ -9,6 +9,7 @@ TagManager:
   - XSlider
   - Slider
   - BuildCube
+  - ZSlider
   layers:
   - Default
   - TransparentFX

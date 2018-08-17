@@ -300,7 +300,7 @@ public class CubeManager : MonoBehaviour {
 
 	public void Update () {
 
-        Debug.Log(maxVisibleZLayer);
+        //Debug.Log(maxVisibleZLayer);
 
         // show/hide the menu when the escape key is pressed
         if (Input.GetKeyUp(KeyCode.Escape))
@@ -2604,14 +2604,14 @@ public class CubeManager : MonoBehaviour {
             Vector3 oldRelativePosition = this.transform.InverseTransformPoint(zSliderPosition);
             // Round the distance of the slider from the center of the cube up one
             // to get the next largest whole unit distance.
-            int oldPosition = Mathf.FloorToInt(oldRelativePosition.z);
+            int oldPosition = Mathf.CeilToInt(oldRelativePosition.z);
 
             // Get the new relative position of the input slider from the parent object (this script is
             // attached to it).
             Vector3 currentRelativePosition = this.transform.InverseTransformPoint(slider.transform.position);
 
             //Get the new position the slider is at, rounded up one unit to hit whole integers.
-            int currentPosition = Mathf.FloorToInt(currentRelativePosition.z);
+            int currentPosition = Mathf.CeilToInt(currentRelativePosition.z);
 
             // Record the change in whole units from last frame to the new frame
             // This is necessary if the slider is moved very quickly.
@@ -2620,14 +2620,17 @@ public class CubeManager : MonoBehaviour {
             int newMaxLayer = maxVisibleZLayer + layerChange;
             newMaxLayer = Mathf.Clamp(newMaxLayer, 0, puzzleSize_Z - 1);
 
+
             // Compare the current layer position to the stored position
             // If it is greater than the stored position, hide the layers that are
             // between these two positions.
             if (maxVisibleZLayer < newMaxLayer)
             {
                 HideOrShowLayers(true, maxVisibleZLayer, newMaxLayer, "ZSlider");
-                // After showing necessary layers, store the new max visible layer reached.
+
+                // After hiding the necessary layers, store the new max visible layer reached.
                 maxVisibleZLayer = newMaxLayer;
+                    
             }
 
             // If it is less than the stored position, show the layers that are 
@@ -2635,6 +2638,7 @@ public class CubeManager : MonoBehaviour {
             if (maxVisibleZLayer > newMaxLayer)
             {
                 HideOrShowLayers(false, newMaxLayer, maxVisibleZLayer, "ZSlider");
+
                 // After showing necessary layers, store the new max visible layer reached.
                 maxVisibleZLayer = newMaxLayer;
             }
@@ -2658,7 +2662,7 @@ public class CubeManager : MonoBehaviour {
         }
         else if (slider.Equals("ZSlider"))
         {
-            for (int i = minLayer; i < maxLayer; i++)
+            for (int i = minLayer - 1; i < maxLayer; i++)
             {
                 ZLayerHiding(action, i);
             }

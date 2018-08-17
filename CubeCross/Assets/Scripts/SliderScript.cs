@@ -48,19 +48,40 @@ public class SliderScript : MonoBehaviour {
 
 
     // Use this for initialization
-    void Start ()
+    public void Start()
     {
         puzzleSelector = GameObject.Find("PuzzleSelector");
+
+        /*
+        if (name == "XSlider")
+        {
+            otherSlider = GameObject.FindGameObjectWithTag("ZSlider");
+        }
+        if (name == "ZSlider")
+        {
+            otherSlider = GameObject.FindGameObjectWithTag("XSlider");
+        }
+        */
 
         // initially hide the slider until it is activated when the puzzle is created
         gameObject.SetActive(false);
 
-        if (name == "XSlider" && otherSlider == null)
-        {
-            otherSlider = GameObject.Find("ZSlider");
-        }
-
     }
+
+    /*
+    public void Awake()
+    {
+        if (name == "XSlider")
+        {
+            otherSlider = GameObject.FindGameObjectWithTag("ZSlider");
+        }
+        if (name == "ZSlider")
+        {
+            otherSlider = GameObject.FindGameObjectWithTag("XSlider");
+        }
+    }
+    */
+
     //TODO
     // Make the other slider reappear when the slider being used is returned to its starting position
 
@@ -276,12 +297,18 @@ public class SliderScript : MonoBehaviour {
             // Hide the other slider as soon as the left mouse button is clicked
             if(Input.GetMouseButtonDown(0))
             {
+                //TODO
+                // Figure out why these two lines are needed to stop the XSlider from
+                // throwing an exception when trying to use the xSlider.
+                // It seems that at some point, the XSlider's otherSlider value is set to null
+                // but I'm not sure where.
+
                 if (name == "XSlider" && otherSlider == null)
-                    otherSlider = GameObject.Find("ZSlider");
+                    otherSlider = GameObject.FindGameObjectWithTag("ZSlider");
 
                 sliding = true;
-
-                otherSlider.SetActive(false);
+                if(otherSlider != null)
+                    otherSlider.SetActive(false);
             }
 
             if (Input.GetMouseButtonUp(0))
@@ -319,7 +346,7 @@ public class SliderScript : MonoBehaviour {
 
         // set the reference point to be used to define the plane that will contain the slider
         // also set the starting position of the slider
-        if (gameObject.name == "XSlider")
+        if (name.Equals("XSlider"))
         {
             // set the position of the sliders in relation to the main cube body
             transform.position = new Vector3(halfCubeDist_X + 1 + colliderXDist, 0, halfCubeDist_Z + 1);
@@ -339,9 +366,10 @@ public class SliderScript : MonoBehaviour {
             // The Z-axis distance the x slider will always remain from the center
             axisDistance = halfCubeDist_Z + 1;
 
-            otherSlider = GameObject.Find("ZSlider");
+            //otherSlider = GameObject.Find("ZSlider");
+            otherSlider = GameObject.FindGameObjectWithTag("ZSlider");
         }
-        else if (gameObject.name == "ZSlider")
+        else if (name.Equals("ZSlider"))
         {
             // set the position of the sliders in relation to the main cube body
             transform.position = new Vector3(-halfCubeDist_X - 1, 0, -halfCubeDist_Z - 1 - colliderXDist);
@@ -361,7 +389,8 @@ public class SliderScript : MonoBehaviour {
             // The X-axis distance the z slider will always remain from the center
             axisDistance = -halfCubeDist_X - 1;
 
-            otherSlider = GameObject.Find("XSlider");
+            //otherSlider = GameObject.Find("XSlider");
+            otherSlider = GameObject.FindGameObjectWithTag("XSlider");
         }
 
 
