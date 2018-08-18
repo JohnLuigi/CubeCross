@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class BuilderScript : MonoBehaviour {
 
@@ -21,7 +22,10 @@ public class BuilderScript : MonoBehaviour {
     private float cameraDistance = -11f;
     private float scrollSpeed = 4.0f;
 
-    public GameObject fullBuildCube;
+    // This object will be set via the inspector by dragging in the buildCube Prefab.
+    public GameObject originalCube;
+    // Reference to the first building cube that is the seed for the puzzle.
+    private GameObject fullBuildCube;
     private Vector3 newSpot;        // Vector3 that will be based on the cube that was clicked to set a new cube's spot
     private GameObject newCube;     // newCube that will be instantiated as the player adds more cubes to the puzzle
                                     //private Vector3 startingPoint = new Vector3(0f, 0f, 0f);
@@ -44,6 +48,13 @@ public class BuilderScript : MonoBehaviour {
     // The number of cubes that has been placed
     public int cubeCount;
 
+    // Tracker for whether we are deleting or adding cubes
+    public bool deletingCubes;
+    // String that holds the text to be used to indicate whether we are adding or deleting cubes
+    public string tempBuildText;
+    // Text object that will display whether cubes are being added or deleted 
+    private Text buildStatusObject;
+
 
 
 
@@ -57,7 +68,17 @@ public class BuilderScript : MonoBehaviour {
 
         colorWasChanged = false;
 
-        fullBuildCube = GameObject.Find("BuildCube");
+        deletingCubes = false;  // The default for build mode is to add cubes.
+        tempBuildText = "Adding";    // The default for build mode is to add cubes.
+        
+        // Create the first cube at 0,0,0 and with 0 rotation.
+        fullBuildCube = Instantiate(originalCube, Vector3.zero, Quaternion.identity) as GameObject;
+        // Parent the starting cube to the manager so it can be rotated with the puzzle.
+        fullBuildCube.transform.parent = gameObject.transform;
+        // The first cube gets the name "BuildCube0"
+        fullBuildCube.name = "BuildCube" + cubeCount;
+
+        // Hide the original Cube after it was copied
 
         CubeFacesScript faceScript = fullBuildCube.GetComponent<CubeFacesScript>();
 
@@ -84,6 +105,10 @@ public class BuilderScript : MonoBehaviour {
 
         faceScript.SetAllVertices(lightGrayFaceCoords);
 
+        // set the reference to the buildStatusText object
+        buildStatusObject = GameObject.Find("FlagStatusText").GetComponent<Text>();
+        buildStatusObject.text = tempBuildText;
+
     }
 
     // Update is called once per frame
@@ -102,45 +127,76 @@ public class BuilderScript : MonoBehaviour {
             {
                 if (hit.transform.gameObject.tag == "BuildCube")
                 {
-                    /* Triangle indices for each cube face
-                     * front = 4,5
-                     * right = 10,11
-                     * top = 2,3
-                     * back = 0,1
-                     * left = 8,9
-                     * bottom = 6,7
-                     */
+                    // if we are deleting cubes
+                    if(deletingCubes)
+                    {
+                        //TODO
+                        // Add possible undo queue adding of cubes that were deleted here.
 
-                    // if the front was clicked
-                    
-                    //Quaternion buildRotation = Quaternion.Euler(hit.normal.x, hit.normal.y, hit.normal.z);
+                        // If there is only one cube left (if cubeCount is 0), don't delete the cube.
+                        // AKA this if statement won't be reached.
+                        if(cubeCount >= 1)
+                        {
+                            // Delete the cube
+                            Destroy(hit.transform.gameObject);
+                            // Reduce the count of cubes by 1 since a cube was deleted.
+                            cubeCount--;
+                        }
+                        
 
-                    // This is one unit away from the clicked cube, in the direction of
-                    // the normal of the face that was clicked on.
-                    newSpot = hit.transform.position + (hit.normal.normalized * 1.0f);
+                        // TODO
+                        // update puzzle bounds here
 
-                    newCube = Instantiate(fullBuildCube, newSpot, hit.transform.rotation) as GameObject;
+                        return;
 
-                    newCube.transform.parent = gameObject.transform;
+                        
+                    }
+                    // if we are set to add cubes (deleteCubes == false)
+                    else if(!deletingCubes)
+                    {
+                        // This is one unit away from the clicked cube, in the direction of
+                        // the normal of the face that was clicked on.
+                        newSpot = hit.transform.position + (hit.normal.normalized * 1.0f);
 
-                    // Icrement the number of cubes built by 1, and name the cube based on that number
-                    cubeCount++;
-                    newCube.name = "BuildCube" + cubeCount;
+                        newCube = Instantiate(originalCube, newSpot, hit.transform.rotation) as GameObject;
 
-                    // TODO
-                    // Set the Faces of the cube to be light or dark gray (alternating)
+                        newCube.transform.parent = gameObject.transform;
+
+                        // Icrement the number of cubes built by 1, and name the cube based on that number
+                        cubeCount++;
+                        newCube.name = "BuildCube" + cubeCount;
+
+                        // TODO
+                        // Set the Faces of the cube to be light or dark gray (alternating)
 
 
-                    // TODO
-                    // Store each cube that was made in a list.
-                    // This list will eventually be saved as a puzzle solution.
+                        // TODO
+                        // Store each cube that was made in a list.
+                        // This list will eventually be saved as a puzzle solution.
+                    }
 
-                    // way to set the rotation of an object
-                    //Quaternion.LookRotation(-hit.normal.normalized)
-                    
-                }
-            }
+
+                }// end of if tag == "buildingCube"
+            }// end of if raycast
+        }// end of if GetMouseButtonUp(0)
+
+        // If the player presses the Space key, change the status of the deletingCubes
+        //variable to its opposite so it toggles between deleting cubes and adding cubes.
+        if (Input.GetKeyUp(KeyCode.Space))
+        {
+            deletingCubes = !deletingCubes;
+
+            // If set to deleting cubes, make the text show deleting.
+            if (deletingCubes)
+                tempBuildText = "Deleting";
+            // If set to not deleting cubes, make the text show adding.
+            else
+                tempBuildText = "Adding";
+
+            // Update the text of the build status object.
+            buildStatusObject.text = tempBuildText;
         }
+
 
         // if the RMB is being continuously held down, rotate the entire puzzle about the average center of itself
         if (Input.GetMouseButton(1))
@@ -235,6 +291,10 @@ public class BuilderScript : MonoBehaviour {
             // color change of the last hit cube.
             if (colorWasChanged)
             {
+                // If the cube that was being hovered over no longer exists (was deleted) do no more.
+                if (cubeHoveringOver == null)
+                    return;
+
                 // TODO set this to be light or dark gray
                 cubeHoveringOver.GetComponent<CubeFacesScript>().SetAllVertices(lightGrayFaceCoords);
 
@@ -250,9 +310,9 @@ public class BuilderScript : MonoBehaviour {
 
 
 
-                // Camera zoom block
-                // update cameraDistance based on how the scroll wheel is being used
-                cameraDistance += Input.GetAxis("Mouse ScrollWheel") * scrollSpeed;
+        // Camera zoom block
+        // update cameraDistance based on how the scroll wheel is being used
+        cameraDistance += Input.GetAxis("Mouse ScrollWheel") * scrollSpeed;
         cameraDistance = Mathf.Clamp(cameraDistance, cameraDistanceMax, cameraDistanceMin);
 
         // set the camera's z value based on the updated cameraDistance
@@ -294,3 +354,18 @@ public class BuilderScript : MonoBehaviour {
     }
 
 }
+
+
+/* Triangle indices for each cube face
+                     * front = 4,5
+                     * right = 10,11
+                     * top = 2,3
+                     * back = 0,1
+                     * left = 8,9
+                     * bottom = 6,7
+                     */
+
+
+
+// way to set the rotation of an object
+//Quaternion.LookRotation(-hit.normal.normalized)
