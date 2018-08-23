@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using System.IO;
 
 public class BuilderScript : MonoBehaviour {
 
@@ -108,6 +109,31 @@ public class BuilderScript : MonoBehaviour {
         // set the reference to the buildStatusText object
         buildStatusObject = GameObject.Find("FlagStatusText").GetComponent<Text>();
         buildStatusObject.text = tempBuildText;
+
+        /*
+        // Stuff regarding file IO
+        string fileName = "TestJSON.json";
+        string filePath = Path.Combine(Application.streamingAssetsPath, fileName);
+
+        // Check if the file exists at a location before attempting to read from it.
+        if (File.Exists(filePath))
+        {
+            Debug.Log(fileName + " exists in the streamingAssetsPath");
+
+            // Use this to read all the text in a JSON file as one string.
+            string dataAsJson = File.ReadAllText(filePath);
+
+            // Take this string and deserialize it as a game data object
+            //GameData loadedData = JsonUtility.FromJson<GameData>(dataAsJson);
+            
+            // use JsonUtility.ToJson to write an object as Json
+        }
+        // If the object is not there, an error is thrown so report it.
+        else
+        {
+            Debug.LogError("Cannot load game data!");
+        }
+        */
 
     }
 
