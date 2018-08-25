@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using System.IO;
+using System;
+using UnityEditor;
 
 public class BuilderScript : MonoBehaviour {
 
@@ -56,12 +58,17 @@ public class BuilderScript : MonoBehaviour {
     // Text object that will display whether cubes are being added or deleted 
     private Text buildStatusObject;
 
+    public string puzzleSaveName;
+
+    private UIManagerScript uiManager;
 
 
 
 
 
     void Start () {
+
+        uiManager = GameObject.Find("UIManager").GetComponent<UIManagerScript>();
 
         // the game starts at 1 cubes having been built (index 0)
         cubeCount = 0;
@@ -223,6 +230,14 @@ public class BuilderScript : MonoBehaviour {
             buildStatusObject.text = tempBuildText;
         }
 
+        // If the s key is pressed, save a JSON file
+        if(Input.GetKeyUp(KeyCode.S))
+        {
+            // TODO
+            // Call the method that shows a text input field to name the puzzle.
+            uiManager.DisplayTextInputField();
+        }
+
 
         // if the RMB is being continuously held down, rotate the entire puzzle about the average center of itself
         if (Input.GetMouseButton(1))
@@ -377,6 +392,107 @@ public class BuilderScript : MonoBehaviour {
         // Rotate the puzzle around the Y axis horizontally, there is no clamping of this rotation.
         transform.Rotate(Vector3.up, horizontalRot);
 
+    }
+
+    // Test script for making a JSON file
+    public void MakePuzzle()
+    {
+        // Initialize the list of the objects that will store the cube coordinates.
+        // This list will equal the list that is being updated as new cubes are added/deleted
+        // while in build mode.
+        List<PuzzleUnit> puzzleUnitList = new List<PuzzleUnit>();
+
+        // Add a few dummy puzzle cubes to try reading from the file.
+        puzzleUnitList.Add( new PuzzleUnit
+        {
+            xIndex = 4,
+            yIndex = 5,
+            zIndex = 6
+        });
+
+        puzzleUnitList.Add(new PuzzleUnit
+        {
+            xIndex = 7,
+            yIndex = 8,
+            zIndex = 9
+        });
+
+        // If you need to clear the list, use:
+        // puzzleUnitList.Clear();
+
+        // Create a sample puzzleSolution
+        PuzzleSolution puzzleSoln = new PuzzleSolution
+        {
+            xDimension = 1,
+            yDimension = 2,
+            zDimension = 3,
+            canEdit = true,
+            puzzleUnits = puzzleUnitList
+        };
+
+        // Create a JSON file and write the newly created puzzleSolution to it
+
+        // The standard filename in case the inputField didn't work.
+        string fileName = "Default_Puzzle_Name.json";
+
+        // If the puzzleSaveName has been set, change it to the updated puzzlesaveName
+        // via the SetPuzzleName function that was called externally.
+        if(!puzzleSaveName.Equals(""))
+        {
+            // Save the string that was entered by the user.
+            fileName = puzzleSaveName + ".json";
+        }
+        
+        // The path to the file (will be in the StreamingAssets folder)
+        string filePath = Path.Combine(Application.streamingAssetsPath, fileName);
+
+        
+        // See if the file exists.
+        // If it does, ask the player if they want to overwrite the file.        
+        if(File.Exists(filePath))
+        {
+            //TODO
+            // Ask the player if they want to overwrite the file.
+            Debug.Log("Ask if they want to overwrite here.");
+            //TODO
+            // Show an option to overwrite the existing file
+            // Yes          |               No
+            // If no, bring back the text input.
+            // If yes, call the same function below
+        }
+        // If the file does not exist, create a new file
+        else
+        {
+            SavePuzzle(filePath, puzzleSoln);
+        }
+
+        /*
+        // Check if a puzzleSolution with the same name already exists or not.
+        FileInfo fileInfo = new FileInfo(filePath);
+        */
+        
+
+
+
+
+    }
+
+    public void SetPuzzleName(string inputString)
+    {
+        puzzleSaveName = inputString;
+    }
+
+    public void SavePuzzle(string filePath, PuzzleSolution puzzleSoln)
+    {
+        // Create a string that is made from the PuzzleSolution object
+        string jsonString = JsonUtility.ToJson(puzzleSoln);
+        // Write the json string to the file.
+        File.WriteAllText(filePath, jsonString);
+
+        // Call the function that shows the puzzle save confirmation text on UIManager.
+        uiManager.StartSavedTextTimer();
+
+        AssetDatabase.Refresh();
     }
 
 }

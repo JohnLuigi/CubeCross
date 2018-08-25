@@ -17,6 +17,11 @@ public class UIManagerScript : MonoBehaviour {
 
     private GameObject buildingManager;
 
+    private GameObject inputField;
+    private GameObject puzzleSavedText;
+    private float savedTextTimer = 0f;
+    private bool showSavedText = false;
+
     // Use this for initialization
     void Start () {
         // set references to the objects to be used
@@ -34,6 +39,13 @@ public class UIManagerScript : MonoBehaviour {
         //set the reference to the help text that is visible
         // initially hide it, havingthe controls/help open
         helpText = GameObject.Find("HelpText");
+
+        inputField = GameObject.Find("InputField");
+        puzzleSavedText = GameObject.Find("PuzzleSavedText");
+
+        //Initially hide the inputField and puzzleSavedText
+        inputField.SetActive(false);
+        puzzleSavedText.SetActive(false);
 
         // TODO
         // Make this work for android/web
@@ -101,6 +113,8 @@ public class UIManagerScript : MonoBehaviour {
             facesHelpGroup.SetActive(!facesHelpGroup.activeSelf);
             helpText.SetActive(!helpText.activeSelf);
         }
+
+        RunSavedTextTimer();
             
     }
 
@@ -108,5 +122,42 @@ public class UIManagerScript : MonoBehaviour {
     public void ToggleBuildMode()
     {
         buildingManager.SetActive(!buildingManager.activeSelf);
+    }
+
+    // Method to be called in order to show input field, get its text, and then hide the
+    // inputField.
+    public void DisplayTextInputField()
+    {
+        // Show the inputField
+        inputField.SetActive(true);
+
+        //TODO
+        // Set the focus to be inputfield (so the user doesn't have to click on it)
+    }
+
+    // Run this in update to display the puzzleSavedText for two seconds,
+    // then hide the puzzleSavedText when two seconds have run out.
+    public void RunSavedTextTimer()
+    {
+        if(showSavedText == true && savedTextTimer < 2.0f)
+        {
+            // Increment the time if less than two seconds have passed
+            savedTextTimer += Time.deltaTime;
+        }
+        // If the text is still shown after two seconds have passed
+        else if(showSavedText == true)
+        {
+            showSavedText = false;
+            // Hide the puzzleSavedText object.
+            puzzleSavedText.SetActive(false);
+            // Reset the timer.
+            savedTextTimer = 0f;
+        }
+    }
+
+    // Function to be called to start the timer to show the savedTextObject.
+    public void StartSavedTextTimer()
+    {
+        showSavedText = true;
     }
 }
