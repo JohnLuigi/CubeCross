@@ -9,12 +9,14 @@ public class ExtraInputFieldScript : MonoBehaviour {
     public InputField inputFieldScript;
 
     public BuilderScript builderScript;
+    public UIManagerScript uiScript;
 
 	// Use this for initialization
 	public void Start () {
 
         // Set reference to the builderScript
         builderScript = GameObject.Find("BuildingManager").GetComponent<BuilderScript>();
+        uiScript = GameObject.Find("UIManager").GetComponent<UIManagerScript>();
         inputFieldScript = gameObject.GetComponent<InputField>();
 
         // Add a listener function to this object.
@@ -27,8 +29,21 @@ public class ExtraInputFieldScript : MonoBehaviour {
     {
         // Set the puzzleName string variable to be used in saving the puzzle solution
         builderScript.SetPuzzleName(text);
-        builderScript.MakePuzzle();
-        gameObject.SetActive(false);
+        // Attempt to save the puzzle
+        int val = builderScript.MakePuzzle();
+        // If the puzzle was saved (returned 0) then hide the inputField and cancel button.
+        if(val == 0)
+        {
+            //gameObject.SetActive(false);
+            uiScript.DisplayTextInputField(false);
+        }
+        // If there was another file with the same name, display the will you overwrite text
+        // and the yes/no buttons.
+        else if(val == 1)
+        {
+            
+            uiScript.DisplayTextInputField(false);
+        }
     }
     // TODO, add a cancel text input and don't try to save the puzzle option.
 }

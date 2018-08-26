@@ -235,7 +235,7 @@ public class BuilderScript : MonoBehaviour {
         {
             // TODO
             // Call the method that shows a text input field to name the puzzle.
-            uiManager.DisplayTextInputField();
+            uiManager.DisplayTextInputField(true);
         }
 
 
@@ -395,8 +395,11 @@ public class BuilderScript : MonoBehaviour {
     }
 
     // Test script for making a JSON file
-    public void MakePuzzle()
+    public int MakePuzzle()
     {
+        // Default returnValue is 0, if 0 is returned the file saved properly
+        int returnValue = 0;
+
         // Initialize the list of the objects that will store the cube coordinates.
         // This list will equal the list that is being updated as new cubes are added/deleted
         // while in build mode.
@@ -451,14 +454,31 @@ public class BuilderScript : MonoBehaviour {
         // If it does, ask the player if they want to overwrite the file.        
         if(File.Exists(filePath))
         {
-            //TODO
-            // Ask the player if they want to overwrite the file.
-            Debug.Log("Ask if they want to overwrite here.");
-            //TODO
-            // Show an option to overwrite the existing file
-            // Yes          |               No
-            // If no, bring back the text input.
-            // If yes, call the same function below
+            // If we try to save and the yes button was clicked, overwrite the file.
+            if(uiManager.yesNoValue == 1)
+            {
+                SavePuzzle(filePath, puzzleSoln);
+                // Reset the yesNoValue so it can be set to overwrite again.
+                uiManager.yesNoValue = 0;
+            }
+            else if(uiManager.yesNoValue == 0)
+            {
+                // Ask the player if they want to overwrite the file.
+                //uiManager.ToggleOverwriteText();
+                Debug.Log("showed the overwrite text.");
+
+                // Show an option to overwrite the existing file
+                // Yes          |               No
+                // If no, bring back the text input.
+                // If yes, call the same function below
+                uiManager.ToggleYesNo();
+
+                // If a file was found with the same name, don't try to save the puzzle, but
+                // instead return a different value indicating that the player needs to overwrite 
+                // or cancel saving.
+                returnValue = 1;
+            }
+            
         }
         // If the file does not exist, create a new file
         else
@@ -470,9 +490,8 @@ public class BuilderScript : MonoBehaviour {
         // Check if a puzzleSolution with the same name already exists or not.
         FileInfo fileInfo = new FileInfo(filePath);
         */
-        
 
-
+        return returnValue;
 
 
     }
@@ -485,13 +504,14 @@ public class BuilderScript : MonoBehaviour {
     public void SavePuzzle(string filePath, PuzzleSolution puzzleSoln)
     {
         // Create a string that is made from the PuzzleSolution object
-        string jsonString = JsonUtility.ToJson(puzzleSoln);
+        string jsonString = JsonUtility.ToJson(puzzleSoln, true);
         // Write the json string to the file.
         File.WriteAllText(filePath, jsonString);
 
         // Call the function that shows the puzzle save confirmation text on UIManager.
         uiManager.StartSavedTextTimer();
 
+        // Refreshes the assets in the Editor so you can immediately see the new file made.
         AssetDatabase.Refresh();
     }
 
