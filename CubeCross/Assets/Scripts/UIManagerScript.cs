@@ -215,6 +215,8 @@ public class UIManagerScript : MonoBehaviour {
     {
         yesNoValue = 0;
         ToggleYesNo();
+        // Set the saveUI reference to no longer be used so the puzzle is interactive again.
+        buildScript.usingSaveUI = false;
 
         // If no was clicked hide the input dialog and yes/no buttons.
         // TODO
@@ -235,6 +237,9 @@ public class UIManagerScript : MonoBehaviour {
     public void CancelClicked()
     {
         DisplayTextInputField(false);
+
+        // Set the saveUI reference to no longer be used so the puzzle is interactive again.
+        buildScript.usingSaveUI = false;
         //TODO
         // clear the value that was in the inputField
     }

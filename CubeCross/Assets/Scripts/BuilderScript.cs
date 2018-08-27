@@ -62,6 +62,16 @@ public class BuilderScript : MonoBehaviour {
 
     private UIManagerScript uiManager;
 
+    public bool usingSaveUI;    // Tracker to make the puzzle non-interactive while trying to save.
+
+    public PuzzleSolution puzzleSolution;   // The object that will track the maximum dimensions
+                                            // of the in-progress solution, and the locations of the
+                                            // cubes as they are added/deleted.
+
+        //TODO
+        //CONTINUE FROM HERE
+        // Set up the object that will contain the list of cubes/dimensions of puzzle
+        // and update those values as cubes are added/deleted.
 
 
 
@@ -78,6 +88,9 @@ public class BuilderScript : MonoBehaviour {
 
         deletingCubes = false;  // The default for build mode is to add cubes.
         tempBuildText = "Adding";    // The default for build mode is to add cubes.
+
+        usingSaveUI = false;    // The UI in build mode starts hidden, so it is initially not
+                            // being used.
         
         // Create the first cube at 0,0,0 and with 0 rotation.
         fullBuildCube = Instantiate(originalCube, Vector3.zero, Quaternion.identity) as GameObject;
@@ -146,6 +159,10 @@ public class BuilderScript : MonoBehaviour {
 
     // Update is called once per frame
     void Update () {
+
+        // If the savingUI is being used, don't make the puzzle interactable.
+        if (usingSaveUI)
+            return;
 
         // Cast a ray every frame, in case we click on a cube or are hovering over a cube 
         // that needs a face lit up.
@@ -236,6 +253,7 @@ public class BuilderScript : MonoBehaviour {
             // TODO
             // Call the method that shows a text input field to name the puzzle.
             uiManager.DisplayTextInputField(true);
+            usingSaveUI = true;
         }
 
 
@@ -465,7 +483,6 @@ public class BuilderScript : MonoBehaviour {
             {
                 // Ask the player if they want to overwrite the file.
                 //uiManager.ToggleOverwriteText();
-                Debug.Log("showed the overwrite text.");
 
                 // Show an option to overwrite the existing file
                 // Yes          |               No
@@ -513,6 +530,10 @@ public class BuilderScript : MonoBehaviour {
 
         // Refreshes the assets in the Editor so you can immediately see the new file made.
         AssetDatabase.Refresh();
+
+        // If the solution was saved successfully, we are no longer using the save UI
+        // so the puzzle can be interacted with again.
+        usingSaveUI = false;
     }
 
 }
