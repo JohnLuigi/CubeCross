@@ -11,5 +11,16 @@ public class PuzzleUnit{
     public int xIndex;
     public int yIndex;
     public int zIndex;
+
+    public int iD;
+
+    // Constructor that takes in parameters storing the corresponding cube data.
+    public PuzzleUnit(int inX, int inY, int inZ, int inID)
+    {
+        xIndex = inX;
+        yIndex = inY;
+        zIndex = inZ;
+        iD = inID;
+    }
 	
 }

@@ -68,6 +68,10 @@ public class BuilderScript : MonoBehaviour {
                                             // of the in-progress solution, and the locations of the
                                             // cubes as they are added/deleted.
 
+    public int cubeID;  // This will be a value that increases for each cube made. A cube will be
+                        // assigned an ID upon creation so that specific cube can be deleted from the
+                        // list of cubes stored in puzzleSolution.
+
         //TODO
         //CONTINUE FROM HERE
         // Set up the object that will contain the list of cubes/dimensions of puzzle
@@ -86,12 +90,17 @@ public class BuilderScript : MonoBehaviour {
 
         colorWasChanged = false;
 
+        //TODO might have to reset this every time build mode is started.
+        cubeID = 0; // Initialize the cubeID that will increment every time a cube is made.
+
         deletingCubes = false;  // The default for build mode is to add cubes.
         tempBuildText = "Adding";    // The default for build mode is to add cubes.
 
         usingSaveUI = false;    // The UI in build mode starts hidden, so it is initially not
-                            // being used.
+                                // being used.
+
         
+
         // Create the first cube at 0,0,0 and with 0 rotation.
         fullBuildCube = Instantiate(originalCube, Vector3.zero, Quaternion.identity) as GameObject;
         // Parent the starting cube to the manager so it can be rotated with the puzzle.
@@ -99,7 +108,16 @@ public class BuilderScript : MonoBehaviour {
         // The first cube gets the name "BuildCube0"
         fullBuildCube.name = "BuildCube" + cubeCount;
 
-        // Hide the original Cube after it was copied
+        // Set the first cube's attached PuzzleUnit to be at 0,0,0 with ID 0.
+        CubeScript firstCubeScript = fullBuildCube.gameObject.GetComponent<CubeScript>();
+        firstCubeScript.SetPuzzleUnit(0, 0, 0, 0);
+
+
+        // Initialize the puzzle solution that will be converted to a JSON file when saved.
+        puzzleSolution = new PuzzleSolution();
+
+        // Add the first cube to the puzzleSolution's list of PuzzleUnits.
+        puzzleSolution.AddUnit(firstCubeScript.GetPuzzleUnit());
 
         CubeFacesScript faceScript = fullBuildCube.GetComponent<CubeFacesScript>();
 
@@ -129,31 +147,6 @@ public class BuilderScript : MonoBehaviour {
         // set the reference to the buildStatusText object
         buildStatusObject = GameObject.Find("FlagStatusText").GetComponent<Text>();
         buildStatusObject.text = tempBuildText;
-
-        /*
-        // Stuff regarding file IO
-        string fileName = "TestJSON.json";
-        string filePath = Path.Combine(Application.streamingAssetsPath, fileName);
-
-        // Check if the file exists at a location before attempting to read from it.
-        if (File.Exists(filePath))
-        {
-            Debug.Log(fileName + " exists in the streamingAssetsPath");
-
-            // Use this to read all the text in a JSON file as one string.
-            string dataAsJson = File.ReadAllText(filePath);
-
-            // Take this string and deserialize it as a game data object
-            //GameData loadedData = JsonUtility.FromJson<GameData>(dataAsJson);
-            
-            // use JsonUtility.ToJson to write an object as Json
-        }
-        // If the object is not there, an error is thrown so report it.
-        else
-        {
-            Debug.LogError("Cannot load game data!");
-        }
-        */
 
     }
 
@@ -223,6 +216,41 @@ public class BuilderScript : MonoBehaviour {
                         // TODO
                         // Store each cube that was made in a list.
                         // This list will eventually be saved as a puzzle solution.
+
+                        // Get the face of the cube that was hit.
+                        string faceHit = GetFaceHit(hit.triangleIndex);
+
+                        // Get the indices of the cube that was clicked on.
+                        CubeScript hitCubeScript = hit.transform.gameObject.GetComponent<CubeScript>();
+                        PuzzleUnit hitUnit = hitCubeScript.GetPuzzleUnit();                        
+
+                        // Create an array of three integers that are the change in x,y,z.
+                        int[] indexChange = ReturnDimensionChange(faceHit);
+
+                        // Create indices for the new cube based on the face of the hitCube
+                        // that was clicked on.
+                        int newX = hitUnit.xIndex + indexChange[0];
+                        int newY = hitUnit.yIndex + indexChange[1];
+                        int newZ = hitUnit.zIndex + indexChange[2];
+
+                        cubeID++;
+
+                        //TODO
+                        // Determine if I should just use this line instead.
+                        // Possibly add this unit to the list
+                        PuzzleUnit newUnit = new PuzzleUnit(newX, newY, newZ, cubeID);
+
+                        // Add this newly made puzzleUnit to the puzzleSolution's list.
+                        puzzleSolution.AddUnit(newUnit);
+
+                        // Save the newly created PuzzleUnit to the newly created cube's CubeScript.
+                        CubeScript newCubeScript = newCube.GetComponent<CubeScript>();
+                        newCubeScript.SetPuzzleUnit(newX, newY, newZ, cubeID);
+                        /*
+                        Debug.Log("OldX: " + hitUnit.xIndex + "\nOldY: " + hitUnit.yIndex
+                            + "\nOldZ: " + hitUnit.zIndex + "\n\nNewX: " + newX +
+                            "\nNewY: " + newY + "\nNewZ: " + newZ);
+                        */
                     }
 
 
@@ -421,34 +449,37 @@ public class BuilderScript : MonoBehaviour {
         // Initialize the list of the objects that will store the cube coordinates.
         // This list will equal the list that is being updated as new cubes are added/deleted
         // while in build mode.
+
+        // Old dummy list.
+        /*
         List<PuzzleUnit> puzzleUnitList = new List<PuzzleUnit>();
 
         // Add a few dummy puzzle cubes to try reading from the file.
-        puzzleUnitList.Add( new PuzzleUnit
-        {
-            xIndex = 4,
-            yIndex = 5,
-            zIndex = 6
-        });
+        puzzleUnitList.Add( new PuzzleUnit( 4, 5, 6, 0) );
 
-        puzzleUnitList.Add(new PuzzleUnit
-        {
-            xIndex = 7,
-            yIndex = 8,
-            zIndex = 9
-        });
+        puzzleUnitList.Add(new PuzzleUnit(7, 8, 9, 1));
+        */
 
         // If you need to clear the list, use:
         // puzzleUnitList.Clear();
 
+        //TODO
+        // Find the dimensions of the puzzle by iterating through all the stored cubes and
+        // finding the max and min for each dimension.
+
         // Create a sample puzzleSolution
         PuzzleSolution puzzleSoln = new PuzzleSolution
         {
-            xDimension = 1,
-            yDimension = 2,
-            zDimension = 3,
+            xDimensionMax = 7,
+            xDimensionMin = 4,
+            yDimensionMax = 8,
+            yDimensionMin = 5,
+            zDimensionMax = 9,
+            zDimensionMin = 6,
             canEdit = true,
-            puzzleUnits = puzzleUnitList
+            // old dummy list here
+            //puzzleUnits = puzzleUnitList
+            puzzleUnits = puzzleSolution.puzzleUnits
         };
 
         // Create a JSON file and write the newly created puzzleSolution to it
@@ -534,6 +565,65 @@ public class BuilderScript : MonoBehaviour {
         // If the solution was saved successfully, we are no longer using the save UI
         // so the puzzle can be interacted with again.
         usingSaveUI = false;
+    }
+
+    // This gives us the face that was hit based on the input triangleIndex integer.
+    public string GetFaceHit(int hitTriangle)
+    {
+        string faceHit = "";
+
+        if (hitTriangle == 0 || hitTriangle == 1)
+            faceHit = "front";
+        if (hitTriangle == 2 || hitTriangle == 3)
+            faceHit = "top";
+        if (hitTriangle == 4 || hitTriangle == 5)
+            faceHit = "back";
+        if (hitTriangle == 6 || hitTriangle == 7)
+            faceHit = "bottom";
+        if (hitTriangle == 8 || hitTriangle == 9)
+            faceHit = "right";
+        if (hitTriangle == 10 || hitTriangle == 11)
+            faceHit = "left";
+
+        return faceHit;
+    }
+
+    public int[] ReturnDimensionChange(string inFace)
+    {
+        // The default output in no chance in x, y, or z.
+        int[] output = new int[] { 0, 0, 0 };
+
+        switch(inFace)
+        {
+            // Front clicked on, z+1
+            case "front":
+                output[2] = 1;
+                break;
+            // Back clicked on, z-1
+            case "back":
+                output[2] = -1;
+                break;
+            // Top clicked on, y+1
+            case "top":
+                output[1] = 1;
+                break;
+            // Bottom clicked on, y-1
+            case "bottom":
+                output[1] = -1;
+                break;
+            // Left clicked on, x+1
+            case "left":
+                output[0] = 1;
+                break;
+            // Right clicked on, x-1
+            case "right":
+                output[0] = -1;
+                break;
+            default:
+                break;
+        }
+            
+        return output;
     }
 
 }

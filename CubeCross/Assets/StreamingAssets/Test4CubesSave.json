@@ -1,0 +1,35 @@
+{
+    "xDimensionMax": 7,
+    "xDimensionMin": 4,
+    "yDimensionMax": 8,
+    "yDimensionMin": 5,
+    "zDimensionMax": 9,
+    "zDimensionMin": 6,
+    "canEdit": true,
+    "puzzleUnits": [
+        {
+            "xIndex": 0,
+            "yIndex": 0,
+            "zIndex": 0,
+            "iD": 0
+        },
+        {
+            "xIndex": 1,
+            "yIndex": 0,
+            "zIndex": 0,
+            "iD": 1
+        },
+        {
+            "xIndex": 2,
+            "yIndex": 0,
+            "zIndex": 0,
+            "iD": 2
+        },
+        {
+            "xIndex": 3,
+            "yIndex": 0,
+            "zIndex": 0,
+            "iD": 3
+        }
+    ]
+}
