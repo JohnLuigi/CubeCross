@@ -106,4 +106,22 @@ public class PuzzleSolution {
         puzzleUnits = new List<PuzzleUnit>();
     }
 
+    // Constructor that creates a PuzzleSolution with an empty puzzleUnits list.
+    public PuzzleSolution(int[] inputMinMaxes, bool inputCanEdit)
+    {
+        xDimensionMin = inputMinMaxes[0];
+        xDimensionMax = inputMinMaxes[1];
+
+        yDimensionMin = inputMinMaxes[2];
+        yDimensionMax = inputMinMaxes[3];
+
+        zDimensionMin = inputMinMaxes[4];
+        zDimensionMax = inputMinMaxes[5];
+        
+
+        canEdit = inputCanEdit;
+
+        puzzleUnits = new List<PuzzleUnit>();
+    }
+
 }

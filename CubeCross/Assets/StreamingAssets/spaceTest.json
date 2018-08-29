@@ -1,0 +1,23 @@
+{
+    "xDimensionMax": 0,
+    "xDimensionMin": 0,
+    "yDimensionMax": 5,
+    "yDimensionMin": 0,
+    "zDimensionMax": 0,
+    "zDimensionMin": 0,
+    "canEdit": true,
+    "puzzleUnits": [
+        {
+            "xIndex": 0,
+            "yIndex": 0,
+            "zIndex": 0,
+            "iD": 0
+        },
+        {
+            "xIndex": 0,
+            "yIndex": 5,
+            "zIndex": 0,
+            "iD": 7
+        }
+    ]
+}

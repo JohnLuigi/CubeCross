@@ -72,6 +72,10 @@ public class BuilderScript : MonoBehaviour {
                         // assigned an ID upon creation so that specific cube can be deleted from the
                         // list of cubes stored in puzzleSolution.
 
+    // This array will store a reference to each cube that exists in the puzzle that is being made
+    // while in build mode.
+    public GameObject[] cubesToSave;
+
         //TODO
         //CONTINUE FROM HERE
         // Set up the object that will contain the list of cubes/dimensions of puzzle
@@ -80,8 +84,8 @@ public class BuilderScript : MonoBehaviour {
 
 
 
-    void Start () {
-
+    void Start ()
+    {
         uiManager = GameObject.Find("UIManager").GetComponent<UIManagerScript>();
 
         // the game starts at 1 cubes having been built (index 0)
@@ -246,6 +250,8 @@ public class BuilderScript : MonoBehaviour {
                         // Save the newly created PuzzleUnit to the newly created cube's CubeScript.
                         CubeScript newCubeScript = newCube.GetComponent<CubeScript>();
                         newCubeScript.SetPuzzleUnit(newX, newY, newZ, cubeID);
+
+
                         /*
                         Debug.Log("OldX: " + hitUnit.xIndex + "\nOldY: " + hitUnit.yIndex
                             + "\nOldZ: " + hitUnit.zIndex + "\n\nNewX: " + newX +
@@ -463,10 +469,12 @@ public class BuilderScript : MonoBehaviour {
         // If you need to clear the list, use:
         // puzzleUnitList.Clear();
 
+        
+
         //TODO
         // Find the dimensions of the puzzle by iterating through all the stored cubes and
         // finding the max and min for each dimension.
-
+        /*
         // Create a sample puzzleSolution
         PuzzleSolution puzzleSoln = new PuzzleSolution
         {
@@ -481,6 +489,7 @@ public class BuilderScript : MonoBehaviour {
             //puzzleUnits = puzzleUnitList
             puzzleUnits = puzzleSolution.puzzleUnits
         };
+        */
 
         // Create a JSON file and write the newly created puzzleSolution to it
 
@@ -506,7 +515,7 @@ public class BuilderScript : MonoBehaviour {
             // If we try to save and the yes button was clicked, overwrite the file.
             if(uiManager.yesNoValue == 1)
             {
-                SavePuzzle(filePath, puzzleSoln);
+                SavePuzzle(filePath);
                 // Reset the yesNoValue so it can be set to overwrite again.
                 uiManager.yesNoValue = 0;
             }
@@ -531,7 +540,7 @@ public class BuilderScript : MonoBehaviour {
         // If the file does not exist, create a new file
         else
         {
-            SavePuzzle(filePath, puzzleSoln);
+            SavePuzzle(filePath);
         }
 
         /*
@@ -549,10 +558,29 @@ public class BuilderScript : MonoBehaviour {
         puzzleSaveName = inputString;
     }
 
-    public void SavePuzzle(string filePath, PuzzleSolution puzzleSoln)
+    // The function that collects all the cubes in the scene and saves them for later as a
+    // JSON file.
+    public void SavePuzzle(string filePath)
     {
+
+        // Create an array of all the cubes with the BuildCube tag.
+        cubesToSave = GameObject.FindGameObjectsWithTag("BuildCube");
+
+        // Get the minimum and maximum values for each dimension of the puzzle.
+        int[] minMaxValues = GetMinMaxValues(cubesToSave);
+
+        PuzzleSolution newPuzzleSolution = new PuzzleSolution(minMaxValues, true);
+
+        // Add each puzzleUnit attached to the cubes in cubesToSave to the PuzzleSolution.
+        foreach(GameObject cube in cubesToSave)
+        {
+            newPuzzleSolution.AddUnit(cube.GetComponent<CubeScript>().GetPuzzleUnit());
+        }
+
+        // goal make a PuzzleSolution from cubesToSave.
+
         // Create a string that is made from the PuzzleSolution object
-        string jsonString = JsonUtility.ToJson(puzzleSoln, true);
+        string jsonString = JsonUtility.ToJson(newPuzzleSolution, true);
         // Write the json string to the file.
         File.WriteAllText(filePath, jsonString);
 
@@ -590,7 +618,7 @@ public class BuilderScript : MonoBehaviour {
 
     public int[] ReturnDimensionChange(string inFace)
     {
-        // The default output in no chance in x, y, or z.
+        // The default output if no change in x, y, or z.
         int[] output = new int[] { 0, 0, 0 };
 
         switch(inFace)
@@ -624,6 +652,51 @@ public class BuilderScript : MonoBehaviour {
         }
             
         return output;
+    }
+
+    public int[] GetMinMaxValues(GameObject[] inputCubes)
+    {
+        // The default output if there is only 1 cube (max is 1 cube in all directions).
+        // The format of the output array is
+        // {minX, maxX, minY, maxY, minZ, maxZ}
+        int[] output = new int[] { 0, 0, 0, 0, 0, 0 };
+
+        foreach(GameObject cube in inputCubes)
+        {
+            // Compare the x, y, and z coordinate stored in each cube
+            // to the default values. If greater than a max or less than a min, update the output.
+            CubeScript tempScript = cube.GetComponent<CubeScript>();
+
+            // If we are able to get a CubeScript from the puzzle, proceed.
+            // Do this to avoid picking up some random object imporperly assigned a BuildCube tag.
+            if(tempScript != null)
+            {
+                // Test the minimum/maximum X value
+                int testValue = tempScript.GetPuzzleUnit().xIndex;
+                if (testValue < output[0])
+                    output[0] = testValue;
+                if (testValue > output[1])
+                    output[1] = testValue;
+
+                // Test the minimum/maximum Y value
+                testValue = tempScript.GetPuzzleUnit().yIndex;
+                if (testValue < output[2])
+                    output[2] = testValue;
+                if (testValue > output[3])
+                    output[3] = testValue;
+
+                // Test the minimum/maximum Z value
+                testValue = tempScript.GetPuzzleUnit().zIndex;
+                if (testValue < output[4])
+                    output[4] = testValue;
+                if (testValue > output[5])
+                    output[5] = testValue;
+            }
+
+        }// end of foreach
+
+        return output;
+
     }
 
 }

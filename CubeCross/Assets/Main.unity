@@ -297,6 +297,10 @@ Prefab:
       propertyPath: m_Enabled
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 1006730939609724, guid: 62fc91e8459321343955fd120dbc8d92, type: 2}
+      propertyPath: m_TagString
+      value: Untagged
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 62fc91e8459321343955fd120dbc8d92, type: 2}
   m_IsPrefabAsset: 0
@@ -2898,6 +2902,18 @@ MonoBehaviour:
   deletingCubes: 0
   tempBuildText: 
   puzzleSaveName: 
+  usingSaveUI: 0
+  puzzleSolution:
+    xDimensionMax: 1
+    xDimensionMin: 1
+    yDimensionMax: 1
+    yDimensionMin: 1
+    zDimensionMax: 1
+    zDimensionMin: 1
+    canEdit: 0
+    puzzleUnits: []
+  cubeID: 0
+  cubesToSave: []
 --- !u!4 &1446230620
 Transform:
   m_ObjectHideFlags: 0
