@@ -149,6 +149,8 @@ public class CubeManager : MonoBehaviour {
     private int maxVisibleXLayer;
     private int maxVisibleZLayer;
 
+    private string puzzleSolutionFileName;
+
     //private bool hidden = false;
 
     //private SliderScript sliderScriptRef;
@@ -202,6 +204,18 @@ public class CubeManager : MonoBehaviour {
     // create the array of cubes that will make up the puzzle
     public void Start()
     {
+
+        //Testing puzzle reader
+        //InitializeSolution("theNewTest");
+        /*
+        if(GetSolutionInfo ("theNewTest"))
+        {
+            Debug.Log(puzzleSize_X + " " + puzzleSize_Y + " " + puzzleSize_Z);
+            Debug.Log(puzzleContentArray.GetLength(0) + " " + puzzleContentArray.GetLength(1)
+                + " " + puzzleContentArray.GetLength(2));
+        }
+            */
+
         maxDistance = (float)puzzleSize;
 
         minZoom = (float)puzzleSize;
@@ -2199,6 +2213,196 @@ public class CubeManager : MonoBehaviour {
         zSliderScript = zSlider.GetComponent<SliderScript>();
         zSliderScript.Initialize();
         
+        zSliderUnitsMoved = 0;
+        zLayerTracker = 0;
+        // the starting position of the slider, to be tracked on how much it has moved
+        // Gets reset every time a new puzzle is loaded in
+        zSliderPosition = zSlider.transform.position;
+
+        // initialize each array to be visible
+        // this will be used to track which "layers" of the puzzle should be hidden
+        // TODO
+        // might have to make a version of this for the YSlider
+        hideIndices = new bool[puzzleSize];
+        for (int i = 0; i < hideIndices.Length; i++)
+        {
+            hideIndices[i] = false;
+        }
+
+        // initially set the x values all to false, meaning they are not to be hidden
+        hideIndices_X = new bool[puzzleSize_X];
+        for (int i = 0; i < hideIndices_X.Length; i++)
+            hideIndices_X[i] = false;
+
+        // initially set the z values all to false, meaning they are not to be hidden
+        hideIndices_Z = new bool[puzzleSize_Z];
+        for (int i = 0; i < hideIndices_Z.Length; i++)
+            hideIndices_Z[i] = false;
+
+        // set the reference to the flag status text object
+        flagStatusObject = GameObject.Find("FlagStatusText").GetComponent<Text>();
+        flagStatusObject.text = tempFlagText;
+
+        // disable the building manager object so it doesn't interfere with cube deletion/marking in puzzle mode
+        buildingManager.SetActive(false);
+
+        // set the timer to start back at one second and flag that the puzzle was initiated
+        newPuzzleDelay = originalPuzzleDelayValue;
+        puzzleInitialized = true;
+    }
+
+    // Public method that can be called to initialize the puzzleContentArray as a 3-Dimensional
+    // integer array filled with 0s and 1s that will be used to create the cubeArray in CreateCubes().
+    public bool GetSolutionInfo(string fileName)
+    {
+        // Default the returnValue to false, and only return true if it was set 
+        bool returnValue = false;
+        // Import the JSON file and turn it into a PuzzleSolution object.
+
+        // Save the fileName
+        puzzleSolutionFileName = Application.streamingAssetsPath + "/" + fileName + ".json";
+
+        // Check if the file exists. If it doesn't, go to the end of the method and return false.
+        if(File.Exists(puzzleSolutionFileName))
+        {
+            // Read in all the text that exists in the JSON file into a string as JSON format.
+            string dataAsJson = File.ReadAllText(puzzleSolutionFileName);
+
+            // Deserialize the string into a PuzzleSolution object.
+            PuzzleSolution loadedSolution = JsonUtility.FromJson<PuzzleSolution>(dataAsJson);
+
+            // Store the size of the puzzle in each dimension.
+            puzzleSize_X = 1 + loadedSolution.xDimensionMax + Mathf.Abs(loadedSolution.xDimensionMin);
+            puzzleSize_Y = 1 + loadedSolution.yDimensionMax + Mathf.Abs(loadedSolution.yDimensionMin);
+            puzzleSize_Z = 1+ loadedSolution.zDimensionMax + Mathf.Abs(loadedSolution.zDimensionMin);
+
+            // 3-D Array of 0s and 1s to base cube creation on.
+            puzzleContentArray = new int[puzzleSize_Z, puzzleSize_Y, puzzleSize_X];
+
+            // Fill the array with 0s first.
+            for (int z = 0; z < puzzleContentArray.GetLength(0); z++)
+            {
+                for(int y = 0; y < puzzleContentArray.GetLength(1); y++)
+                {
+                    for(int x = 0; x < puzzleContentArray.GetLength(2); x++)
+                    {
+                        puzzleContentArray[z, y, x] = 0;
+                    }
+                }
+            }
+
+            int xVal;
+            int yVal;
+            int zVal;
+
+            
+            // Populate the array by adding a 1 to each corresponding position in
+            // the puzzleContentArray.
+            foreach(PuzzleUnit unit in loadedSolution.puzzleUnits)
+            {
+                // convert the x, y, and z indices stored in the puzzleUnit to array units.
+                xVal = unit.xIndex + Mathf.Abs(loadedSolution.xDimensionMin);
+                yVal = unit.yIndex + Mathf.Abs(loadedSolution.yDimensionMin);
+                zVal = unit.zIndex + Mathf.Abs(loadedSolution.zDimensionMin);
+
+                puzzleContentArray[zVal, yVal, xVal] = 1;
+            }
+            
+                
+
+            returnValue = true;
+        }
+        else
+        {
+            Debug.LogError("Puzzle solution does not exist.");
+        }
+        
+
+        // Make the 3-Dimensional array that will store all the cubes.
+
+        // If it all worked out, return true.
+        return returnValue;
+    }
+
+    // public method that can be called to create a puzzle upon clicking a puzzle button
+    public void InitializeSolution(string puzzleName)
+    {
+        // try to get the puzzle information, if it works, the puzzle can be made
+        if (GetSolutionInfo(puzzleName))
+        {
+            // let the game carry out
+            //canProceed = true;
+        }
+        else
+        {
+            // if there was a problem with the reading of the puzzleFile, let the player know
+            warnText.text = "There was an issue with\n your puzzle's format";
+        }
+
+        // clear out the currently existing puzzle elements
+        if (cubeArray != null)
+        {
+            // destroy previous gameobjects if another puzzle is currently existing
+            foreach (GameObject go in cubeArray)
+                Destroy(go);
+        }
+
+        if (deletedCubes != null)
+        {
+            // destroy previously stored deleted cubes
+            foreach (GameObject go in deletedCubes)
+                Destroy(go);
+        }
+
+        transform.eulerAngles = new Vector3(0f, 0f, 0f);
+        rotationZ = 0f;
+        // This is where the puzzle is formed in-game
+        CreateCubes();
+        // Default the zLayer to hide to be at the "maximum" layer so that moving towards (+)
+        // the puzzle adds up to zero (start counting before the layers)
+        zLayerToHide = -1;
+        // default the xLayer to hide to be at the maximum layer
+        xLayerToHide = puzzleSize_X;
+
+        // Start the puzzle with the maximum respective layers being shown (all layers closer to the center
+        // than this layer are also shown).
+        maxVisibleXLayer = puzzleSize_X - 1;
+        maxVisibleZLayer = 0;   // Z Starts at 0 because the furthest index in the -z direction is 0
+
+        puzzleBounds = new Bounds(cubeArray[0, 0, 0].transform.position, Vector3.zero);
+        UpdateBounds();
+
+        // reference for the edge of the puzzle for the XSlider
+        sliderReferenceX = new GameObject { name = "SliderReferenceX" };
+        sliderReferenceX.transform.position = new Vector3(-(puzzleSize_X / 2f), 0, (puzzleSize_Z / 2f) + 1f);
+        sliderReferenceX.transform.parent = this.transform;
+
+        xSlider.SetActive(true);
+        // initialize the X Slider
+        xSliderScript = xSlider.GetComponent<SliderScript>();
+        xSliderScript.Initialize();
+
+        xSliderUnitsMoved = 0;
+        // This value is initially the maximum layer to be shown. It is equal to the number of cubes in the
+        // puzzle in the X-Axis -1. I'm making it -1 so that the player first has to move the slider
+        // one unit until layers start being hidden.
+        // The X slider starts at halfCubeDist_X + 1 + colliderXDist
+        xLayerTracker = 0;
+        xSliderPosition = xSlider.transform.position;
+        //Debug.Log("Initial slider XPosition is " + xSliderPosition.x);
+        //Debug.Log("Initial relative slider XPosition is " +
+        //   transform.InverseTransformPoint(xSliderPosition).x);
+
+        // reference for the edge of the puzzle for the ZSlider
+        sliderReferenceZ = new GameObject { name = "SliderReferenceZ" };
+        sliderReferenceZ.transform.position = new Vector3(-(puzzleSize_X / 2f) - 1, 0, (puzzleSize_Z / 2f));
+        sliderReferenceZ.transform.parent = this.transform;
+
+        zSlider.SetActive(true);
+        // initialize the Z Slider
+        zSliderScript = zSlider.GetComponent<SliderScript>();
+        zSliderScript.Initialize();
+
         zSliderUnitsMoved = 0;
         zLayerTracker = 0;
         // the starting position of the slider, to be tracked on how much it has moved

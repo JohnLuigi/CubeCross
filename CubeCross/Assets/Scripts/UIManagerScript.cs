@@ -91,7 +91,8 @@ public class UIManagerScript : MonoBehaviour {
         // Create an array of FileInfo objects based on the files read into the DirectoryInfo object.
         // Read them in using the searchPattern of "*.txt" to only get the files that end in ".txt"
         // so we don't try to use meta files for puzzle solutions.
-        FileInfo[] fileInfo = info.GetFiles("*.txt");
+        //FileInfo[] fileInfo = info.GetFiles("*.txt");
+        FileInfo[] fileInfo = info.GetFiles("*.json");
 
         // set the size of the array that will contain the level names to be used to 
         // create buttons for each level
@@ -111,11 +112,16 @@ public class UIManagerScript : MonoBehaviour {
             // can modify this to have some spacing between the buttons
             newButton.GetComponent<RectTransform>().localPosition -= 
                 new Vector3(0f, (i + 1) * buttonPrefab.GetComponent<RectTransform>().rect.height, 0f);
-            
+
             // remove the ".txt" from the string that will be the puzzle name
             // The name of the puzzle that will appear on the button will be 4 units shorter than its
             // current length, aka ".txt" will be removed
-            tempPuzzleName = fileInfo[i].Name.Remove(fileInfo[i].Name.Length - 4);
+            //tempPuzzleName = fileInfo[i].Name.Remove(fileInfo[i].Name.Length - 4);
+
+            // remove the ".json" from the string that will be the puzzle name
+            // The name of the puzzle that will appear on the button will be 5 units shorter than its
+            // current length, aka ".json" will be removed
+            tempPuzzleName = fileInfo[i].Name.Remove(fileInfo[i].Name.Length - 5);
             // Set the text on the button to be displayed
             newButton.transform.GetChild(0).GetComponent<Text>().text = tempPuzzleName;
             // Give an appropriate name to each puzzle to help see them in the editor

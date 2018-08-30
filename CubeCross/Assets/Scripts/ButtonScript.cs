@@ -32,7 +32,8 @@ public class ButtonScript : MonoBehaviour {
     public void TaskOnClick()
     {
         // load the puzzle
-        cubeMgr.InitializePuzzle(puzzleName);
+        //cubeMgr.InitializePuzzle(puzzleName);
+        cubeMgr.InitializeSolution(puzzleName);
         // hide the puzzle selection menu after clicking the level button
         cubeMgr.puzzleSelector.SetActive(!cubeMgr.puzzleSelector.activeSelf);
 
