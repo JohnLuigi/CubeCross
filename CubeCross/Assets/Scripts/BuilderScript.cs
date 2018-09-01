@@ -288,6 +288,7 @@ public class BuilderScript : MonoBehaviour {
             // Call the method that shows a text input field to name the puzzle.
             uiManager.DisplayTextInputField(true);
             usingSaveUI = true;
+            uiManager.SetInputStatus(true);
         }
 
 

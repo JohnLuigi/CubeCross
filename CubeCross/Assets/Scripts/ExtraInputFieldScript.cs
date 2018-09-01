@@ -36,8 +36,9 @@ public class ExtraInputFieldScript : MonoBehaviour {
         {
             //gameObject.SetActive(false);
             uiScript.DisplayTextInputField(false);
+            uiScript.SetInputStatus(false);
         }
-        // If there was another file with the same name, display the will you overwrite text
+        // If there was another file with the same name, display that will you overwrite text
         // and the yes/no buttons.
         else if(val == 1)
         {

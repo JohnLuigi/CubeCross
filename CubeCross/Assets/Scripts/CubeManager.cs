@@ -151,6 +151,16 @@ public class CubeManager : MonoBehaviour {
 
     private string puzzleSolutionFileName;
 
+    private int cubesToDelete;  // This will track how many cubes to delete, and once it hits
+                                // 0, the puzzle will be solved.
+
+    public string puzzleBeingSolved;
+
+    //TODO
+    // add lives/health system here.
+
+    private UIManagerScript uiScript;
+
     //private bool hidden = false;
 
     //private SliderScript sliderScriptRef;
@@ -163,6 +173,7 @@ public class CubeManager : MonoBehaviour {
         buildingManager = GameObject.Find("BuildingManager");
         buildButton = GameObject.Find("BuildButton");
         lineManager = GameObject.Find("Game Line Renderer").GetComponent<LineManager>();
+        uiScript = GameObject.Find("UIManager").GetComponent<UIManagerScript>();
 
         // Set the delay tracker to be the starting amount
         newPuzzleDelay = originalPuzzleDelayValue;
@@ -410,6 +421,8 @@ public class CubeManager : MonoBehaviour {
             {
                 deletedCubes[deletedCubes.Count - 1].SetActive(true);
                 deletedCubes.RemoveAt(deletedCubes.Count - 1);
+                // Add one back to cubesToDelete
+                cubesToDelete++;
             }            
         }
 
@@ -522,7 +535,12 @@ public class CubeManager : MonoBehaviour {
         // TODO
         // This is hiding layers from the wrong end, "reverse" it
 
-        
+        //Check if we have run out of cubes to delete, aka we solved the puzzle
+        if(cubesToDelete == 0)
+        {
+            uiScript.ShowCompletion(true);
+            cubesToDelete = 1;
+        }
         
 
 
@@ -715,6 +733,9 @@ public class CubeManager : MonoBehaviour {
                 hit.transform.gameObject.SetActive(false);
                 rotateTime = 0.0f;
                 UpdateBounds();
+
+                // subtract one from cubesToDelete
+                cubesToDelete--;
             }
         } 
     }
@@ -786,6 +807,9 @@ public class CubeManager : MonoBehaviour {
                                 // TODO
                                 //make an animation for deleting a blank cube, play it here
                                 deletedCubes.Add(closestCube);
+
+                                // subtract one from cubesToDelete
+                                cubesToDelete--;
 
                                 // remove the cube from the hit cubes array
                                 List<RaycastHit> tempList = new List<RaycastHit>(hits);
@@ -2307,6 +2331,11 @@ public class CubeManager : MonoBehaviour {
 
                 puzzleContentArray[zVal, yVal, xVal] = 1;
             }
+
+            // Set cubes to delete, based on the total number of cubes in the puzzle,
+            // minus the number of solution cubes.
+            int totalCubes = puzzleSize_X * puzzleSize_Y * puzzleSize_Z;
+            cubesToDelete = totalCubes - loadedSolution.puzzleUnits.Count;
             
                 
 
@@ -2330,6 +2359,7 @@ public class CubeManager : MonoBehaviour {
         // try to get the puzzle information, if it works, the puzzle can be made
         if (GetSolutionInfo(puzzleName))
         {
+            puzzleBeingSolved = puzzleName;
             // let the game carry out
             //canProceed = true;
         }
@@ -2872,6 +2902,13 @@ public class CubeManager : MonoBehaviour {
             }
         }
 
+    }
+
+    // Public method to hide/show the level selection and the build button.
+    public void ToggleLevelSelectUI()
+    {
+        puzzleSelector.SetActive(!puzzleSelector.activeSelf);
+        buildButton.SetActive(!buildButton.activeSelf);
     }
 
 

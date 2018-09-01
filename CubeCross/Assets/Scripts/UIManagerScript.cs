@@ -30,6 +30,12 @@ public class UIManagerScript : MonoBehaviour {
 
     private GameObject cancelButton;
 
+    public bool enteringInput;  // variable to track if the user is typing in information.
+
+    public bool askingReplay;
+
+    public CubeManager cubeMgr;
+
     // Use this for initialization
     void Start () {
         // set references to the objects to be used
@@ -42,6 +48,8 @@ public class UIManagerScript : MonoBehaviour {
         noButton = GameObject.Find("NoButton");
 
         cancelButton = GameObject.Find("CancelButton");
+
+        cubeMgr = GameObject.Find("GameManager").GetComponent<CubeManager>();
 
         // Initially hide the yes, no, and cancel buttons.
         yesButton.SetActive(false);
@@ -69,6 +77,10 @@ public class UIManagerScript : MonoBehaviour {
         inputField.SetActive(false);
         puzzleSavedText.SetActive(false);
 
+        enteringInput = false;  // Initialize this tracker as false since the game starts
+                                // without showing the inputField.
+
+        askingReplay = false;   // AskingReplay will be set to true after a puzzle is completed.
         // TODO
         // Make this work for android/web
         // Might need to include all this in an IENumerator-returning method
@@ -134,6 +146,12 @@ public class UIManagerScript : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
+
+        if(enteringInput)
+        {
+            return;
+        }
+
 
         // if the player presses the h key, toggle the visibility of the help screen
         if (Input.GetKeyUp("h"))
@@ -205,6 +223,25 @@ public class UIManagerScript : MonoBehaviour {
     // Script to take in value indicating Yes button was clicked.
     public void SetYes()
     {
+        // If the yes/no buttons are being used on a puzle completed screen.
+        if(askingReplay)
+        {
+            // Hide the puzzle completion UI.
+            ShowCompletion(false);
+
+            //TODO fix this part.
+            // Somewhere in here the references to each slider gets messed up.
+
+            // reload the puzzle
+            cubeMgr.InitializeSolution(cubeMgr.puzzleBeingSolved);
+
+            // hide the puzzle selection menu after clicking the level button
+            cubeMgr.puzzleSelector.SetActive(!cubeMgr.puzzleSelector.activeSelf);
+
+            // Get the name of the last puzzle that was run, and re-initialize it.
+            return;
+        }
+
         // If yes was clicked, save the puzzle anyway, overwriting the old version
         // then hide the input dialog and yes/no buttons.
 
@@ -213,16 +250,33 @@ public class UIManagerScript : MonoBehaviour {
         // the old puzzle solution with the same name.
         buildScript.MakePuzzle();
         ToggleYesNo();
-        
+
+        SetInputStatus(false);  // Allow the rest of the UI to be used again.
+
     }
 
     // Script to take in value indicating No Button was clicked.
     public void SetNo()
     {
+        // If the yes/no buttons are being used on a puzle completed screen.
+        if (askingReplay)
+        {
+            // Show the "escape button" UI.
+            cubeMgr.ToggleLevelSelectUI();
+
+            // Hide the puzzle completion UI.
+            ShowCompletion(false);
+
+            // Return to the puzzle selection screen.
+            return;
+        }
+
         yesNoValue = 0;
         ToggleYesNo();
         // Set the saveUI reference to no longer be used so the puzzle is interactive again.
         buildScript.usingSaveUI = false;
+
+        SetInputStatus(false);  // Allow the rest of the UI to be used again.
 
         // If no was clicked hide the input dialog and yes/no buttons.
         // TODO
@@ -246,6 +300,8 @@ public class UIManagerScript : MonoBehaviour {
 
         // Set the saveUI reference to no longer be used so the puzzle is interactive again.
         buildScript.usingSaveUI = false;
+
+        SetInputStatus(false);  // Allow the rest of the UI to be used again.
         //TODO
         // clear the value that was in the inputField
     }
@@ -254,6 +310,32 @@ public class UIManagerScript : MonoBehaviour {
     public void ToggleOverwriteText()
     {
         overwriteTextObject.SetActive(!overwriteTextObject.activeSelf);
+    }
+
+    // Set the enteringInput value to true or false externally.
+    public void SetInputStatus(bool inputBoolean)
+    {
+        // If enteringInput is set to true, no UI input other than clicking buttons can be done.
+        enteringInput = inputBoolean;
+    }
+
+    // Display the puzzle completed UI    
+    public void ShowCompletion(bool inputBool)
+    {
+        SetInputStatus(inputBool);
+        askingReplay = inputBool;
+
+        // Show a replay puzzle text.
+        Text tempText = overwriteTextObject.GetComponent<Text>();
+        if(inputBool)
+            tempText.text = "Puzzle completed!\nDo you want to replay the puzzle?";
+        else
+            tempText.text = "Do you want to overwrite this puzzle?";
+
+        // Show the replay text and show the Yes/No buttons.
+        ToggleYesNo();
+
+        // If yes is clicked, start the puzzle over. If no is clicked, return to puzzle selection.
     }
 
 }
