@@ -96,7 +96,7 @@ public class SliderScript : MonoBehaviour {
         //Debug.Log(name + " is at localPos" + transform.localPosition);
 
         // if the puzzle selection menu is active, don't make the game interactive
-        if (puzzleSelector.activeSelf)
+        if (puzzleSelector != null && puzzleSelector.activeSelf)
         {
             return;
         }
@@ -252,7 +252,7 @@ public class SliderScript : MonoBehaviour {
     private void OnMouseOver()
     {
         // if the puzzle selection menu is active, don't make the game interactive
-        if (puzzleSelector.activeSelf)
+        if (puzzleSelector != null && puzzleSelector.activeSelf)
         {
             return;
         }

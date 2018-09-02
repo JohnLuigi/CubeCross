@@ -2372,16 +2372,24 @@ public class CubeManager : MonoBehaviour {
         // clear out the currently existing puzzle elements
         if (cubeArray != null)
         {
+            
             // destroy previous gameobjects if another puzzle is currently existing
             foreach (GameObject go in cubeArray)
                 Destroy(go);
+            
+
+            Array.Clear(cubeArray, 0, cubeArray.Length);
         }
 
         if (deletedCubes != null)
         {
+            
             // destroy previously stored deleted cubes
             foreach (GameObject go in deletedCubes)
                 Destroy(go);
+            
+
+            deletedCubes.Clear();
         }
 
         transform.eulerAngles = new Vector3(0f, 0f, 0f);

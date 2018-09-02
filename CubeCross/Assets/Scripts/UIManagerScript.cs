@@ -236,7 +236,7 @@ public class UIManagerScript : MonoBehaviour {
             cubeMgr.InitializeSolution(cubeMgr.puzzleBeingSolved);
 
             // hide the puzzle selection menu after clicking the level button
-            cubeMgr.puzzleSelector.SetActive(!cubeMgr.puzzleSelector.activeSelf);
+            //cubeMgr.puzzleSelector.SetActive(!cubeMgr.puzzleSelector.activeSelf);
 
             // Get the name of the last puzzle that was run, and re-initialize it.
             return;
