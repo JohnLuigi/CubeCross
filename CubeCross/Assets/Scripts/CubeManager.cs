@@ -161,6 +161,8 @@ public class CubeManager : MonoBehaviour {
 
     private UIManagerScript uiScript;
 
+    private ClueEditScript editScript;
+
     //private bool hidden = false;
 
     //private SliderScript sliderScriptRef;
@@ -174,6 +176,7 @@ public class CubeManager : MonoBehaviour {
         buildButton = GameObject.Find("BuildButton");
         lineManager = GameObject.Find("Game Line Renderer").GetComponent<LineManager>();
         uiScript = GameObject.Find("UIManager").GetComponent<UIManagerScript>();
+        editScript = GameObject.Find("ClueEditManager").GetComponent<ClueEditScript>();
 
         // Set the delay tracker to be the starting amount
         newPuzzleDelay = originalPuzzleDelayValue;
@@ -336,6 +339,12 @@ public class CubeManager : MonoBehaviour {
             buildButton.SetActive(!buildButton.activeSelf);
         }
 
+        // If the clue edit toggle key is pressed, enable/disable clue editor mode.
+        if(Input.GetKeyUp(KeyCode.E))
+        {
+            editScript.editingClues = (!editScript.editingClues);
+        }
+
         // if the puzzle selection menu is active, don't make the game interactive
         if (puzzleSelector.activeSelf)
         {
@@ -352,6 +361,8 @@ public class CubeManager : MonoBehaviour {
             buildButton.SetActive(false);
             return;
         }
+
+        
             
         // cube check/deletion block
         // if the player left clicks once, see if a cube is hit
@@ -367,6 +378,10 @@ public class CubeManager : MonoBehaviour {
         {
             RotatePuzzle();
         }
+
+        // If we are in edit mode, only allow for rotation, don't try to delete cubes.
+        if (editScript.editingClues == true)
+            return;
 
         // Camera zoom block
         // update cameraDistance based on how the scroll wheel is being used
