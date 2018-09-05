@@ -76,6 +76,8 @@ public class BuilderScript : MonoBehaviour {
     // while in build mode.
     public GameObject[] cubesToSave;
 
+    private ClueEditScript clueEditScript;
+
         //TODO
         //CONTINUE FROM HERE
         // Set up the object that will contain the list of cubes/dimensions of puzzle
@@ -87,6 +89,7 @@ public class BuilderScript : MonoBehaviour {
     void Start ()
     {
         uiManager = GameObject.Find("UIManager").GetComponent<UIManagerScript>();
+        clueEditScript = GameObject.Find("ClueEditManager").GetComponent<ClueEditScript>();
 
         // the game starts at 1 cubes having been built (index 0)
         cubeCount = 0;
@@ -159,6 +162,12 @@ public class BuilderScript : MonoBehaviour {
 
         // If the savingUI is being used, don't make the puzzle interactable.
         if (usingSaveUI)
+            return;
+
+        // If the clueEditor is being used, don't do anything
+        // This is mostly because saving during clue edit mode will be a different
+        // save function than the build saving mode.
+        if (clueEditScript.editingClues)
             return;
 
         // Cast a ray every frame, in case we click on a cube or are hovering over a cube 

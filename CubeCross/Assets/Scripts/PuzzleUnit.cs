@@ -14,6 +14,8 @@ public class PuzzleUnit{
 
     public int iD;
 
+    public bool hidden;
+
     // Constructor that takes in parameters storing the corresponding cube data.
     public PuzzleUnit(int inX, int inY, int inZ, int inID)
     {
@@ -21,6 +23,8 @@ public class PuzzleUnit{
         yIndex = inY;
         zIndex = inZ;
         iD = inID;
+        // Default each puzzle unit to not be hidden when saved after making a solution.
+        hidden = false;
     }
 	
 }

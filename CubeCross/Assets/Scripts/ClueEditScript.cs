@@ -53,6 +53,8 @@ public class ClueEditScript : MonoBehaviour {
                         // Get the entire row of cubes (including the cube hit)
                         // and set all their faces to blank or numbered.
 
+                        
+
                         // TODO
                         // Set a value for each cube to be blank or numbered.
                         // Use this value in the face-setting of puzzle creation
@@ -135,5 +137,22 @@ public class ClueEditScript : MonoBehaviour {
             facesHit = "leftRight";
 
         return facesHit;
+    }
+
+    // This will make the cube GameObject in the parameter have its corresponding faces
+    // toggled between blank and numbered.
+    public void ToggleCubeFace(GameObject cubeObj, string facesToChange)
+    {
+        CubeScript tempScript = cubeObj.GetComponent<CubeScript>();
+
+        PuzzleUnit puzzUnit = tempScript.GetPuzzleUnit();
+
+        // TODO
+        // Figure out if I need to save the entire 3D array of cubes
+        // that have clues hidden/shown, or to have an array of cubes in
+        // the outermost layers that can be used to determine which cubes
+        // have their faces hidden/shown.
+
+
     }
 }

@@ -10,6 +10,8 @@ public class CubeScript : MonoBehaviour {
 
     public PuzzleUnit puzzleUnit;
 
+    public bool clueHidden;
+
     // Set the PuzzleUnit object attached to the cube that exsits in the scene.
     // This will be used to get the indices the cube is at in order to make new cubes and
     // determine their indices.
@@ -25,8 +27,9 @@ public class CubeScript : MonoBehaviour {
 
     // Use this for initialization
     void Start () {
-		
-	}
+        // Default the clueHidden status to false
+        clueHidden = true;
+    }
 	
 	// Update is called once per frame
 	void Update () {

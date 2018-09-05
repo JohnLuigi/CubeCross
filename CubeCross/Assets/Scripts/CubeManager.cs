@@ -163,6 +163,8 @@ public class CubeManager : MonoBehaviour {
 
     private ClueEditScript editScript;
 
+    private AudioManager audioScript;
+
     //private bool hidden = false;
 
     //private SliderScript sliderScriptRef;
@@ -177,6 +179,7 @@ public class CubeManager : MonoBehaviour {
         lineManager = GameObject.Find("Game Line Renderer").GetComponent<LineManager>();
         uiScript = GameObject.Find("UIManager").GetComponent<UIManagerScript>();
         editScript = GameObject.Find("ClueEditManager").GetComponent<ClueEditScript>();
+        audioScript = GameObject.Find("AudioManager").GetComponent<AudioManager>();
 
         // Set the delay tracker to be the starting amount
         newPuzzleDelay = originalPuzzleDelayValue;
@@ -751,6 +754,9 @@ public class CubeManager : MonoBehaviour {
 
                 // subtract one from cubesToDelete
                 cubesToDelete--;
+
+                // Play a pop sound upon cube deletion.
+                audioScript.PlayRandomPopClip();
             }
         } 
     }
@@ -825,6 +831,9 @@ public class CubeManager : MonoBehaviour {
 
                                 // subtract one from cubesToDelete
                                 cubesToDelete--;
+
+                                // Play a pop sound upon cube deletion.
+                                audioScript.PlayRandomPopClip();
 
                                 // remove the cube from the hit cubes array
                                 List<RaycastHit> tempList = new List<RaycastHit>(hits);
