@@ -21,6 +21,10 @@ public class CubeFacesScript : MonoBehaviour {
 
     public bool flagged = false;
 
+    public bool frontBackClueHidden;
+    public bool topBottomClueHidden;    
+    public bool leftRightClueHidden;
+
     // Initializing all this stuff in Awake() because this method is called immediately when the attached object is
     // instantiated in a different script
     // The Start() method will only run after the parent's Start() method is comeplete
@@ -46,41 +50,46 @@ public class CubeFacesScript : MonoBehaviour {
     // Use this for initialization
     void Start () {
 
-        // TODO to assign a specific part of a texture to a cube face, the location on the texture map needs to be saved
-        // could save 4 vector2s that are the location of a specific square texture
+        // Default the clueHidden values to false.
+        frontBackClueHidden = false;
+        topBottomClueHidden = false;
+        leftRightClueHidden = false;
 
-        // order to assign textures
-        // if the cube face is 
-        /*
-         *  2-----3
-         *  |     |
-         *  |     |
-         *  0-----1
-         */
-        // Assign in the order 2, 3, 0, 1
+    // TODO to assign a specific part of a texture to a cube face, the location on the texture map needs to be saved
+    // could save 4 vector2s that are the location of a specific square texture
 
-        // for testing faces
-        //SetFaces("1");
+    // order to assign textures
+    // if the cube face is 
+    /*
+     *  2-----3
+     *  |     |
+     *  |     |
+     *  0-----1
+     */
+    // Assign in the order 2, 3, 0, 1
 
-        /*
-        // set the front to be red 4
-        Vector2[] inputVerts = new Vector2[]{
-                new Vector2(3f * div, 4f * div),
-                new Vector2(4f * div, 4f * div),
-                new Vector2(3f * div, 3f * div),
-                new Vector2(4f * div, 3f * div) };
-        */
+    // for testing faces
+    //SetFaces("1");
 
-        //mesh.uv = UVs;
-        /*
-        SetFace("front", "0");
-        SetFace("back", "1");
-        SetFace("left", "0_D");
-        SetFace("right", "1_D");
-        SetFace("top", "x");
-        SetFace("bottom", "0");
-        */
-    }
+    /*
+    // set the front to be red 4
+    Vector2[] inputVerts = new Vector2[]{
+            new Vector2(3f * div, 4f * div),
+            new Vector2(4f * div, 4f * div),
+            new Vector2(3f * div, 3f * div),
+            new Vector2(4f * div, 3f * div) };
+    */
+
+    //mesh.uv = UVs;
+    /*
+    SetFace("front", "0");
+    SetFace("back", "1");
+    SetFace("left", "0_D");
+    SetFace("right", "1_D");
+    SetFace("top", "x");
+    SetFace("bottom", "0");
+    */
+}
 	
 	// Update is called once per frame
 	void Update () {

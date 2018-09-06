@@ -40,16 +40,19 @@ public class ClueEditScript : MonoBehaviour {
                 // If we are over a KeyCube or a BlankCube (aka not a slider)
                 if (hitTag.Equals("KeyCube") || hitTag.Equals("BlankCube"))
                 {
+
                     // Get the face that was clicked on.
-                    string hitFace = GetFaceHit(hit.triangleIndex);
+                    string faceHit = GetFaceHit(hit.triangleIndex);
 
-                    // Get the opposite face of the face that was hit.
-                    string facePair = GetOppositeFaces(hitFace);
-
+                    Debug.Log("Hit face pair: " + faceHit);
                     // If a face was properly matched to its opposite face,
                     // set
-                    if(!facePair.Equals(""))
+                    if(!faceHit.Equals(""))
                     {
+                        // Toggle the face that was hit and its opposite between
+                        // numbered and blank.
+                        ToggleCubeFace(hit.transform.gameObject, faceHit);
+
                         // Get the entire row of cubes (including the cube hit)
                         // and set all their faces to blank or numbered.
 
@@ -101,7 +104,25 @@ public class ClueEditScript : MonoBehaviour {
     // visualizing the puzzle while editing clues.
     // Have a toggle button to be able to turn on/off the solution cubes colors.
 
-    // This gives us the face that was hit based on the input triangleIndex integer.
+    // This gives us the face and its opposite
+    // that were hit based on the input triangleIndex integer.
+    public string GetOppositeFacesHit(int hitTriangle)
+    {
+        string faceHit = "";
+
+        if (hitTriangle == 0 || hitTriangle == 1 || hitTriangle == 4 || hitTriangle == 5)
+            faceHit = "front_back";
+
+        if (hitTriangle == 2 || hitTriangle == 3 || hitTriangle == 6 || hitTriangle == 7)
+            faceHit = "top_bottom";
+        
+        if (hitTriangle == 8 || hitTriangle == 9 || hitTriangle == 10 || hitTriangle == 11)
+            faceHit = "left_right";
+
+        return faceHit;
+    }
+
+    // This returns a string of the face that was hit based on the input integer.
     public string GetFaceHit(int hitTriangle)
     {
         string faceHit = "";
@@ -122,30 +143,103 @@ public class ClueEditScript : MonoBehaviour {
         return faceHit;
     }
 
-    // Return a string that consists of the face hit and its corresponding opposite.
-    public string GetOppositeFaces(string inputString)
-    {
-        string facesHit = "";
-
-        if (inputString.Equals("front") || inputString.Equals("back"))
-            facesHit = "frontBack";
-
-        if (inputString.Equals("top") || inputString.Equals("bottom"))
-            facesHit = "topBottom";
-
-        if (inputString.Equals("left") || inputString.Equals("right"))
-            facesHit = "leftRight";
-
-        return facesHit;
-    }
-
     // This will make the cube GameObject in the parameter have its corresponding faces
     // toggled between blank and numbered.
     public void ToggleCubeFace(GameObject cubeObj, string facesToChange)
     {
-        CubeScript tempScript = cubeObj.GetComponent<CubeScript>();
+        //CubeScript tempScript = cubeObj.GetComponent<CubeScript>();
 
-        PuzzleUnit puzzUnit = tempScript.GetPuzzleUnit();
+        //PuzzleUnit puzzUnit = tempScript.GetPuzzleUnit();
+
+        CubeFacesScript tempFacesScript = cubeObj.GetComponent<CubeFacesScript>();
+
+        //TODO
+        // Get the color to set the cube to be light or dark gray to
+        // maintain the checkerboard pattern.
+
+        // This will be the status of the faces to hide before being clicked on.
+        // Default to false.
+        bool facesToHideStatus = false;
+
+        // Determine which pair of faces need to be checked to see if they
+        // have their clues shown or not.
+        if (facesToChange.Equals("front") || facesToChange.Equals("back"))
+        {
+            facesToHideStatus = tempFacesScript.frontBackClueHidden;
+        }
+        if (facesToChange.Equals("top") || facesToChange.Equals("bottom"))
+        {
+            facesToHideStatus = tempFacesScript.topBottomClueHidden;
+        }
+        if (facesToChange.Equals("left") || facesToChange.Equals("right"))
+        {
+            facesToHideStatus = tempFacesScript.leftRightClueHidden;
+        }
+
+        
+
+        // If the cube face is currently set to be hidden (within the context of the 
+        // clue editor mode being active), show the original puzzle faces.
+        if(facesToHideStatus)
+        {            
+            // If the faces are numbered, set the faces to gray
+            // and set the corresponding facePairClueHidden value in the CubeFacesScript
+            // to false.
+            if (facesToChange.Equals("front") || facesToChange.Equals("back"))
+            {
+                tempFacesScript.SetFace("front", tempFacesScript.frontBack);
+                tempFacesScript.SetFace("back", tempFacesScript.frontBack);
+
+                tempFacesScript.frontBackClueHidden = false;
+            }
+            if (facesToChange.Equals("top") || facesToChange.Equals("bottom"))
+            {
+                tempFacesScript.SetFace("top", tempFacesScript.topBottom);
+                tempFacesScript.SetFace("bottom", tempFacesScript.topBottom);
+
+                tempFacesScript.topBottomClueHidden = false;
+            }
+            if (facesToChange.Equals("left") || facesToChange.Equals("right"))
+            {
+                tempFacesScript.SetFace("left", tempFacesScript.leftRight);
+                tempFacesScript.SetFace("right", tempFacesScript.leftRight);
+
+                tempFacesScript.leftRightClueHidden = false;
+            }
+
+        }
+        // Otherwise ifthe clues on this face are set to be shown, set the faces
+        // to be hidden (blank).
+        else
+        {
+            // If the faces are numbered, set the faces to gray
+            // and set the corresponding facePairClueHidden value in the CubeFacesScript
+            // to true.
+            if (facesToChange.Equals("front") || facesToChange.Equals("back"))
+            {
+                tempFacesScript.SetFace("front", "LightGray");
+                tempFacesScript.SetFace("back", "LightGray");
+
+                tempFacesScript.frontBackClueHidden = true;
+            }
+            if (facesToChange.Equals("top") || facesToChange.Equals("bottom"))
+            {
+                tempFacesScript.SetFace("top", "LightGray");
+                tempFacesScript.SetFace("bottom", "LightGray");
+
+                tempFacesScript.topBottomClueHidden = true;
+            }
+            if (facesToChange.Equals("left") || facesToChange.Equals("right"))
+            {
+                tempFacesScript.SetFace("left", "LightGray");
+                tempFacesScript.SetFace("right", "LightGray");
+
+                tempFacesScript.leftRightClueHidden = true;
+            }
+
+        }
+        
+
 
         // TODO
         // Figure out if I need to save the entire 3D array of cubes
@@ -154,5 +248,34 @@ public class ClueEditScript : MonoBehaviour {
         // have their faces hidden/shown.
 
 
+    }
+
+    // This returns a list of the cubes that are "behind" the cube that was clicked
+    // on. Essentially the rest of the cubes in the direction of the clicked-on face.
+    public List<GameObject> GetRowBehindCube(GameObject cubeObj, string faceClicked)
+    {
+        // Initialize the list to return.
+        List<GameObject> rowOfCubes = new List<GameObject>();
+
+        // Find the dimension to check in based on
+        // the input parameter faceClicked.
+
+        /*
+         * Front = +z axis
+         * Back = -z axis
+         * 
+         * Top = +y axis
+         * Bottom = -y axis
+         * 
+         * Left = +x axis
+         * Right = -x axis
+         * 
+         * */
+
+        //TODO
+        // Continue here
+
+
+        return rowOfCubes;
     }
 }

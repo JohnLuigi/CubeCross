@@ -36,6 +36,8 @@ public class UIManagerScript : MonoBehaviour {
 
     public CubeManager cubeMgr;
 
+    public GameObject clueEditButton;
+
     // Use this for initialization
     void Start () {
         // set references to the objects to be used
@@ -50,6 +52,9 @@ public class UIManagerScript : MonoBehaviour {
         cancelButton = GameObject.Find("CancelButton");
 
         cubeMgr = GameObject.Find("GameManager").GetComponent<CubeManager>();
+
+        clueEditButton = GameObject.Find("ClueEditButton");
+        clueEditButton.SetActive(false);    // Initially hide the clue edit button.
 
         // Initially hide the yes, no, and cancel buttons.
         yesButton.SetActive(false);

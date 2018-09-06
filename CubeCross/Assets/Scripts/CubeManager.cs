@@ -346,6 +346,7 @@ public class CubeManager : MonoBehaviour {
         if(Input.GetKeyUp(KeyCode.E))
         {
             editScript.editingClues = (!editScript.editingClues);
+            uiScript.clueEditButton.SetActive(editScript.editingClues);
         }
 
         // if the puzzle selection menu is active, don't make the game interactive
@@ -357,6 +358,7 @@ public class CubeManager : MonoBehaviour {
         // don't do anything in Update() until the puzzle has been initialized
         if (puzzleInitialized == false)
             return;
+
         // if the puzzle was initialized, delay usage until a set amount of time has passed
         else if (puzzleInitialized == true && newPuzzleDelay > 0f)
         {
@@ -380,6 +382,36 @@ public class CubeManager : MonoBehaviour {
         if (Input.GetMouseButton(1))
         {
             RotatePuzzle();
+        }
+
+        // Slider update handling block
+        if (xSlider.GetComponent<SliderScript>().sliding == true)
+        {
+            MasterLayerHider(xSlider);
+        }
+        else if (zSlider.GetComponent<SliderScript>().sliding == true)
+        {
+            MasterLayerHider(zSlider);
+        }
+
+        // increase zlayertohide by one
+        // if puzzle untouched, hide one layer
+        // This simulates moving TOWARDS the puzzle
+        if (Input.GetKeyUp(KeyCode.LeftBracket))
+        {
+            zLayerToHide++;
+            zLayerToHide = Mathf.Clamp(zLayerToHide, -1, puzzleSize_Z - 1);
+            ZLayerHiding(true, zLayerToHide);
+        }
+
+        // reduce zlayertohide by one
+        // if puzzle is touched, show one layer
+        // This simulates moving AWAY from the puzzle
+        if (Input.GetKeyUp(KeyCode.RightBracket))
+        {
+            ZLayerHiding(false, zLayerToHide);
+            zLayerToHide--;
+            zLayerToHide = Mathf.Clamp(zLayerToHide, -1, puzzleSize_Z - 1);
         }
 
         // If we are in edit mode, only allow for rotation, don't try to delete cubes.
@@ -460,95 +492,7 @@ public class CubeManager : MonoBehaviour {
 
         UpdatePressTime();
 
-        // Slider update handling block
-        if(xSlider.GetComponent<SliderScript>().sliding == true)
-        {
-            //Debug.Log(maxVisibleXLayer);
-            MasterLayerHider(xSlider);
-            //HideCubes(xSlider);
-
-
-            // old slider checker
-            //int layerMovement = UpdateHiddenLayers(xSlider);
-
-            /*
-            int layerMovement = CheckSliderPositions(xSlider);
-
-            // Let the layerMovement be equal to the difference in layers from the last frame layer
-            // difference.
-
-            // If the xSlider movement was towards the cube
-            if (layerMovement < 0)
-            {
-                // adding a negative value here
-                xLayerToHide += layerMovement;
-                xLayerToHide = Mathf.Clamp(xLayerToHide, 0, puzzleSize_X);
-                XLayerHiding(true, xLayerToHide);
-            }
-            // If the xSlider movement was away from the cube
-            else if (layerMovement > 0)
-            {                
-                XLayerHiding(false, xLayerToHide);
-                xLayerToHide += layerMovement;
-                xLayerToHide = Mathf.Clamp(xLayerToHide, 0, puzzleSize_X);
-            }
-
-            // After updating layers to be shown/hidden, see if the slider needs to be
-            // clamped within its maximum and minimum distances.
-            //xSlider.GetComponent<SliderScript>().CheckDistance();
-            */
-        }
-        else if(zSlider.GetComponent<SliderScript>().sliding == true)
-        {
-            //HideCubes(zSlider);
-            MasterLayerHider(zSlider);
-
-            /*
-            // Old Slider movement tracker
-            //int layerMovement = UpdateHiddenLayers(zSlider);
-
-            int layerMovement = CheckSliderPositions(zSlider);
-
-            // If the movement was towards the cube
-            if (layerMovement == 1)
-            {
-                zLayerToHide++;
-                zLayerToHide = Mathf.Clamp(zLayerToHide, -1, puzzleSize_Z - 1);
-                ZLayerHiding(true, zLayerToHide);
-            }
-            // If the movement was away from the cube
-            else if (layerMovement == -1)
-            {
-                ZLayerHiding(false, zLayerToHide);
-                zLayerToHide--;
-                zLayerToHide = Mathf.Clamp(zLayerToHide, -1, puzzleSize_Z - 1);
-            }
-
-            // After updating layers to be shown/hidden, see if the slider needs to be
-            // clamped within its maximum and minimum distances.
-            //zSlider.GetComponent<SliderScript>().CheckDistance();
-            */
-        }
         
-        // increase zlayertohide by one
-        // if puzzle untouched, hide one layer
-        // This simulates moving TOWARDS the puzzle
-        if (Input.GetKeyUp(KeyCode.LeftBracket))
-        {
-            zLayerToHide++;
-            zLayerToHide = Mathf.Clamp(zLayerToHide, -1, puzzleSize_Z - 1);
-            ZLayerHiding(true, zLayerToHide);
-        }
-
-        // reduce zlayertohide by one
-        // if puzzle is touched, show one layer
-        // This simulates moving AWAY from the puzzle
-        if (Input.GetKeyUp(KeyCode.RightBracket))
-        {
-            ZLayerHiding(false, zLayerToHide);
-            zLayerToHide--;
-            zLayerToHide = Mathf.Clamp(zLayerToHide, -1, puzzleSize_Z -1);
-        }
 
         // TODO
         // This is hiding layers from the wrong end, "reverse" it
@@ -2386,6 +2330,10 @@ public class CubeManager : MonoBehaviour {
             puzzleBeingSolved = puzzleName;
             // let the game carry out
             //canProceed = true;
+
+            //TODO
+            // somewhere in cube creation, set cubes with hidden clues to have their
+            // respective faces set to blank.
         }
         else
         {

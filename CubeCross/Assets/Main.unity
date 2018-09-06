@@ -3312,6 +3312,7 @@ MonoBehaviour:
   enteringInput: 0
   askingReplay: 0
   cubeMgr: {fileID: 0}
+  clueEditButton: {fileID: 0}
 --- !u!4 &1561862117
 Transform:
   m_ObjectHideFlags: 0
@@ -3780,6 +3781,16 @@ MonoBehaviour:
     Z:
 
     Undo last deletion
+
+
+    S:
+
+    Save puzzle in build mode
+
+
+    E:
+
+    Toggle Clue Edit mode
 
 
     Esc:
