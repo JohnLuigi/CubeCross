@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
 using UnityEngine.UI;
+using UnityEditor;
 
 public class UIManagerScript : MonoBehaviour {
 
-    public bool isMenuOn = true;
+    public bool isMenuOn;
     public string folderPath;
     public GameObject[] puzzleButtons;
     public GameObject buttonPrefab;
@@ -38,6 +39,8 @@ public class UIManagerScript : MonoBehaviour {
 
     public GameObject clueEditButton;
 
+    public GameObject exitButton;
+
     // Use this for initialization
     void Start () {
         // set references to the objects to be used
@@ -55,12 +58,17 @@ public class UIManagerScript : MonoBehaviour {
 
         clueEditButton = GameObject.Find("ClueEditButton");
         clueEditButton.SetActive(false);    // Initially hide the clue edit button.
+            
+        // Reference to the exit button.
+        exitButton = GameObject.Find("ExitButton");
 
         // Initially hide the yes, no, and cancel buttons.
         yesButton.SetActive(false);
         noButton.SetActive(false);
         cancelButton.SetActive(false);
 
+        // set menu on to initially be true
+        isMenuOn = true;
 
         // Set the path to the folder that contains the puzzles
         folderPath = Application.streamingAssetsPath;
@@ -156,7 +164,6 @@ public class UIManagerScript : MonoBehaviour {
         {
             return;
         }
-
 
         // if the player presses the h key, toggle the visibility of the help screen
         if (Input.GetKeyUp("h"))
@@ -341,6 +348,13 @@ public class UIManagerScript : MonoBehaviour {
         ToggleYesNo();
 
         // If yes is clicked, start the puzzle over. If no is clicked, return to puzzle selection.
+    }
+
+    // Call this function if the exit button was clicked on.
+    public void ExitButtonClicked()
+    {
+        //EditorApplication.ExecuteMenuItem("Edit/Play");
+        Application.Quit();        
     }
 
 }

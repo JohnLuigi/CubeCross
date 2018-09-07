@@ -598,7 +598,7 @@ public class BuilderScript : MonoBehaviour {
         uiManager.StartSavedTextTimer();
 
         // Refreshes the assets in the Editor so you can immediately see the new file made.
-        AssetDatabase.Refresh();
+        //AssetDatabase.Refresh();
 
         // If the solution was saved successfully, we are no longer using the save UI
         // so the puzzle can be interacted with again.

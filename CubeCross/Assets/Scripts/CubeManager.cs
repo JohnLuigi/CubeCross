@@ -340,6 +340,9 @@ public class CubeManager : MonoBehaviour {
         {
             // TODO
             // move the menu, slide it, hide, whatever, do that here
+            uiScript.isMenuOn = !uiScript.isMenuOn;
+            uiScript.exitButton.SetActive(uiScript.isMenuOn);
+
             puzzleSelector.SetActive(!puzzleSelector.activeSelf);
             buildButton.SetActive(!buildButton.activeSelf);
         }

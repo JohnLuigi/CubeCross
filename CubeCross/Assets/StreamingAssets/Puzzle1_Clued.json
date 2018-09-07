@@ -1,0 +1,308 @@
+{
+    "xDimensionMax": 8,
+    "xDimensionMin": 0,
+    "yDimensionMax": 0,
+    "yDimensionMin": -5,
+    "zDimensionMax": 0,
+    "zDimensionMin": 0,
+    "canEdit": true,
+    "puzzleUnits": [
+        {
+            "xIndex": 1,
+            "yIndex": -4,
+            "zIndex": 0,
+            "iD": 18,
+            "hidden": false
+        },
+        {
+            "xIndex": 2,
+            "yIndex": -5,
+            "zIndex": 0,
+            "iD": 19,
+            "hidden": false
+        },
+        {
+            "xIndex": 3,
+            "yIndex": -4,
+            "zIndex": 0,
+            "iD": 20,
+            "hidden": false
+        },
+        {
+            "xIndex": 4,
+            "yIndex": -3,
+            "zIndex": 0,
+            "iD": 25,
+            "hidden": false
+        },
+        {
+            "xIndex": 5,
+            "yIndex": -4,
+            "zIndex": 0,
+            "iD": 27,
+            "hidden": false
+        },
+        {
+            "xIndex": 6,
+            "yIndex": -5,
+            "zIndex": 0,
+            "iD": 29,
+            "hidden": false
+        },
+        {
+            "xIndex": 7,
+            "yIndex": -4,
+            "zIndex": 0,
+            "iD": 31,
+            "hidden": false
+        },
+        {
+            "xIndex": 7,
+            "yIndex": -3,
+            "zIndex": 0,
+            "iD": 48,
+            "hidden": false
+        },
+        {
+            "xIndex": 1,
+            "yIndex": -3,
+            "zIndex": 0,
+            "iD": 50,
+            "hidden": false
+        },
+        {
+            "xIndex": 8,
+            "yIndex": -2,
+            "zIndex": 0,
+            "iD": 55,
+            "hidden": false
+        },
+        {
+            "xIndex": 0,
+            "yIndex": -2,
+            "zIndex": 0,
+            "iD": 56,
+            "hidden": false
+        }
+    ],
+    "zFacesClues": [
+        {
+            "index1": 0,
+            "index2": 0
+        },
+        {
+            "index1": 0,
+            "index2": 1
+        },
+        {
+            "index1": 0,
+            "index2": 2
+        },
+        {
+            "index1": 0,
+            "index2": 3
+        },
+        {
+            "index1": 0,
+            "index2": 4
+        },
+        {
+            "index1": 0,
+            "index2": 5
+        },
+        {
+            "index1": 0,
+            "index2": 6
+        },
+        {
+            "index1": 0,
+            "index2": 7
+        },
+        {
+            "index1": 0,
+            "index2": 8
+        },
+        {
+            "index1": 1,
+            "index2": 0
+        },
+        {
+            "index1": 1,
+            "index2": 1
+        },
+        {
+            "index1": 1,
+            "index2": 2
+        },
+        {
+            "index1": 1,
+            "index2": 3
+        },
+        {
+            "index1": 1,
+            "index2": 4
+        },
+        {
+            "index1": 1,
+            "index2": 5
+        },
+        {
+            "index1": 1,
+            "index2": 6
+        },
+        {
+            "index1": 1,
+            "index2": 7
+        },
+        {
+            "index1": 1,
+            "index2": 8
+        },
+        {
+            "index1": 2,
+            "index2": 0
+        },
+        {
+            "index1": 2,
+            "index2": 1
+        },
+        {
+            "index1": 2,
+            "index2": 2
+        },
+        {
+            "index1": 2,
+            "index2": 3
+        },
+        {
+            "index1": 2,
+            "index2": 4
+        },
+        {
+            "index1": 2,
+            "index2": 5
+        },
+        {
+            "index1": 2,
+            "index2": 6
+        },
+        {
+            "index1": 2,
+            "index2": 7
+        },
+        {
+            "index1": 2,
+            "index2": 8
+        },
+        {
+            "index1": 3,
+            "index2": 0
+        },
+        {
+            "index1": 3,
+            "index2": 1
+        },
+        {
+            "index1": 3,
+            "index2": 2
+        },
+        {
+            "index1": 3,
+            "index2": 3
+        },
+        {
+            "index1": 3,
+            "index2": 4
+        },
+        {
+            "index1": 3,
+            "index2": 5
+        },
+        {
+            "index1": 3,
+            "index2": 6
+        },
+        {
+            "index1": 3,
+            "index2": 7
+        },
+        {
+            "index1": 3,
+            "index2": 8
+        },
+        {
+            "index1": 4,
+            "index2": 0
+        },
+        {
+            "index1": 4,
+            "index2": 1
+        },
+        {
+            "index1": 4,
+            "index2": 2
+        },
+        {
+            "index1": 4,
+            "index2": 3
+        },
+        {
+            "index1": 4,
+            "index2": 4
+        },
+        {
+            "index1": 4,
+            "index2": 5
+        },
+        {
+            "index1": 4,
+            "index2": 6
+        },
+        {
+            "index1": 4,
+            "index2": 7
+        },
+        {
+            "index1": 4,
+            "index2": 8
+        },
+        {
+            "index1": 5,
+            "index2": 0
+        },
+        {
+            "index1": 5,
+            "index2": 1
+        },
+        {
+            "index1": 5,
+            "index2": 2
+        },
+        {
+            "index1": 5,
+            "index2": 3
+        },
+        {
+            "index1": 5,
+            "index2": 4
+        },
+        {
+            "index1": 5,
+            "index2": 5
+        },
+        {
+            "index1": 5,
+            "index2": 6
+        },
+        {
+            "index1": 5,
+            "index2": 7
+        },
+        {
+            "index1": 5,
+            "index2": 8
+        }
+    ],
+    "yFacesClues": [],
+    "xFacesClues": []
+}

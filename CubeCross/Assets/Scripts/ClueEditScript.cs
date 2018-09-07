@@ -472,7 +472,7 @@ public class ClueEditScript : MonoBehaviour {
         File.WriteAllText(filePath, jsonString);
 
         // Refreshes the assets in the Editor so you can immediately see the new file made.
-        AssetDatabase.Refresh();
+        //AssetDatabase.Refresh();
 
         //TODO
         // Add a display notification that the editedClues version was saved.

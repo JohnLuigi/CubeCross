@@ -1,0 +1,385 @@
+{
+    "xDimensionMax": 5,
+    "xDimensionMin": -1,
+    "yDimensionMax": 2,
+    "yDimensionMin": -1,
+    "zDimensionMax": 0,
+    "zDimensionMin": -3,
+    "canEdit": true,
+    "puzzleUnits": [
+        {
+            "xIndex": 0,
+            "yIndex": 1,
+            "zIndex": 0,
+            "iD": 2,
+            "hidden": false
+        },
+        {
+            "xIndex": 1,
+            "yIndex": 1,
+            "zIndex": 0,
+            "iD": 3,
+            "hidden": false
+        },
+        {
+            "xIndex": 1,
+            "yIndex": 0,
+            "zIndex": 0,
+            "iD": 4,
+            "hidden": false
+        },
+        {
+            "xIndex": 2,
+            "yIndex": 1,
+            "zIndex": 0,
+            "iD": 5,
+            "hidden": false
+        },
+        {
+            "xIndex": 2,
+            "yIndex": 0,
+            "zIndex": 0,
+            "iD": 6,
+            "hidden": false
+        },
+        {
+            "xIndex": 3,
+            "yIndex": 1,
+            "zIndex": 0,
+            "iD": 7,
+            "hidden": false
+        },
+        {
+            "xIndex": 3,
+            "yIndex": 1,
+            "zIndex": -1,
+            "iD": 8,
+            "hidden": false
+        },
+        {
+            "xIndex": 3,
+            "yIndex": 0,
+            "zIndex": 0,
+            "iD": 9,
+            "hidden": false
+        },
+        {
+            "xIndex": 2,
+            "yIndex": 0,
+            "zIndex": -1,
+            "iD": 10,
+            "hidden": false
+        },
+        {
+            "xIndex": 3,
+            "yIndex": 0,
+            "zIndex": -1,
+            "iD": 11,
+            "hidden": false
+        },
+        {
+            "xIndex": 1,
+            "yIndex": 0,
+            "zIndex": -1,
+            "iD": 13,
+            "hidden": false
+        },
+        {
+            "xIndex": 1,
+            "yIndex": 0,
+            "zIndex": -2,
+            "iD": 14,
+            "hidden": false
+        },
+        {
+            "xIndex": 2,
+            "yIndex": 0,
+            "zIndex": -2,
+            "iD": 15,
+            "hidden": false
+        },
+        {
+            "xIndex": 3,
+            "yIndex": 0,
+            "zIndex": -2,
+            "iD": 16,
+            "hidden": false
+        },
+        {
+            "xIndex": 1,
+            "yIndex": 0,
+            "zIndex": -3,
+            "iD": 17,
+            "hidden": false
+        },
+        {
+            "xIndex": 2,
+            "yIndex": 0,
+            "zIndex": -3,
+            "iD": 18,
+            "hidden": false
+        },
+        {
+            "xIndex": 3,
+            "yIndex": 0,
+            "zIndex": -3,
+            "iD": 19,
+            "hidden": false
+        },
+        {
+            "xIndex": 1,
+            "yIndex": 1,
+            "zIndex": -1,
+            "iD": 20,
+            "hidden": false
+        },
+        {
+            "xIndex": 2,
+            "yIndex": 1,
+            "zIndex": -1,
+            "iD": 21,
+            "hidden": false
+        },
+        {
+            "xIndex": 1,
+            "yIndex": 1,
+            "zIndex": -2,
+            "iD": 22,
+            "hidden": false
+        },
+        {
+            "xIndex": 2,
+            "yIndex": 1,
+            "zIndex": -2,
+            "iD": 23,
+            "hidden": false
+        },
+        {
+            "xIndex": 3,
+            "yIndex": 1,
+            "zIndex": -2,
+            "iD": 24,
+            "hidden": false
+        },
+        {
+            "xIndex": 2,
+            "yIndex": 1,
+            "zIndex": -3,
+            "iD": 25,
+            "hidden": false
+        },
+        {
+            "xIndex": 4,
+            "yIndex": 1,
+            "zIndex": 0,
+            "iD": 26,
+            "hidden": false
+        },
+        {
+            "xIndex": 4,
+            "yIndex": 1,
+            "zIndex": -1,
+            "iD": 27,
+            "hidden": false
+        },
+        {
+            "xIndex": 4,
+            "yIndex": 0,
+            "zIndex": 0,
+            "iD": 28,
+            "hidden": false
+        },
+        {
+            "xIndex": 1,
+            "yIndex": 2,
+            "zIndex": -1,
+            "iD": 29,
+            "hidden": false
+        },
+        {
+            "xIndex": 2,
+            "yIndex": 2,
+            "zIndex": -1,
+            "iD": 30,
+            "hidden": false
+        },
+        {
+            "xIndex": 3,
+            "yIndex": 2,
+            "zIndex": -1,
+            "iD": 31,
+            "hidden": false
+        },
+        {
+            "xIndex": 3,
+            "yIndex": 2,
+            "zIndex": 0,
+            "iD": 33,
+            "hidden": false
+        },
+        {
+            "xIndex": 2,
+            "yIndex": 2,
+            "zIndex": 0,
+            "iD": 34,
+            "hidden": false
+        },
+        {
+            "xIndex": 1,
+            "yIndex": 2,
+            "zIndex": 0,
+            "iD": 36,
+            "hidden": false
+        },
+        {
+            "xIndex": 1,
+            "yIndex": -1,
+            "zIndex": -2,
+            "iD": 37,
+            "hidden": false
+        },
+        {
+            "xIndex": 2,
+            "yIndex": -1,
+            "zIndex": -2,
+            "iD": 38,
+            "hidden": false
+        },
+        {
+            "xIndex": 3,
+            "yIndex": -1,
+            "zIndex": -2,
+            "iD": 39,
+            "hidden": false
+        },
+        {
+            "xIndex": 3,
+            "yIndex": -1,
+            "zIndex": -1,
+            "iD": 40,
+            "hidden": false
+        },
+        {
+            "xIndex": 2,
+            "yIndex": -1,
+            "zIndex": -1,
+            "iD": 42,
+            "hidden": false
+        },
+        {
+            "xIndex": 1,
+            "yIndex": -1,
+            "zIndex": -1,
+            "iD": 43,
+            "hidden": false
+        },
+        {
+            "xIndex": 0,
+            "yIndex": 1,
+            "zIndex": -1,
+            "iD": 44,
+            "hidden": false
+        },
+        {
+            "xIndex": -1,
+            "yIndex": 0,
+            "zIndex": 0,
+            "iD": 51,
+            "hidden": false
+        },
+        {
+            "xIndex": -1,
+            "yIndex": 0,
+            "zIndex": -1,
+            "iD": 52,
+            "hidden": false
+        },
+        {
+            "xIndex": -1,
+            "yIndex": -1,
+            "zIndex": 0,
+            "iD": 53,
+            "hidden": false
+        },
+        {
+            "xIndex": -1,
+            "yIndex": -1,
+            "zIndex": -1,
+            "iD": 54,
+            "hidden": false
+        },
+        {
+            "xIndex": 4,
+            "yIndex": 0,
+            "zIndex": -1,
+            "iD": 55,
+            "hidden": false
+        },
+        {
+            "xIndex": 5,
+            "yIndex": 0,
+            "zIndex": -1,
+            "iD": 56,
+            "hidden": false
+        },
+        {
+            "xIndex": 5,
+            "yIndex": 0,
+            "zIndex": 0,
+            "iD": 58,
+            "hidden": false
+        },
+        {
+            "xIndex": 5,
+            "yIndex": -1,
+            "zIndex": -1,
+            "iD": 59,
+            "hidden": false
+        },
+        {
+            "xIndex": 5,
+            "yIndex": -1,
+            "zIndex": 0,
+            "iD": 60,
+            "hidden": false
+        },
+        {
+            "xIndex": 0,
+            "yIndex": 0,
+            "zIndex": -1,
+            "iD": 61,
+            "hidden": false
+        },
+        {
+            "xIndex": 0,
+            "yIndex": 0,
+            "zIndex": 0,
+            "iD": 62,
+            "hidden": false
+        },
+        {
+            "xIndex": 3,
+            "yIndex": -1,
+            "zIndex": 0,
+            "iD": 63,
+            "hidden": false
+        },
+        {
+            "xIndex": 2,
+            "yIndex": -1,
+            "zIndex": 0,
+            "iD": 64,
+            "hidden": false
+        },
+        {
+            "xIndex": 1,
+            "yIndex": -1,
+            "zIndex": 0,
+            "iD": 65,
+            "hidden": false
+        }
+    ],
+    "zFacesClues": [],
+    "yFacesClues": [],
+    "xFacesClues": []
+}

@@ -1,0 +1,581 @@
+{
+    "xDimensionMax": 2,
+    "xDimensionMin": -6,
+    "yDimensionMax": 3,
+    "yDimensionMin": -1,
+    "zDimensionMax": 2,
+    "zDimensionMin": -2,
+    "canEdit": true,
+    "puzzleUnits": [
+        {
+            "xIndex": 0,
+            "yIndex": 0,
+            "zIndex": 0,
+            "iD": 0,
+            "hidden": false
+        },
+        {
+            "xIndex": 1,
+            "yIndex": 0,
+            "zIndex": 0,
+            "iD": 1,
+            "hidden": false
+        },
+        {
+            "xIndex": 2,
+            "yIndex": 0,
+            "zIndex": 0,
+            "iD": 2,
+            "hidden": false
+        },
+        {
+            "xIndex": 1,
+            "yIndex": 0,
+            "zIndex": -1,
+            "iD": 4,
+            "hidden": false
+        },
+        {
+            "xIndex": 2,
+            "yIndex": 0,
+            "zIndex": -1,
+            "iD": 5,
+            "hidden": false
+        },
+        {
+            "xIndex": 2,
+            "yIndex": 1,
+            "zIndex": -1,
+            "iD": 6,
+            "hidden": false
+        },
+        {
+            "xIndex": 2,
+            "yIndex": 1,
+            "zIndex": 0,
+            "iD": 7,
+            "hidden": false
+        },
+        {
+            "xIndex": 1,
+            "yIndex": 1,
+            "zIndex": -1,
+            "iD": 8,
+            "hidden": false
+        },
+        {
+            "xIndex": 1,
+            "yIndex": 1,
+            "zIndex": 0,
+            "iD": 9,
+            "hidden": false
+        },
+        {
+            "xIndex": 0,
+            "yIndex": 1,
+            "zIndex": -1,
+            "iD": 10,
+            "hidden": false
+        },
+        {
+            "xIndex": 0,
+            "yIndex": 1,
+            "zIndex": 0,
+            "iD": 11,
+            "hidden": false
+        },
+        {
+            "xIndex": 2,
+            "yIndex": 1,
+            "zIndex": 1,
+            "iD": 12,
+            "hidden": false
+        },
+        {
+            "xIndex": 2,
+            "yIndex": 0,
+            "zIndex": 1,
+            "iD": 13,
+            "hidden": false
+        },
+        {
+            "xIndex": 1,
+            "yIndex": 1,
+            "zIndex": 1,
+            "iD": 14,
+            "hidden": false
+        },
+        {
+            "xIndex": 1,
+            "yIndex": 0,
+            "zIndex": 1,
+            "iD": 15,
+            "hidden": false
+        },
+        {
+            "xIndex": 0,
+            "yIndex": 1,
+            "zIndex": 1,
+            "iD": 16,
+            "hidden": false
+        },
+        {
+            "xIndex": 0,
+            "yIndex": 0,
+            "zIndex": 1,
+            "iD": 17,
+            "hidden": false
+        },
+        {
+            "xIndex": 1,
+            "yIndex": 0,
+            "zIndex": 2,
+            "iD": 18,
+            "hidden": false
+        },
+        {
+            "xIndex": 0,
+            "yIndex": 0,
+            "zIndex": 2,
+            "iD": 19,
+            "hidden": false
+        },
+        {
+            "xIndex": 1,
+            "yIndex": -1,
+            "zIndex": 2,
+            "iD": 20,
+            "hidden": false
+        },
+        {
+            "xIndex": 0,
+            "yIndex": -1,
+            "zIndex": 2,
+            "iD": 22,
+            "hidden": false
+        },
+        {
+            "xIndex": 0,
+            "yIndex": 0,
+            "zIndex": -1,
+            "iD": 23,
+            "hidden": false
+        },
+        {
+            "xIndex": 1,
+            "yIndex": 0,
+            "zIndex": -2,
+            "iD": 24,
+            "hidden": false
+        },
+        {
+            "xIndex": 0,
+            "yIndex": 0,
+            "zIndex": -2,
+            "iD": 25,
+            "hidden": false
+        },
+        {
+            "xIndex": 0,
+            "yIndex": -1,
+            "zIndex": -2,
+            "iD": 26,
+            "hidden": false
+        },
+        {
+            "xIndex": 1,
+            "yIndex": -1,
+            "zIndex": -2,
+            "iD": 28,
+            "hidden": false
+        },
+        {
+            "xIndex": -1,
+            "yIndex": 1,
+            "zIndex": 1,
+            "iD": 29,
+            "hidden": false
+        },
+        {
+            "xIndex": -1,
+            "yIndex": 0,
+            "zIndex": 1,
+            "iD": 30,
+            "hidden": false
+        },
+        {
+            "xIndex": -1,
+            "yIndex": 1,
+            "zIndex": 0,
+            "iD": 31,
+            "hidden": false
+        },
+        {
+            "xIndex": -1,
+            "yIndex": 0,
+            "zIndex": 0,
+            "iD": 32,
+            "hidden": false
+        },
+        {
+            "xIndex": -1,
+            "yIndex": 1,
+            "zIndex": -1,
+            "iD": 33,
+            "hidden": false
+        },
+        {
+            "xIndex": -1,
+            "yIndex": 0,
+            "zIndex": -1,
+            "iD": 34,
+            "hidden": false
+        },
+        {
+            "xIndex": -1,
+            "yIndex": 2,
+            "zIndex": 1,
+            "iD": 35,
+            "hidden": false
+        },
+        {
+            "xIndex": -1,
+            "yIndex": 2,
+            "zIndex": 0,
+            "iD": 36,
+            "hidden": false
+        },
+        {
+            "xIndex": -1,
+            "yIndex": 2,
+            "zIndex": -1,
+            "iD": 37,
+            "hidden": false
+        },
+        {
+            "xIndex": -2,
+            "yIndex": 2,
+            "zIndex": 1,
+            "iD": 38,
+            "hidden": false
+        },
+        {
+            "xIndex": -2,
+            "yIndex": 1,
+            "zIndex": 1,
+            "iD": 39,
+            "hidden": false
+        },
+        {
+            "xIndex": -2,
+            "yIndex": 0,
+            "zIndex": 1,
+            "iD": 40,
+            "hidden": false
+        },
+        {
+            "xIndex": -2,
+            "yIndex": 2,
+            "zIndex": 0,
+            "iD": 41,
+            "hidden": false
+        },
+        {
+            "xIndex": -2,
+            "yIndex": 1,
+            "zIndex": 0,
+            "iD": 42,
+            "hidden": false
+        },
+        {
+            "xIndex": -2,
+            "yIndex": 0,
+            "zIndex": 0,
+            "iD": 43,
+            "hidden": false
+        },
+        {
+            "xIndex": -2,
+            "yIndex": 2,
+            "zIndex": -1,
+            "iD": 44,
+            "hidden": false
+        },
+        {
+            "xIndex": -2,
+            "yIndex": 1,
+            "zIndex": -1,
+            "iD": 45,
+            "hidden": false
+        },
+        {
+            "xIndex": -2,
+            "yIndex": 0,
+            "zIndex": -1,
+            "iD": 46,
+            "hidden": false
+        },
+        {
+            "xIndex": -3,
+            "yIndex": 1,
+            "zIndex": 1,
+            "iD": 51,
+            "hidden": false
+        },
+        {
+            "xIndex": -3,
+            "yIndex": 1,
+            "zIndex": 0,
+            "iD": 52,
+            "hidden": false
+        },
+        {
+            "xIndex": -3,
+            "yIndex": 1,
+            "zIndex": -1,
+            "iD": 53,
+            "hidden": false
+        },
+        {
+            "xIndex": -3,
+            "yIndex": 0,
+            "zIndex": 1,
+            "iD": 54,
+            "hidden": false
+        },
+        {
+            "xIndex": -3,
+            "yIndex": 0,
+            "zIndex": 0,
+            "iD": 55,
+            "hidden": false
+        },
+        {
+            "xIndex": -3,
+            "yIndex": 0,
+            "zIndex": -1,
+            "iD": 56,
+            "hidden": false
+        },
+        {
+            "xIndex": -4,
+            "yIndex": 1,
+            "zIndex": 1,
+            "iD": 59,
+            "hidden": false
+        },
+        {
+            "xIndex": -4,
+            "yIndex": 1,
+            "zIndex": 0,
+            "iD": 60,
+            "hidden": false
+        },
+        {
+            "xIndex": -4,
+            "yIndex": 1,
+            "zIndex": -1,
+            "iD": 62,
+            "hidden": false
+        },
+        {
+            "xIndex": -4,
+            "yIndex": 0,
+            "zIndex": 1,
+            "iD": 63,
+            "hidden": false
+        },
+        {
+            "xIndex": -4,
+            "yIndex": 0,
+            "zIndex": 0,
+            "iD": 64,
+            "hidden": false
+        },
+        {
+            "xIndex": -4,
+            "yIndex": 0,
+            "zIndex": -1,
+            "iD": 65,
+            "hidden": false
+        },
+        {
+            "xIndex": -4,
+            "yIndex": 0,
+            "zIndex": 2,
+            "iD": 66,
+            "hidden": false
+        },
+        {
+            "xIndex": -4,
+            "yIndex": -1,
+            "zIndex": 2,
+            "iD": 67,
+            "hidden": false
+        },
+        {
+            "xIndex": -5,
+            "yIndex": -1,
+            "zIndex": 2,
+            "iD": 68,
+            "hidden": false
+        },
+        {
+            "xIndex": -5,
+            "yIndex": 0,
+            "zIndex": 2,
+            "iD": 69,
+            "hidden": false
+        },
+        {
+            "xIndex": -4,
+            "yIndex": 0,
+            "zIndex": -2,
+            "iD": 70,
+            "hidden": false
+        },
+        {
+            "xIndex": -5,
+            "yIndex": 0,
+            "zIndex": -2,
+            "iD": 71,
+            "hidden": false
+        },
+        {
+            "xIndex": -5,
+            "yIndex": -1,
+            "zIndex": -2,
+            "iD": 72,
+            "hidden": false
+        },
+        {
+            "xIndex": -4,
+            "yIndex": -1,
+            "zIndex": -2,
+            "iD": 73,
+            "hidden": false
+        },
+        {
+            "xIndex": -5,
+            "yIndex": 0,
+            "zIndex": 1,
+            "iD": 74,
+            "hidden": false
+        },
+        {
+            "xIndex": -5,
+            "yIndex": 0,
+            "zIndex": 0,
+            "iD": 75,
+            "hidden": false
+        },
+        {
+            "xIndex": -5,
+            "yIndex": 0,
+            "zIndex": -1,
+            "iD": 76,
+            "hidden": false
+        },
+        {
+            "xIndex": -5,
+            "yIndex": 1,
+            "zIndex": 1,
+            "iD": 77,
+            "hidden": false
+        },
+        {
+            "xIndex": -5,
+            "yIndex": 1,
+            "zIndex": 0,
+            "iD": 78,
+            "hidden": false
+        },
+        {
+            "xIndex": -5,
+            "yIndex": 1,
+            "zIndex": -1,
+            "iD": 79,
+            "hidden": false
+        },
+        {
+            "xIndex": -6,
+            "yIndex": 0,
+            "zIndex": 1,
+            "iD": 80,
+            "hidden": false
+        },
+        {
+            "xIndex": -6,
+            "yIndex": 0,
+            "zIndex": 0,
+            "iD": 81,
+            "hidden": false
+        },
+        {
+            "xIndex": -6,
+            "yIndex": 0,
+            "zIndex": -1,
+            "iD": 82,
+            "hidden": false
+        },
+        {
+            "xIndex": 0,
+            "yIndex": 2,
+            "zIndex": -1,
+            "iD": 98,
+            "hidden": false
+        },
+        {
+            "xIndex": 0,
+            "yIndex": 2,
+            "zIndex": 0,
+            "iD": 99,
+            "hidden": false
+        },
+        {
+            "xIndex": 0,
+            "yIndex": 2,
+            "zIndex": 1,
+            "iD": 100,
+            "hidden": false
+        },
+        {
+            "xIndex": -6,
+            "yIndex": 1,
+            "zIndex": 1,
+            "iD": 104,
+            "hidden": false
+        },
+        {
+            "xIndex": -6,
+            "yIndex": 1,
+            "zIndex": 0,
+            "iD": 105,
+            "hidden": false
+        },
+        {
+            "xIndex": -6,
+            "yIndex": 1,
+            "zIndex": -1,
+            "iD": 106,
+            "hidden": false
+        },
+        {
+            "xIndex": -2,
+            "yIndex": 3,
+            "zIndex": -1,
+            "iD": 107,
+            "hidden": false
+        },
+        {
+            "xIndex": -2,
+            "yIndex": 3,
+            "zIndex": 1,
+            "iD": 108,
+            "hidden": false
+        }
+    ],
+    "zFacesClues": [],
+    "yFacesClues": [],
+    "xFacesClues": []
+}

@@ -1,0 +1,13 @@
+{
+    "xDimensionMax": 1,
+    "xDimensionMin": 1,
+    "yDimensionMax": 1,
+    "yDimensionMin": 1,
+    "zDimensionMax": 1,
+    "zDimensionMin": 1,
+    "canEdit": false,
+    "puzzleUnits": [],
+    "zFacesClues": [],
+    "yFacesClues": [],
+    "xFacesClues": []
+}

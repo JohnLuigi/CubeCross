@@ -1,0 +1,91 @@
+{
+    "xDimensionMax": 2,
+    "xDimensionMin": 0,
+    "yDimensionMax": 2,
+    "yDimensionMin": -2,
+    "zDimensionMax": 0,
+    "zDimensionMin": 0,
+    "canEdit": true,
+    "puzzleUnits": [
+        {
+            "xIndex": 0,
+            "yIndex": 0,
+            "zIndex": 0,
+            "iD": 0,
+            "hidden": false
+        },
+        {
+            "xIndex": 0,
+            "yIndex": 1,
+            "zIndex": 0,
+            "iD": 1,
+            "hidden": false
+        },
+        {
+            "xIndex": 0,
+            "yIndex": 2,
+            "zIndex": 0,
+            "iD": 2,
+            "hidden": false
+        },
+        {
+            "xIndex": 1,
+            "yIndex": 2,
+            "zIndex": 0,
+            "iD": 3,
+            "hidden": false
+        },
+        {
+            "xIndex": 2,
+            "yIndex": 2,
+            "zIndex": 0,
+            "iD": 4,
+            "hidden": false
+        },
+        {
+            "xIndex": 1,
+            "yIndex": 0,
+            "zIndex": 0,
+            "iD": 5,
+            "hidden": false
+        },
+        {
+            "xIndex": 2,
+            "yIndex": 0,
+            "zIndex": 0,
+            "iD": 6,
+            "hidden": false
+        },
+        {
+            "xIndex": 0,
+            "yIndex": -1,
+            "zIndex": 0,
+            "iD": 8,
+            "hidden": false
+        },
+        {
+            "xIndex": 0,
+            "yIndex": -2,
+            "zIndex": 0,
+            "iD": 9,
+            "hidden": false
+        },
+        {
+            "xIndex": 1,
+            "yIndex": -2,
+            "zIndex": 0,
+            "iD": 10,
+            "hidden": false
+        },
+        {
+            "xIndex": 2,
+            "yIndex": -2,
+            "zIndex": 0,
+            "iD": 11,
+            "hidden": false
+        }
+    ],
+    "zFacesClues": [],
+    "yFacesClues": [],
+    "xFacesClues": []
+}
