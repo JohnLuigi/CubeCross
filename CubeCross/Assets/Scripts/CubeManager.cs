@@ -165,6 +165,8 @@ public class CubeManager : MonoBehaviour {
 
     private AudioManager audioScript;
 
+    public PuzzleSolution loadedSolution;
+
     //private bool hidden = false;
 
     //private SliderScript sliderScriptRef;
@@ -2261,7 +2263,7 @@ public class CubeManager : MonoBehaviour {
             string dataAsJson = File.ReadAllText(puzzleSolutionFileName);
 
             // Deserialize the string into a PuzzleSolution object.
-            PuzzleSolution loadedSolution = JsonUtility.FromJson<PuzzleSolution>(dataAsJson);
+            loadedSolution = JsonUtility.FromJson<PuzzleSolution>(dataAsJson);
 
             // Store the size of the puzzle in each dimension.
             puzzleSize_X = 1 + loadedSolution.xDimensionMax + Mathf.Abs(loadedSolution.xDimensionMin);
@@ -2368,6 +2370,10 @@ public class CubeManager : MonoBehaviour {
         rotationZ = 0f;
         // This is where the puzzle is formed in-game
         CreateCubes();
+
+        // Hide the cube faces that need to be hidden.
+        HideCubeFaces(loadedSolution);
+
         // Default the zLayer to hide to be at the "maximum" layer so that moving towards (+)
         // the puzzle adds up to zero (start counting before the layers)
         zLayerToHide = -1;
@@ -2889,6 +2895,112 @@ public class CubeManager : MonoBehaviour {
     {
         puzzleSelector.SetActive(!puzzleSelector.activeSelf);
         buildButton.SetActive(!buildButton.activeSelf);
+    }
+
+    // Hide the respective faces of the cubes in the puzzle if they have
+    // faces set to be hidden in the loadedSolution PuzzleSolution.
+    // This is only done after successfully loading a puzzle.
+    public void HideCubeFaces(PuzzleSolution loadedSolution)
+    {
+        // For zFacesClues, unit 1 is Y, unit 2 is X
+        if(loadedSolution.zFacesClues != null)
+        {
+            // Use the input face front or back for zFacesClues' faceHit to change.
+            string faceHit = "front";
+
+            // For each pair of indices stored, set the column it is in
+            // to a hidden clue.
+            foreach (ClueUnit unit in loadedSolution.zFacesClues)
+            {
+                // Clear out any old cubes from a previous face being clicked.
+                editScript.cubesToChange.Clear();
+
+                GameObject faceCube = cubeArray[0, unit.index1, unit.index2];
+
+                // Save the new cubes to change based on the other cubes in the same
+                // column as the indexed cube stored in zFacesClues.
+                
+                editScript.cubesToChange = editScript.GetColumnOfCube(faceCube, faceHit);
+
+                // For each cube in the list of cubes to change, change its
+                // face to blank or numbered.
+                foreach (GameObject cube in editScript.cubesToChange)
+                {
+                    // Toggle the face that was hit and its opposite between
+                    // numbered and blank.
+                    editScript.ToggleCubeFace(cube, faceHit);
+                }
+
+            }
+
+        }
+
+        // For yFacesClues, unit 1 is Z, unit 2 is X
+        if (loadedSolution.yFacesClues != null)
+        {
+            // Use the input face top or bottom for yFacesClues' faceHit to change.
+            string faceHit = "bottom";
+
+            // For each pair of indices stored, set the column it is in
+            // to a hidden clue.
+            foreach (ClueUnit unit in loadedSolution.yFacesClues)
+            {
+                // Clear out any old cubes from a previous face being clicked.
+                editScript.cubesToChange.Clear();
+
+                GameObject faceCube = cubeArray[unit.index1, 0, unit.index2];
+
+                // Save the new cubes to change based on the other cubes in the same
+                // column as the indexed cube stored in yFacesClues.
+
+                editScript.cubesToChange = editScript.GetColumnOfCube(faceCube, faceHit);
+
+                // For each cube in the list of cubes to change, change its
+                // face to blank or numbered.
+                foreach (GameObject cube in editScript.cubesToChange)
+                {
+                    // Toggle the face that was hit and its opposite between
+                    // numbered and blank.
+                    editScript.ToggleCubeFace(cube, faceHit);
+                }
+
+            }
+
+        }
+
+        // For xFacesClues, unit 1 is Z, unit 2 is Y
+        if (loadedSolution.xFacesClues != null)
+        {
+            // Use the input face left or right for xFacesClues' faceHit to change.
+            string faceHit = "left";
+
+            // For each pair of indices stored, set the column it is in
+            // to a hidden clue.
+            foreach (ClueUnit unit in loadedSolution.xFacesClues)
+            {
+                // Clear out any old cubes from a previous face being clicked.
+                editScript.cubesToChange.Clear();
+
+                GameObject faceCube = cubeArray[unit.index1, unit.index2, 0];
+
+                // Save the new cubes to change based on the other cubes in the same
+                // column as the indexed cube stored in xFacesClues.
+
+                editScript.cubesToChange = editScript.GetColumnOfCube(faceCube, faceHit);
+
+                // For each cube in the list of cubes to change, change its
+                // face to blank or numbered.
+                foreach (GameObject cube in editScript.cubesToChange)
+                {
+                    // Toggle the face that was hit and its opposite between
+                    // numbered and blank.
+                    editScript.ToggleCubeFace(cube, faceHit);
+                }
+
+            }
+
+        }
+
     }
 
 

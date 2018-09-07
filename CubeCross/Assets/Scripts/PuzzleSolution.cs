@@ -25,6 +25,18 @@ public class PuzzleSolution {
     // This list will contain all the indices for the cubes made in build mode.
     public List<PuzzleUnit> puzzleUnits;
 
+    // This list will store all the pairs of integers needed to hide front-back
+    // clues in the puzzleSolution.
+    public List<ClueUnit> zFacesClues;
+
+    // This list will store all the pairs of integers needed to hide top-bottom
+    // clues in the puzzleSolution.
+    public List<ClueUnit> yFacesClues;
+
+    // This list will store all the pairs of integers needed to hide left-right
+    // clues in the puzzleSolution.
+    public List<ClueUnit> xFacesClues;
+
     // Function that will create a puzzleUnit and add it to the list stored in puzzleSolution.
     public void AddCube(int inputX, int inputY, int inputZ, int inputID)
     {

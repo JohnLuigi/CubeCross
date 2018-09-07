@@ -4,9 +4,9 @@ using UnityEngine;
 
 public class CubeScript : MonoBehaviour {
 
-    public int index1;
-    public int index2;
-    public int index3;
+    public int index1;  // Z value
+    public int index2;  // Y value
+    public int index3;  // X value
 
     public PuzzleUnit puzzleUnit;
 
