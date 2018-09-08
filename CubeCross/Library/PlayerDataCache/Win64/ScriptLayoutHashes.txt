@@ -171,7 +171,7 @@ aac9c55ae7ba4b95b852a7d9c191acd1 Unity.TextMeshPro.dll:TMPro.TextMeshProUGUI
 c43c749c600d9f61c4ad399dbb9ccbe7 Assembly-CSharp.dll:.ClueEditScript
 9f03c6149c37e65eb82fe4123317af11 Assembly-CSharp.dll:.ExtraInputFieldScript
 e04611b8715e6833d2bd7010fc6be10b Unity.TextMeshPro.dll:TMPro.TMP_StyleSheet
-46ffafe77b2e97492220c983d52aaaee Assembly-CSharp.dll:.CubeManager
+b38d08f3702aef6bff69c167694cc667 Assembly-CSharp.dll:.CubeManager
 2f9af06a78208a67db480e9bfed4a076 Unity.TextMeshPro.dll:TMPro.TextMeshPro
 9318334b30e9f195f573b2ce00154b95 Unity.TextMeshPro.dll:TMPro.TMP_ColorGradient
 93307bd34e39d73fd24e00ec39c25a91 Unity.TextMeshPro.dll:TMPro.TMP_SubMesh

@@ -45,15 +45,17 @@ public class CubeFacesScript : MonoBehaviour {
         // In this case we are using 128x128 cubes from a 1024x1024 texture atlas
         div = 120f / 1440f;
 
+        // Default the clueHidden values to false.
+        frontBackClueHidden = false;
+        topBottomClueHidden = false;
+        leftRightClueHidden = false;
+
     }
 
     // Use this for initialization
     void Start () {
 
-        // Default the clueHidden values to false.
-        frontBackClueHidden = false;
-        topBottomClueHidden = false;
-        leftRightClueHidden = false;
+        
 
     // TODO to assign a specific part of a texture to a cube face, the location on the texture map needs to be saved
     // could save 4 vector2s that are the location of a specific square texture
@@ -502,6 +504,101 @@ public class CubeFacesScript : MonoBehaviour {
 
         mesh.uv = UVs;
     }
+
+    // Public method to set the cluehidden variables to true/false.
+    public void SetFacesHidden(string inputString, bool inputBool)
+    {
+        if(inputString.Equals("frontback"))
+        {
+            frontBackClueHidden = inputBool;
+        }
+
+        if (inputString.Equals("topbottom"))
+        {
+            topBottomClueHidden = inputBool;
+        }
+
+        if (inputString.Equals("leftright"))
+        {
+            leftRightClueHidden = inputBool;
+        }
+    }
+
+    // Public method to change a face to red blank face for hidden and flagged
+    // cube faces.
+    public void ToggleFlaggedClue(string inputString, bool flagStatus)
+    {
+        //TODO
+        // Determine if dark or light red or gray need to be used.
+        //string redType = "Red";
+        // TODO Add a dark red to the setFace options.
+
+        string grayType = "LightGray";
+        if (dark)
+            grayType = "DarkGray";
+
+        if (inputString.Equals("frontback"))
+        {
+            // If the face pair is flagged, set to blank red.
+            if(flagStatus)
+            {
+                SetFace("front", "Red");
+                SetFace("back", "Red");
+            }
+            // If the face pair is not flagged, set to blank gray.
+            // TODO make this alternate between dark and light gray.
+            // Might have to instead apply the red above.
+            // maybe check the isDark variable for the cube.
+            else
+            {
+                SetFace("front", grayType);
+                SetFace("back", grayType);
+            }
+            
+        }
+
+        if (inputString.Equals("topbottom"))
+        {
+            // If the face pair is flagged, set to blank red.
+            if (flagStatus)
+            {
+                SetFace("top", "Red");
+                SetFace("bottom", "Red");
+            }
+            // If the face pair is not flagged, set to blank gray.
+            // TODO make this alternate between dark and light gray.
+            // Might have to instead apply the red above.
+            // maybe check the isDark variable for the cube.
+            else
+            {
+                SetFace("top", grayType);
+                SetFace("bottom", grayType);
+            }
+
+        }
+
+        if (inputString.Equals("leftright"))
+        {
+            // If the face pair is flagged, set to blank red.
+            if (flagStatus)
+            {
+                SetFace("left", "Red");
+                SetFace("right", "Red");
+            }
+            // If the face pair is not flagged, set to blank gray.
+            // TODO make this alternate between dark and light gray.
+            // Might have to instead apply the red above.
+            // maybe check the isDark variable for the cube.
+            else
+            {
+                SetFace("left", grayType);
+                SetFace("right", grayType);
+            }
+
+        }
+
+    }
+
 }
 
 

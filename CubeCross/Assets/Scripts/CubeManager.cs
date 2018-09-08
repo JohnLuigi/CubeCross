@@ -167,6 +167,8 @@ public class CubeManager : MonoBehaviour {
 
     public PuzzleSolution loadedSolution;
 
+    public List<GameObject> cubesToChange;
+
     //private bool hidden = false;
 
     //private SliderScript sliderScriptRef;
@@ -185,6 +187,9 @@ public class CubeManager : MonoBehaviour {
 
         // Set the delay tracker to be the starting amount
         newPuzzleDelay = originalPuzzleDelayValue;
+
+        // Initialize the list of cubes to hide/show faces.
+        cubesToChange = new List<GameObject>();
 
 
         // string to use for selecting a puzzle
@@ -332,7 +337,7 @@ public class CubeManager : MonoBehaviour {
     }
 
 	public void Update () {
-
+        
         //Debug.Log(maxVisibleZLayer);
 
         // show/hide the menu when the escape key is pressed
@@ -508,7 +513,7 @@ public class CubeManager : MonoBehaviour {
             uiScript.ShowCompletion(true);
             cubesToDelete = 1;
         }
-        
+
 
 
         /*
@@ -527,7 +532,7 @@ public class CubeManager : MonoBehaviour {
         */
 
         // replace left and right bracket with (if tracking number increased or decreased by one)
-       
+
 
         // update the previous mouse position
         //prevMouseX = Input.mousePosition.x;
@@ -537,10 +542,10 @@ public class CubeManager : MonoBehaviour {
 
         //Debug.Log("Manager X: " + managerReference.transform.rotation.eulerAngles.x + ". Y: " 
         //    + managerReference.transform.rotation.eulerAngles.y + ". Z: " + managerReference.transform.rotation.eulerAngles.z);
+                
 
 
-
-    }
+    }// end of Update()
 
     // do this on the first frame after everything has been set up
     private void LateUpdate()
@@ -649,6 +654,18 @@ public class CubeManager : MonoBehaviour {
                     // swap the value of flagged
                     faceScript.flagged = !faceScript.flagged;
                 }
+
+                // Ensure that the hidden faces stay hidden.
+                // If the face
+                
+                if(faceScript.frontBackClueHidden)                
+                    faceScript.ToggleFlaggedClue("frontback", faceScript.flagged);
+
+                if(faceScript.topBottomClueHidden)
+                    faceScript.ToggleFlaggedClue("topbottom", faceScript.flagged);
+
+                if (faceScript.leftRightClueHidden)
+                    faceScript.ToggleFlaggedClue("leftright", faceScript.flagged);
             }
 
 
@@ -2377,6 +2394,8 @@ public class CubeManager : MonoBehaviour {
         // Hide the cube faces that need to be hidden.
         HideCubeFaces(loadedSolution);
 
+        
+
         // Default the zLayer to hide to be at the "maximum" layer so that moving towards (+)
         // the puzzle adds up to zero (start counting before the layers)
         zLayerToHide = -1;
@@ -2458,6 +2477,7 @@ public class CubeManager : MonoBehaviour {
         // set the timer to start back at one second and flag that the puzzle was initiated
         newPuzzleDelay = originalPuzzleDelayValue;
         puzzleInitialized = true;
+
     }
 
     // This will handle drawing the bounding box for the cubes in the puzzle
@@ -2916,22 +2936,23 @@ public class CubeManager : MonoBehaviour {
             foreach (ClueUnit unit in loadedSolution.zFacesClues)
             {
                 // Clear out any old cubes from a previous face being clicked.
-                editScript.cubesToChange.Clear();
+                cubesToChange.Clear();
 
                 GameObject faceCube = cubeArray[0, unit.index1, unit.index2];
 
                 // Save the new cubes to change based on the other cubes in the same
                 // column as the indexed cube stored in zFacesClues.
                 
-                editScript.cubesToChange = editScript.GetColumnOfCube(faceCube, faceHit);
+                cubesToChange = editScript.GetColumnOfCube(faceCube, faceHit);
 
                 // For each cube in the list of cubes to change, change its
                 // face to blank or numbered.
-                foreach (GameObject cube in editScript.cubesToChange)
+                foreach (GameObject cube in cubesToChange)
                 {
                     // Toggle the face that was hit and its opposite between
                     // numbered and blank.
                     editScript.ToggleCubeFace(cube, faceHit);
+                    
                 }
 
             }
@@ -2949,18 +2970,18 @@ public class CubeManager : MonoBehaviour {
             foreach (ClueUnit unit in loadedSolution.yFacesClues)
             {
                 // Clear out any old cubes from a previous face being clicked.
-                editScript.cubesToChange.Clear();
+                cubesToChange.Clear();
 
                 GameObject faceCube = cubeArray[unit.index1, 0, unit.index2];
 
                 // Save the new cubes to change based on the other cubes in the same
                 // column as the indexed cube stored in yFacesClues.
 
-                editScript.cubesToChange = editScript.GetColumnOfCube(faceCube, faceHit);
+                cubesToChange = editScript.GetColumnOfCube(faceCube, faceHit);
 
                 // For each cube in the list of cubes to change, change its
                 // face to blank or numbered.
-                foreach (GameObject cube in editScript.cubesToChange)
+                foreach (GameObject cube in cubesToChange)
                 {
                     // Toggle the face that was hit and its opposite between
                     // numbered and blank.
@@ -2982,18 +3003,18 @@ public class CubeManager : MonoBehaviour {
             foreach (ClueUnit unit in loadedSolution.xFacesClues)
             {
                 // Clear out any old cubes from a previous face being clicked.
-                editScript.cubesToChange.Clear();
+                cubesToChange.Clear();
 
                 GameObject faceCube = cubeArray[unit.index1, unit.index2, 0];
 
                 // Save the new cubes to change based on the other cubes in the same
                 // column as the indexed cube stored in xFacesClues.
 
-                editScript.cubesToChange = editScript.GetColumnOfCube(faceCube, faceHit);
+                cubesToChange = editScript.GetColumnOfCube(faceCube, faceHit);
 
                 // For each cube in the list of cubes to change, change its
                 // face to blank or numbered.
-                foreach (GameObject cube in editScript.cubesToChange)
+                foreach (GameObject cube in cubesToChange)
                 {
                     // Toggle the face that was hit and its opposite between
                     // numbered and blank.

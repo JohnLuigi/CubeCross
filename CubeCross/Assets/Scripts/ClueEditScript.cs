@@ -225,6 +225,7 @@ public class ClueEditScript : MonoBehaviour {
                 tempFacesScript.SetFace("back", tempFacesScript.frontBack);
 
                 tempFacesScript.frontBackClueHidden = false;
+                tempFacesScript.SetFacesHidden("frontback", false);
             }
             if (facesToChange.Equals("top") || facesToChange.Equals("bottom"))
             {
@@ -232,6 +233,7 @@ public class ClueEditScript : MonoBehaviour {
                 tempFacesScript.SetFace("bottom", tempFacesScript.topBottom);
 
                 tempFacesScript.topBottomClueHidden = false;
+                tempFacesScript.SetFacesHidden("topbottom", false);
             }
             if (facesToChange.Equals("left") || facesToChange.Equals("right"))
             {
@@ -239,6 +241,7 @@ public class ClueEditScript : MonoBehaviour {
                 tempFacesScript.SetFace("right", tempFacesScript.leftRight);
 
                 tempFacesScript.leftRightClueHidden = false;
+                tempFacesScript.SetFacesHidden("leftright", false);
             }
 
         }
@@ -246,29 +249,37 @@ public class ClueEditScript : MonoBehaviour {
         // to be hidden (blank).
         else
         {
+            // Set the gray for a face to be set as light or dark gray.
+            string grayType = "LightGray";
+            if (tempFacesScript.dark)
+                grayType = "DarkGray";
+
             // If the faces are numbered, set the faces to gray
             // and set the corresponding facePairClueHidden value in the CubeFacesScript
             // to true.
             if (facesToChange.Equals("front") || facesToChange.Equals("back"))
             {
-                tempFacesScript.SetFace("front", "LightGray");
-                tempFacesScript.SetFace("back", "LightGray");
+                tempFacesScript.SetFace("front", grayType);
+                tempFacesScript.SetFace("back", grayType);
 
                 tempFacesScript.frontBackClueHidden = true;
+                tempFacesScript.SetFacesHidden("frontback", true);
             }
             if (facesToChange.Equals("top") || facesToChange.Equals("bottom"))
             {
-                tempFacesScript.SetFace("top", "LightGray");
-                tempFacesScript.SetFace("bottom", "LightGray");
+                tempFacesScript.SetFace("top", grayType);
+                tempFacesScript.SetFace("bottom", grayType);
 
                 tempFacesScript.topBottomClueHidden = true;
+                tempFacesScript.SetFacesHidden("topbottom", true);
             }
             if (facesToChange.Equals("left") || facesToChange.Equals("right"))
             {
-                tempFacesScript.SetFace("left", "LightGray");
-                tempFacesScript.SetFace("right", "LightGray");
+                tempFacesScript.SetFace("left", grayType);
+                tempFacesScript.SetFace("right", grayType);
 
                 tempFacesScript.leftRightClueHidden = true;
+                tempFacesScript.SetFacesHidden("leftright", true);
             }
 
         }
