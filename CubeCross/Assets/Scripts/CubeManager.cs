@@ -169,6 +169,19 @@ public class CubeManager : MonoBehaviour {
 
     public List<GameObject> cubesToChange;
 
+    public GameObject firstCube;
+
+    public int playerHealth;
+
+    private float multiCubeDeleteStartDelay = 0.5f;
+
+    private float multiCubeDeleteIndividualDelay;
+    private float multiCubeDeletionIndividualDelayTracker = 0f;
+
+    private int faceHitTriangleIndex;
+
+    public List<GameObject> multiCubesToDelete;
+
     //private bool hidden = false;
 
     //private SliderScript sliderScriptRef;
@@ -190,6 +203,9 @@ public class CubeManager : MonoBehaviour {
 
         // Initialize the list of cubes to hide/show faces.
         cubesToChange = new List<GameObject>();
+
+        // Initialize the list of cubes to delete while holding down LMB
+        multiCubesToDelete = new List<GameObject>();
 
 
         // string to use for selecting a puzzle
@@ -223,6 +239,10 @@ public class CubeManager : MonoBehaviour {
         // that they can be reactivated.
         xSlider = GameObject.Find("XSlider");
         zSlider = GameObject.Find("ZSlider");
+
+        multiCubeDeleteIndividualDelay = 0.1f;
+
+
     }
 
     // create the array of cubes that will make up the puzzle
@@ -444,6 +464,10 @@ public class CubeManager : MonoBehaviour {
         {
             mouseDown = true;
             pressTime = 0.0f;
+
+            // Get the first cube that the mouse was over
+            // when the initial left click happens.
+            GetFirstCube();
         }
 
         // while the left mouse button is held down, get a ray of all the cubes hit under the mouse
@@ -453,9 +477,13 @@ public class CubeManager : MonoBehaviour {
         if (Input.GetMouseButton(0))
         {
             // if we aren't set to flagging status, try to delete a cube on LMB click
-            if (!flagStatus)
-                LongCheckCubes(pressTime);            
+            //if (!flagStatus)
+            //LongCheckCubes(pressTime);            
             //Slider();
+            MultiCubeDeletionCheck();
+            multiCubeDeletionIndividualDelayTracker -= Time.deltaTime;
+            //Debug.Log("Tracker: " + multiCubeDeletionIndividualDelayTracker);
+            //Debug.Log(Time.deltaTime);
         }
 
         // when the mouse button is released, check if the cube can be deleted
@@ -465,10 +493,24 @@ public class CubeManager : MonoBehaviour {
             mouseDown = false;
             // if we aren't set to flagging status, try to delete a cube on LMB click
             if (!flagStatus)
-                CheckCube(pressTime);
+            {
+                if(firstCube != null)
+                    CubeDeletionCheck(firstCube);
+                //CheckCube(pressTime);
+            }
+                
             else
                 FlagCube();
+
             pressTime = 0.0f;
+
+            // Clear out the reference to the firstCube clicked after letting go
+            // of the left mouse button.
+            firstCube = null;
+
+            // Wipe out the list of cubes that were being deleted while LMB was held down.
+            multiCubesToDelete.Clear();
+            multiCubeDeletionIndividualDelayTracker = 0f;
         }
 
         // if the player presses Z, return the last cube that was deleted to the puzzle
@@ -678,11 +720,10 @@ public class CubeManager : MonoBehaviour {
     // this is only done when the mouse button is released, and thus can only delete one cube at a time
     private void CheckCube(float timePassed)
     {
-
         // if the player has not been holding down the left mouse button, continue with checking the cube
         // otherwise, they are lifting up after dragging for a while, so don't try to delete a cube
-        if (timePassed > cubeKillDelay)
-            return;
+        //if (timePassed < cubeKillDelay)
+        //    return;
 
         // if a raycast is made, create an array of all the objects hit
         RaycastHit hit;                          // an array that holds the cubes hit when holding LMB
@@ -725,6 +766,191 @@ public class CubeManager : MonoBehaviour {
                 audioScript.PlayRandomPopClip();
             }
         } 
+    }
+
+    // This method is called on GetMouseButtonDown and returns the first cube that was cliked
+    // on. This cube will either be deleted or will be used as a reference point to delete
+    // the rest of the cubes in its row while LMB is held down.
+    private void GetFirstCube()
+    {
+        // hit will be the reference to the objct hit by the ray.
+        RaycastHit hit;
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        if (Physics.Raycast(ray, out hit, Mathf.Infinity))
+        {
+            firstCube = hit.transform.gameObject;
+            faceHitTriangleIndex = hit.triangleIndex;
+        }
+
+    }
+
+    // This will check an individual cube and determine whether it is fit for deletion
+    // or if it isn't, penalize the player for trying to delete a solution cube.
+    private bool CubeDeletionCheck(GameObject testCube)
+    {
+        // If the cube trying to be deleted is not active, return.
+        if (!testCube.activeSelf)
+            return false;
+
+        CubeFacesScript tempFacesScript = testCube.GetComponent<CubeFacesScript>();
+
+        // If the player clicked on a solution cube, see if it is flagged first, then penalize
+        if(testCube.tag == "KeyCube")
+        {
+            // See if the cube is flagged, if it is, don't penalize, do nothing since
+            // the cube is protected by being flagged.
+            if (tempFacesScript.flagged)
+                return false;
+            // If the player tried to delete a solution cube, penalize them.
+            playerHealth--;
+            // TODO
+            // Check if the player health is at 0, if so, end the attempt at the puzzle.
+        }
+        else if(testCube.tag == "BlankCube")
+        {
+            // See if the cube is flagged, if it is, don't penalize, do nothing since
+            // the cube is protected by being flagged, even though this is a blank cube.
+            if (tempFacesScript.flagged)
+                return false;
+
+            // TODO
+            //make an animation for deleting a blank cube, play it here
+            deletedCubes.Add(testCube);
+            testCube.SetActive(false);
+            rotateTime = 0.0f;
+            UpdateBounds();
+
+            // subtract one from cubesToDelete
+            cubesToDelete--;
+
+            // Play a pop sound upon cube deletion.
+            audioScript.PlayRandomPopClip();
+            // Return true is a cube was deleted.
+            return true;
+        }
+
+        return false;
+    }
+
+    // New method that will continue to delete cubes in the same row as the face clicked on
+    // as long as the left mouse button is held down
+    // TODO
+    // Maybe make it only continue killing cubes in that row if the mouse hasn't moved far
+    // enough from the initial clicking location.
+    private void MultiCubeDeletionCheck()
+    {
+        // While LMB is still held down after the initial click, 
+        // ensure that enough time has passed to begin deleting the cubes in the row
+        // behind the initial cube.
+        if (pressTime < multiCubeDeleteStartDelay)
+            return;
+
+        // If no cubes have been assigned to the list of cubes to delete, 
+        // set the list of cubes to delete.
+        // Only do this the first time the LMB is held down, so we are't remaking 
+        // the list every frame that LMB is held down.
+        // TODO
+        // If this doesn't work, just set a boolean after setting the list and check for
+        // that boolean being true here. Don't forget to set the boolean to false after 
+        // letting go of LMB.
+        if(multiCubesToDelete.Count == 0 && firstCube.activeSelf)
+        {
+            // Once enough time has passed with LMB held down, 
+            // Get the face of the clicked on cube.
+            string multiFaceHit = editScript.GetFaceHit(faceHitTriangleIndex);
+            // Create a list of the cubes in the row behind the face of the clicked-on cube.
+            GetMultiCubesList(multiFaceHit);
+        }
+
+        // Every frame LMB is held down, multiCubeDeletionIndividualDelayTracker is decremented
+        // by Time.deltaTime. If/when it finally hits 0, try to delete the next cube in the array.
+        // When a cube is deleted, reset hte tracker to te starting delay value.
+        if(multiCubeDeletionIndividualDelayTracker <= 0f )
+        {
+            // Try to delete the first cube, then start the individual multicubedeletion timer.
+            // Make sure there are cubes to try to delete.
+            if (multiCubesToDelete.Count > 0 && CubeDeletionCheck(multiCubesToDelete[0]))
+                multiCubesToDelete.RemoveAt(0);
+            multiCubeDeletionIndividualDelayTracker = multiCubeDeleteIndividualDelay;
+        }
+        
+
+    }
+
+    // This sets the list of cubes to delete while holding down LMB
+    public void GetMultiCubesList(string faceHit)
+    {
+        CubeScript tempFacesScript = firstCube.GetComponent<CubeScript>();
+
+        int firstCubeX = tempFacesScript.index3;
+        int firstCubeY = tempFacesScript.index2;
+        int firstCubeZ = tempFacesScript.index1;
+
+        GameObject testCube;
+
+        // Depending on which 
+        switch (faceHit)
+        {
+            case "front":
+                for(int i = firstCubeZ; i >= 0; i--)
+                {
+                    testCube = cubeArray[i, firstCubeY, firstCubeX];
+                    // If the cube is active (it hasn't been deleted):
+                    if(testCube.activeSelf)
+                        multiCubesToDelete.Add(cubeArray[i, firstCubeY, firstCubeX]);
+                }
+                break;
+
+            case "back":
+                for (int i = firstCubeZ; i < puzzleSize_Z; i++)
+                {
+                    testCube = cubeArray[i, firstCubeY, firstCubeX];
+                    // If the cube is active (it hasn't been deleted):
+                    if (testCube.activeSelf)
+                        multiCubesToDelete.Add(cubeArray[i, firstCubeY, firstCubeX]);
+                }
+                break;
+            case "top":
+                for (int i = firstCubeY; i >= 0; i--)
+                {
+                    testCube = cubeArray[firstCubeZ, i, firstCubeX];
+                    // If the cube is active (it hasn't been deleted):
+                    if (testCube.activeSelf)
+                        multiCubesToDelete.Add(cubeArray[firstCubeZ, i, firstCubeX]);
+                }
+                break;
+            case "bottom":
+                for (int i = firstCubeY; i < puzzleSize_Y; i++)
+                {
+                    testCube = cubeArray[firstCubeZ, i, firstCubeX];
+                    // If the cube is active (it hasn't been deleted):
+                    if (testCube.activeSelf)
+                        multiCubesToDelete.Add(cubeArray[firstCubeZ, i, firstCubeX]);
+                }
+                break;
+            case "left":
+                for (int i = firstCubeX; i >= 0; i--)
+                {
+                    testCube = cubeArray[firstCubeZ, firstCubeY, i];
+                    // If the cube is active (it hasn't been deleted):
+                    if (testCube.activeSelf)
+                        multiCubesToDelete.Add(cubeArray[firstCubeZ, firstCubeY, i]);
+                }
+                break;
+            case "right":
+                for (int i = firstCubeX; i < puzzleSize_X; i++)
+                {
+                    testCube = cubeArray[firstCubeZ, firstCubeY, i];
+                    // If the cube is active (it hasn't been deleted):
+                    if (testCube.activeSelf)
+                        multiCubesToDelete.Add(cubeArray[firstCubeZ, firstCubeY, i]);
+                }
+                break;
+            default:
+                break;
+        }
+        
+        
     }
 
     // this method is used while the left mouse button is held down
@@ -2394,7 +2620,8 @@ public class CubeManager : MonoBehaviour {
         // Hide the cube faces that need to be hidden.
         HideCubeFaces(loadedSolution);
 
-        
+        // Default the player's health to be 5.
+        playerHealth = 5;
 
         // Default the zLayer to hide to be at the "maximum" layer so that moving towards (+)
         // the puzzle adds up to zero (start counting before the layers)

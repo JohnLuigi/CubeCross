@@ -34,6 +34,7 @@ public class ButtonScript : MonoBehaviour {
         // load the puzzle
         //cubeMgr.InitializePuzzle(puzzleName);
         cubeMgr.InitializeSolution(puzzleName);
+
         // hide the puzzle selection menu after clicking the level button
         cubeMgr.puzzleSelector.SetActive(!cubeMgr.puzzleSelector.activeSelf);
 
