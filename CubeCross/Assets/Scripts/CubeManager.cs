@@ -182,6 +182,16 @@ public class CubeManager : MonoBehaviour {
 
     public List<GameObject> multiCubesToDelete;
 
+    // Dimensions of the puzzle in x, y, and z directions.
+    public int xDimensionMax;
+    public int xDimensionMin;
+
+    public int yDimensionMax;
+    public int yDimensionMin;
+
+    public int zDimensionMax;
+    public int zDimensionMin;
+
     //private bool hidden = false;
 
     //private SliderScript sliderScriptRef;
@@ -467,7 +477,9 @@ public class CubeManager : MonoBehaviour {
 
             // Get the first cube that the mouse was over
             // when the initial left click happens.
-            GetFirstCube();
+            // Only do this if we are not set to flagging mode.
+            if(!flagStatus)
+                GetFirstCube();
         }
 
         // while the left mouse button is held down, get a ray of all the cubes hit under the mouse
@@ -480,8 +492,14 @@ public class CubeManager : MonoBehaviour {
             //if (!flagStatus)
             //LongCheckCubes(pressTime);            
             //Slider();
-            MultiCubeDeletionCheck();
-            multiCubeDeletionIndividualDelayTracker -= Time.deltaTime;
+
+            // If we aren't set to flagging status, try to do a multi-cube row deletion.
+            if(!flagStatus)
+            {
+                MultiCubeDeletionCheck();
+                multiCubeDeletionIndividualDelayTracker -= Time.deltaTime;
+            }
+            
             //Debug.Log("Tracker: " + multiCubeDeletionIndividualDelayTracker);
             //Debug.Log(Time.deltaTime);
         }
@@ -499,6 +517,8 @@ public class CubeManager : MonoBehaviour {
                 //CheckCube(pressTime);
             }
                 
+            //TODO
+            // Update this FlagCube to use firstCube.
             else
                 FlagCube();
 
@@ -842,7 +862,8 @@ public class CubeManager : MonoBehaviour {
         // While LMB is still held down after the initial click, 
         // ensure that enough time has passed to begin deleting the cubes in the row
         // behind the initial cube.
-        if (pressTime < multiCubeDeleteStartDelay)
+        // If the firstCube hasn't been set, break out of the method and do nothing.
+        if (pressTime < multiCubeDeleteStartDelay || firstCube == null)
             return;
 
         // If no cubes have been assigned to the list of cubes to delete, 
@@ -1648,6 +1669,26 @@ public class CubeManager : MonoBehaviour {
         zBoundSize = zMaxIndex - zMinIndex;
 
         lineManager.UpdateLineBounds();
+    }
+
+    // Set the initial bounds of hte puzzle based on the input puzzleSolution.
+    public void SetInitialBounds(PuzzleSolution puzSol)
+    {
+        xDimensionMax = puzSol.xDimensionMax;
+        xDimensionMin = puzSol.xDimensionMin;
+
+        yDimensionMax = puzSol.yDimensionMax; ;
+        yDimensionMin = puzSol.yDimensionMin; ;
+
+        zDimensionMax = puzSol.zDimensionMax; ;
+        zDimensionMin = puzSol.zDimensionMin; ;
+    }
+
+    // See if the removed cube altered the puzzle's maximum/minimum dimensions.
+    public void CheckPuzzleBounds(GameObject inputCube)
+    {
+        // See if this is the last cube in its row for each dimension.
+        // TODO resume here.
     }
 
     // this moves the camera to keep it centered on the puzzle and in view, even while spinning it around
@@ -2552,8 +2593,11 @@ public class CubeManager : MonoBehaviour {
             // minus the number of solution cubes.
             int totalCubes = puzzleSize_X * puzzleSize_Y * puzzleSize_Z;
             cubesToDelete = totalCubes - loadedSolution.puzzleUnits.Count;
-            
-                
+
+            // Store the values of the xMax, xMin, yMax, yMin, zMax, zMin.
+            SetInitialBounds(loadedSolution);
+
+
 
             returnValue = true;
         }
