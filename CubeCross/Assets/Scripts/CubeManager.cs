@@ -192,6 +192,9 @@ public class CubeManager : MonoBehaviour {
     public int zDimensionMax;
     public int zDimensionMin;
 
+    // Reference to the child of the gameManager that will hold the cubes.
+    public GameObject cubeHolder;
+
     //private bool hidden = false;
 
     //private SliderScript sliderScriptRef;
@@ -207,6 +210,7 @@ public class CubeManager : MonoBehaviour {
         uiScript = GameObject.Find("UIManager").GetComponent<UIManagerScript>();
         editScript = GameObject.Find("ClueEditManager").GetComponent<ClueEditScript>();
         audioScript = GameObject.Find("AudioManager").GetComponent<AudioManager>();
+        cubeHolder = GameObject.Find("CubeHolder");
 
         // Set the delay tracker to be the starting amount
         newPuzzleDelay = originalPuzzleDelayValue;
@@ -894,13 +898,18 @@ public class CubeManager : MonoBehaviour {
                 multiCubesToDelete.RemoveAt(0);
             multiCubeDeletionIndividualDelayTracker = multiCubeDeleteIndividualDelay;
         }
-        
 
     }
 
     // This sets the list of cubes to delete while holding down LMB
     public void GetMultiCubesList(string faceHit)
     {
+        // Don't proceed with the method if there isn't a first cube with an CubeScript
+        // attached to it. This was being called when trying to slide a slider, but now 
+        // cannot be reached due to this component check.
+        if (!firstCube.GetComponent<CubeScript>())
+            return;
+
         CubeScript tempFacesScript = firstCube.GetComponent<CubeScript>();
 
         int firstCubeX = tempFacesScript.index3;
@@ -1227,9 +1236,12 @@ public class CubeManager : MonoBehaviour {
                     }
 
                     newCube.transform.localScale = Vector3.one;
-                    newCube.transform.parent = gameObject.transform;        // set each cube as a child of this game manager
-                                                                            // so that you can manipulate the manager's transform
-                                                                            // to manipualte all the cubes
+                    // set each cube as a child of this game manager
+                    // so that you can manipulate the manager's transform
+                    // to manipualte all the cubes
+                    //newCube.transform.parent = gameObject.transform;  
+                    newCube.transform.parent = cubeHolder.transform;
+                    
                     newCube.GetComponent<CubeScript>().index1 = i;
                     newCube.GetComponent<CubeScript>().index2 = j;
                     newCube.GetComponent<CubeScript>().index3 = k;
@@ -1556,9 +1568,24 @@ public class CubeManager : MonoBehaviour {
         //TODO 
         // redo this find max two cubes method
         // it is very inefficient and performance expensive
-        puzzleBounds.center = Vector3.zero;
-        puzzleBounds.size = Vector3.zero;
+        //puzzleBounds.center = Vector3.zero;
+        //puzzleBounds.size = Vector3.zero;
 
+        Renderer[] renderers = cubeHolder.GetComponentsInChildren<Renderer>();
+
+        // Find the first cube in the puzzle. Store its reference to be the first
+        // bound to seed the whole bounds.
+        Bounds tempBounds = renderers[0].bounds;        
+        
+        foreach(Renderer rend in renderers)
+        {
+            tempBounds.Encapsulate(rend.bounds);
+        }
+
+        // Update the bounds clas properly.
+        puzzleBounds = tempBounds;
+
+        /*
         // you can get the length of a specific array dimension with "nameofArray".GetLength("dimension")
         for (int i = 0; i < cubeArray.GetLength(0); i++)
         {
@@ -1569,18 +1596,22 @@ public class CubeManager : MonoBehaviour {
                     // only factor in cubes that are active when finding the max distance
                     if (cubeArray[i, j, k].activeSelf)
                     {
-                        puzzleBounds.Encapsulate(cubeArray[i, j, k].transform.position);
+                        //puzzleBounds.Encapsulate(cubeArray[i, j, k].transform.position);
+                        tempBounds.Encapsulate(cubeArray[i, j, k].GetComponent<Renderer>().bounds);
                     }
                 }                    
             }
         }
+        */
+
+
 
         // Method that will track the furthest distance between the remaining cubes in the puzzle
         // cubeArray's dimensions are [puzzleSize_Z, puzzleSize_Y, puzzleSize_X]
         // Initially set the index for each max/min to be a number that will never exist in the game e.g. 10,000
         // Set the first appearing active cube to be both the minimum and maximum index (in case only
         // one cube is left in a specific dimension, we want that to be included).
-        
+
         int xMaxIndex = 10000;
         int xMinIndex = 10000;
         
@@ -1590,12 +1621,30 @@ public class CubeManager : MonoBehaviour {
         int zMaxIndex = 10000;
         int zMinIndex = 10000;
 
-        Vector3 xMaxPos;
-        Vector3 xMinPos;
-        Vector3 yMaxPos;
-        Vector3 yMinPos;
-        Vector3 zMaxPos;
-        Vector3 zMinPos;
+        Vector3 xMaxPos = Vector3.zero;
+        Vector3 xMinPos = Vector3.zero;
+        Vector3 yMaxPos = Vector3.zero;
+        Vector3 yMinPos = Vector3.zero;
+        Vector3 zMaxPos = Vector3.zero;
+        Vector3 zMinPos = Vector3.zero;
+
+        float xVal = 0;
+        float yVal = 0;
+        float zVal = 0;
+
+        Vector3 centroid = Vector3.zero;
+        int centerCount = 0;
+
+        //Bounds centerBounds;
+
+        /*
+        GameObject xMaxPosCube;
+        GameObject xMinPosCube;
+        GameObject yMaxPosCube;
+        GameObject yMinPosCube;
+        GameObject zMaxPosCube;
+        GameObject zMinPosCube;
+        */
 
         // z dimension
         for (int i = 0; i < cubeArray.GetLength(0); i++)
@@ -1609,9 +1658,18 @@ public class CubeManager : MonoBehaviour {
                     // if the cube being checked is active, compare it to the rest of its row
                     if(cubeArray[i, j, k].activeSelf)
                     {
+                        centroid += cubeArray[i, j, k].transform.position;
+                        xVal += cubeArray[i, j, k].transform.position.x;
+                        yVal += cubeArray[i, j, k].transform.position.y;
+                        zVal += cubeArray[i, j, k].transform.position.z;
+                        centerCount++;
+
+                        
+                        //centerBounds.Encapsulate(cubeArray[i, j, k].GetComponent<Renderer>().bounds);
+
                         // First, see if any other cube has been set as a max or min, if not
                         // set this one to be both
-                        if(xMaxIndex == 10000 || xMinIndex == 10000)
+                        if (xMaxIndex == 10000 || xMinIndex == 10000)
                         {
                             // Set the indices for the new min, max and their positions to be used later to draw
                             // a bounding box.
@@ -1622,9 +1680,22 @@ public class CubeManager : MonoBehaviour {
                         }
 
                         if (k > xMaxIndex)
+                        {
                             xMaxIndex = k;
+                            //xMaxPos = cubeArray[i, j, k].transform.position;
+                        }
+                        if (cubeArray[i, j, k].transform.position.x > xMaxPos.x)
+                            xMaxPos = cubeArray[i, j, k].transform.position;
+
+
                         if (k < xMinIndex)
+                        {
                             xMinIndex = k;
+                            //xMinPos = cubeArray[i, j, k].transform.position;
+                        }
+                        if (cubeArray[i, j, k].transform.position.x < xMinPos.x)
+                            xMinPos = cubeArray[i, j, k].transform.position;
+
 
                         // Y DIMENSION CHECK
                         if (yMaxIndex == 10000 || yMinIndex == 10000)
@@ -1638,9 +1709,23 @@ public class CubeManager : MonoBehaviour {
                         }
 
                         if (j > yMaxIndex)
+                        {
                             yMaxIndex = j;
+                            //yMaxPos = cubeArray[i, j, k].transform.position;
+                        }
+
+                        if (cubeArray[i, j, k].transform.position.y > yMaxPos.y)
+                            yMaxPos = cubeArray[i, j, k].transform.position;
+
                         if (j < yMinIndex)
+                        {
                             yMinIndex = j;
+                            //yMinPos = cubeArray[i, j, k].transform.position;
+                        }
+
+                        if (cubeArray[i, j, k].transform.position.y < yMinPos.y)
+                            yMinPos = cubeArray[i, j, k].transform.position;
+
 
                         // Z DIMENSION CHECK
                         if (zMaxIndex == 10000 || zMinIndex == 10000)
@@ -1654,9 +1739,22 @@ public class CubeManager : MonoBehaviour {
                         }
 
                         if (i > zMaxIndex)
+                        {
                             zMaxIndex = i;
+                            //zMaxPos = cubeArray[i, j, k].transform.position;
+                        }
+                        if (cubeArray[i, j, k].transform.position.z > zMaxPos.z)
+                            zMaxPos = cubeArray[i, j, k].transform.position;
+
                         if (i < zMinIndex)
+                        {
                             zMinIndex = i;
+                            //zMinPos = cubeArray[i, j, k].transform.position;
+                        }
+
+                        if (cubeArray[i, j, k].transform.position.z < zMinPos.z)
+                            zMinPos = cubeArray[i, j, k].transform.position;
+
                     }
                 }
             }
@@ -1668,7 +1766,65 @@ public class CubeManager : MonoBehaviour {
         yBoundSize = yMaxIndex - yMinIndex;
         zBoundSize = zMaxIndex - zMinIndex;
 
-        lineManager.UpdateLineBounds();
+        float xCenter = (xMaxPos.x + xMinPos.x) / 2;
+        float yCenter = (yMaxPos.y + yMinPos.y) / 2;
+        float zCenter = (zMaxPos.z + zMinPos.z) / 2;
+
+        Debug.Log(yCenter);
+
+        Vector3 centerPoint = new Vector3(xVal, yVal, zVal);
+        centerPoint /= centerCount;
+
+        //Vector3 boundsCenter = new Vector3(xCenter, yCenter, zCenter);
+        /*
+        Debug.Log("xMax: " + xMaxIndex + " xMin: " + xMinIndex);
+        Debug.Log("yMax: " + yMaxIndex + " yMin: " + yMinIndex);
+        Debug.Log("zMax: " + zMaxIndex + " zMin: " + zMinIndex);
+        Debug.Log("X: " + xBoundSize + "Y: " + yBoundSize + "Z: " + zBoundSize);
+        */
+
+
+
+        /*
+        // Find the center of all the cubes.
+        Vector3 boundsCenter = Vector3.zero;
+        float tX = 0;
+        float tY = 0;
+        float tZ = 0;
+        
+        */
+        int count = 0;
+
+        Vector3 boundsCenter = Vector3.zero;
+
+        Transform[] transforms = cubeHolder.GetComponentsInChildren<Transform>();
+        foreach (Transform tForm in transforms)
+        {
+            if(!tForm.gameObject.name.Equals("CubeHolder"))
+            {
+                //tX += tForm.transform.position.x;
+                //tY += tForm.transform.position.y;
+                //tZ += tForm.transform.position.z;
+                boundsCenter += tForm.transform.position;
+                count++;
+            }
+                
+        }
+
+        /*
+        Debug.Log("Child count: " + cubeHolder.transform.childCount);
+        Debug.Log("Transforms length: " + transforms.Length);
+        Debug.Log("transforms action count: " + count);
+
+        boundsCenter /= count;
+        */
+
+        //Vector3 boundsCenter = new Vector3((xBoundSize) / 2, (yBoundSize) / 2, (zBoundSize) / 2);
+
+        centroid /= centerCount;
+
+        lineManager.UpdateLineBounds(boundsCenter);
+
     }
 
     // Set the initial bounds of hte puzzle based on the input puzzleSolution.
@@ -2460,7 +2616,7 @@ public class CubeManager : MonoBehaviour {
         maxVisibleXLayer = puzzleSize_X - 1;
         maxVisibleZLayer = 0;   // Z Starts at 0 because the furthest index in the -z direction is 0
 
-        puzzleBounds = new Bounds(cubeArray[0, 0, 0].transform.position, Vector3.zero);
+        //puzzleBounds = new Bounds(cubeArray[0, 0, 0].transform.position, Vector3.zero);
         UpdateBounds();
 
         // reference for the edge of the puzzle for the XSlider
@@ -2678,7 +2834,7 @@ public class CubeManager : MonoBehaviour {
         maxVisibleXLayer = puzzleSize_X - 1;
         maxVisibleZLayer = 0;   // Z Starts at 0 because the furthest index in the -z direction is 0
 
-        puzzleBounds = new Bounds(cubeArray[0, 0, 0].transform.position, Vector3.zero);
+        //puzzleBounds = new Bounds(cubeArray[0, 0, 0].transform.position, Vector3.zero);
         UpdateBounds();
 
         // reference for the edge of the puzzle for the XSlider

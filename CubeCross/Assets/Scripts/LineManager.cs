@@ -27,19 +27,31 @@ public class LineManager : MonoBehaviour {
         // Have the same rotation as the gameManager object (so when we rotate the puzzle, the bounds
         // box also gets rotated).
         transform.rotation = gameManager.transform.rotation;
-        puzzleCenter = gameManager.transform.position;
+        //puzzleCenter = gameManager.transform.position;
+        //puzzleCenter = cubeManager.puzzleBounds.center;
     }
 
     // update the new points where the lines have to be drawn
-    public void UpdateLineBounds()
+    public void UpdateLineBounds(Vector3 boundsCenter)
     {
         puzzleCenter = gameManager.transform.position;
+        //puzzleCenter = cubeManager.puzzleBounds.center;
+        //puzzleCenter = boundsCenter;
 
         float offset = 1.06f;
+        //float offset = 0f;
+
 
         float xSize = cubeManager.xBoundSize + offset;
         float ySize = cubeManager.yBoundSize + offset;
         float zSize = cubeManager.zBoundSize + offset;
+        
+
+        /*
+        float xSize = cubeManager.puzzleBounds.size.x;
+        float ySize = cubeManager.puzzleBounds.size.y;
+        float zSize = cubeManager.puzzleBounds.size.z;
+        */
 
         Vector3[] points = 
             {
